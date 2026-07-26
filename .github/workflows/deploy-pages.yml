@@ -23,7 +23,7 @@ jobs:
         run: |
           mkdir -p _site
           cp docs/index.html docs/app.html docs/table.html docs/ping.html \
-             docs/essentials.html docs/prod.html docs/must.html \
+             docs/essentials.html docs/prod.html docs/must.html docs/api.html \
              docs/concepts.json docs/scenarios.json docs/playbook.json docs/data.js docs/.nojekyll _site/
           # don't publish templates / enrichment source
 

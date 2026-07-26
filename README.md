@@ -12,6 +12,7 @@ Use the **full** URL (include `/data-engineer-sheet/`):
 | **Essentials (10)** | https://nasrineshraghi.github.io/data-engineer-sheet/essentials.html |
 | **Prod playbook** | https://nasrineshraghi.github.io/data-engineer-sheet/prod.html |
 | **Must 30** | https://nasrineshraghi.github.io/data-engineer-sheet/must.html |
+| **APIs** | https://nasrineshraghi.github.io/data-engineer-sheet/api.html |
 | **Summary table** | https://nasrineshraghi.github.io/data-engineer-sheet/table.html |
 | **Study app** | https://nasrineshraghi.github.io/data-engineer-sheet/app.html |
 

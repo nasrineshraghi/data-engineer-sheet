@@ -291,12 +291,15 @@ def write_static_section_pages(
             "essentials": "",
             "prod": "",
             "must": "",
+            "api": "",
         }
-        flags[page] = "on"
+        if page in flags:
+            flags[page] = "on"
         html = (
             html.replace("__ON_ESSENTIALS__", flags["essentials"])
             .replace("__ON_PROD__", flags["prod"])
             .replace("__ON_MUST__", flags["must"])
+            .replace("__ON_API__", flags["api"])
         )
         for k, v in fields.items():
             html = html.replace(f"__{k}__", v)
@@ -375,6 +378,35 @@ def write_static_section_pages(
         H1="Must-know 30",
         SUB="Do Essentials first. These 30 are the next layer.",
         BODY="".join(must_cards) or "<p>No must-know entries.</p>",
+    )
+
+    # APIs
+    api_concepts = [c for c in all_concepts if c.get("categorySlug") == "19-api"]
+    api_cards = []
+    for c in api_concepts:
+        ex = html_escape((c.get("example") or "").strip())
+        why = (
+            f'<p class="why"><strong>Why:</strong> {html_escape(c.get("why") or "")}</p>'
+            if c.get("why")
+            else ""
+        )
+        example = f'<p class="do"><strong>Example:</strong> {ex}</p>' if ex else ""
+        api_cards.append(
+            '<article class="card">'
+            f'<h2>{html_escape(c.get("name") or "")}</h2>'
+            f'<p class="def">{html_escape(c.get("definition") or "")}</p>'
+            f"{why}"
+            f"{example}"
+            "</article>"
+        )
+    render(
+        "api",
+        TITLE="DE Sheet — APIs for Data Engineers",
+        BANNER="#0284c7",
+        BANNER_TEXT="API · REST, auth, pagination, webhooks",
+        H1="APIs for Data Engineers",
+        SUB="How pipelines pull, push, and design HTTP APIs — contracts, retries, and incremental extracts.",
+        BODY="".join(api_cards) or "<p>No API concepts.</p>",
     )
 
 
