@@ -1087,7 +1087,8 @@
     };
 
     const renderPlaybook = () => {
-      const q = ($("prod-q")?.value || "").trim().toLowerCase();
+      const _pqEl = $("prod-q");
+      const q = ((_pqEl && _pqEl.value) || "").trim().toLowerCase();
       const list = playbook.filter((p) => {
         if (!q) return true;
         const hay = [p.see, p.do, p.habit, ...(p.concepts || [])].join(" ").toLowerCase();
