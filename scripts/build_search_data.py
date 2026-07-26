@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
-"""Merge markdown concepts + enrichment → docs/concepts.json and embed in docs/index.html."""
+"""Merge markdown concepts + enrichment + tags → docs/concepts.json and docs/index.html."""
 
 from __future__ import annotations
 
 import json
 import re
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "docs"
+sys.path.insert(0, str(ROOT / "scripts"))
+from tags import CATEGORY_TAGS, CONCEPT_TAG_EXTRAS  # noqa: E402
 
 CATEGORIES = [
     ("01-database-sql", "Database & SQL Concepts"),
@@ -60,6 +63,15 @@ def parse_file(path: Path, category: str, slug: str) -> list[dict]:
     return concepts
 
 
+def build_tags(name: str, slug: str, must_know, enrichment_tags) -> list[str]:
+    tags: set[str] = set(CATEGORY_TAGS.get(slug, []))
+    tags.update(CONCEPT_TAG_EXTRAS.get(name, []))
+    tags.update(enrichment_tags or [])
+    if must_know:
+        tags.add("interview")
+    return sorted(tags)
+
+
 def main() -> None:
     enrichment = {}
     enrich_path = DOCS / "enrichment.json"
@@ -76,20 +88,26 @@ def main() -> None:
         c["snippet"] = extra.get("snippet", "")
         c["related"] = extra.get("related", [])
         c["symptom"] = extra.get("symptom", "")
+        c["tags"] = build_tags(
+            c["name"], c["categorySlug"], c["mustKnow"], extra.get("tags")
+        )
 
     DOCS.mkdir(exist_ok=True)
     json_path = DOCS / "concepts.json"
     payload = json.dumps(all_concepts, indent=2)
     json_path.write_text(payload + "\n")
 
-    # Also write must-know list for README / humans
     must = sorted(
         [c for c in all_concepts if c.get("mustKnow")],
         key=lambda x: x["mustKnow"],
     )
     must_md = ["# Must-know 30", "", "Start here. Learn these before the long tail.", ""]
     for c in must:
+        tags = ", ".join(f"`{t}`" for t in c.get("tags", []))
         must_md.append(f"{c['mustKnow']}. **{c['name']}** — {c['definition']}")
+        if tags:
+            must_md.append("")
+            must_md.append(f"Tags: {tags}")
         if c.get("snippet"):
             must_md.append("")
             must_md.append("```")
@@ -101,26 +119,28 @@ def main() -> None:
         must_md.append("")
     (ROOT / "MUST_KNOW_30.md").write_text("\n".join(must_md))
 
+    template_path = DOCS / "index.template.html"
     html_path = DOCS / "index.html"
-    if html_path.exists():
+    if template_path.exists():
+        html = template_path.read_text().replace("__CONCEPTS_JSON__", payload)
+        html_path.write_text(html)
+    elif html_path.exists():
         html = html_path.read_text()
-        if 'id="concepts-data"' in html:
-            html = re.sub(
-                r'<script type="application/json" id="concepts-data">.*?</script>',
-                lambda _m: f'<script type="application/json" id="concepts-data">\n{payload}\n  </script>',
-                html,
-                count=1,
-                flags=re.S,
-            )
-        else:
-            html = html.replace(
-                "  <script>",
-                f'  <script type="application/json" id="concepts-data">\n{payload}\n  </script>\n  <script>',
-                1,
-            )
+        html = re.sub(
+            r'<script type="application/json" id="concepts-data">.*?</script>',
+            lambda _m: f'<script type="application/json" id="concepts-data">\n{payload}\n  </script>',
+            html,
+            count=1,
+            flags=re.S,
+        )
         html_path.write_text(html)
 
-    print(f"Wrote {len(all_concepts)} concepts ({len(must)} must-know) → {json_path.relative_to(ROOT)}")
+    tag_counts = {}
+    for c in all_concepts:
+        for t in c["tags"]:
+            tag_counts[t] = tag_counts.get(t, 0) + 1
+    print(f"Wrote {len(all_concepts)} concepts ({len(must)} must-know)")
+    print("Tags:", ", ".join(f"{k}={v}" for k, v in sorted(tag_counts.items())))
 
 
 if __name__ == "__main__":

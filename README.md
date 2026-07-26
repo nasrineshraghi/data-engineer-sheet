@@ -2,19 +2,23 @@
 
 A practical glossary of techniques, keywords, and concepts every data engineer should know — with short definitions and examples. Not deep dives; enough to recall, interview, and apply.
 
-## Search · Must-know 30 · Flashcards
+## Search · Must-know 30 · Flashcards · Tags
 
 **[Open the study app →](docs/index.html)**
 
 Three modes in one page:
-1. **Search** — filter all 146 concepts (snippets + prod symptoms where available)
+1. **Search** — text + **tags** (`interview`, `spark`, `streaming`, …) + category
 2. **Must-know 30** — shortest learning path ([markdown version](MUST_KNOW_30.md))
-3. **Flashcards** — flip cards, mark *Know it* / *Again* (progress saved in your browser)
+3. **Flashcards** — pick a tag deck, flip cards, mark *Know it* / *Again* (browser-saved)
 
-Shortcuts: `/` search · Flashcards: `Space` flip · `1` know · `2` again
+Shortcuts: `/` search · Flashcards: `Space` flip · `1` know · `2` again  
+Deep links: `docs/index.html?tag=spark` · `?mode=flash` · `?mode=must`
 
-> Enable **GitHub Pages** (Settings → Pages → branch `main` → `/docs`) for:  
-> `https://nasrineshraghi.github.io/data-engineer-sheet/`
+### GitHub Pages (one bookmark)
+
+1. Repo → **Settings** → **Pages**
+2. Source: **GitHub Actions** (workflow: `.github/workflows/pages.yml`)
+3. After deploy, bookmark: `https://nasrineshraghi.github.io/data-engineer-sheet/`
 
 ## How to use
 

@@ -18,7 +18,11 @@
       "Histograms",
       "Data Skew"
     ],
-    "symptom": "Bad join strategy because NDV was underestimated."
+    "symptom": "Bad join strategy because NDV was underestimated.",
+    "tags": [
+      "interview",
+      "sql"
+    ]
   },
   {
     "name": "Granularity (Grain)",
@@ -39,7 +43,10 @@
       "Additive Facts",
       "Bridge Table"
     ],
-    "symptom": "Revenue doubles after joining order headers to line items."
+    "symptom": "Revenue doubles after joining order headers to line items.",
+    "tags": [
+      "sql"
+    ]
   },
   {
     "name": "Selectivity",
@@ -56,7 +63,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "sql"
+    ]
   },
   {
     "name": "Data Distribution",
@@ -73,7 +83,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "sql"
+    ]
   },
   {
     "name": "Histograms",
@@ -90,7 +103,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "sql"
+    ]
   },
   {
     "name": "Cost-Based Optimizer (CBO)",
@@ -107,7 +123,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "sql"
+    ]
   },
   {
     "name": "Rule-Based Optimizer (RBO)",
@@ -124,7 +143,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "sql"
+    ]
   },
   {
     "name": "Execution Plan",
@@ -141,7 +163,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "sql"
+    ]
   },
   {
     "name": "Explain Plan",
@@ -162,7 +187,10 @@
       "Cost-Based Optimizer (CBO)",
       "Statistics"
     ],
-    "symptom": "Tuning blindly without reading the plan."
+    "symptom": "Tuning blindly without reading the plan.",
+    "tags": [
+      "sql"
+    ]
   },
   {
     "name": "Composite Index",
@@ -179,7 +207,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "sql"
+    ]
   },
   {
     "name": "Covering Index",
@@ -196,7 +227,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "sql"
+    ]
   },
   {
     "name": "Clustered vs Non-Clustered Index",
@@ -213,7 +247,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "sql"
+    ]
   },
   {
     "name": "Bitmap Index",
@@ -230,7 +267,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "sql"
+    ]
   },
   {
     "name": "B-Tree Index",
@@ -247,7 +287,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "sql"
+    ]
   },
   {
     "name": "Predicate Pushdown",
@@ -268,7 +311,12 @@
       "Catalyst Optimizer",
       "Statistics"
     ],
-    "symptom": "Full scan of years of data for a one-day query."
+    "symptom": "Full scan of years of data for a one-day query.",
+    "tags": [
+      "interview",
+      "spark",
+      "sql"
+    ]
   },
   {
     "name": "Partition Pruning",
@@ -289,7 +337,12 @@
       "Dynamic Partition Pruning",
       "Small File Problem"
     ],
-    "symptom": "Query reads every partition folder despite a date filter."
+    "symptom": "Query reads every partition folder despite a date filter.",
+    "tags": [
+      "interview",
+      "spark",
+      "sql"
+    ]
   },
   {
     "name": "Statistics",
@@ -306,7 +359,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "sql"
+    ]
   },
   {
     "name": "Table Scan vs Index Scan",
@@ -323,7 +379,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "sql"
+    ]
   },
   {
     "name": "Seek vs Scan",
@@ -340,7 +399,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "sql"
+    ]
   },
   {
     "name": "DAG Scheduler",
@@ -357,7 +419,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "spark"
+    ]
   },
   {
     "name": "Task Scheduler",
@@ -374,7 +439,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "spark"
+    ]
   },
   {
     "name": "Driver",
@@ -391,7 +459,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "spark"
+    ]
   },
   {
     "name": "Executor",
@@ -408,7 +479,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "spark"
+    ]
   },
   {
     "name": "Worker",
@@ -425,7 +499,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "spark"
+    ]
   },
   {
     "name": "Cluster Manager",
@@ -442,7 +519,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "spark"
+    ]
   },
   {
     "name": "Job \u2192 Stage \u2192 Task",
@@ -464,7 +544,11 @@
       "Shuffle",
       "Lazy Evaluation"
     ],
-    "symptom": "Confused debugging \u2014 looking at tasks without finding the slow stage."
+    "symptom": "Confused debugging \u2014 looking at tasks without finding the slow stage.",
+    "tags": [
+      "interview",
+      "spark"
+    ]
   },
   {
     "name": "Lineage",
@@ -481,7 +565,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "spark"
+    ]
   },
   {
     "name": "Lazy Evaluation",
@@ -502,7 +589,11 @@
       "Lineage",
       "Job \u2192 Stage \u2192 Task"
     ],
-    "symptom": "Thinking transforms already ran; surprise cost on first action."
+    "symptom": "Thinking transforms already ran; surprise cost on first action.",
+    "tags": [
+      "interview",
+      "spark"
+    ]
   },
   {
     "name": "Shuffle",
@@ -523,7 +614,12 @@
       "Job \u2192 Stage \u2192 Task",
       "Data Skew"
     ],
-    "symptom": "Stage stuck; network/disk dominated by shuffle."
+    "symptom": "Stage stuck; network/disk dominated by shuffle.",
+    "tags": [
+      "interview",
+      "performance",
+      "spark"
+    ]
   },
   {
     "name": "Spill to Disk",
@@ -540,7 +636,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "spark"
+    ]
   },
   {
     "name": "Memory Management",
@@ -557,7 +656,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "spark"
+    ]
   },
   {
     "name": "Serialization (Java/Kryo)",
@@ -574,7 +676,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "spark"
+    ]
   },
   {
     "name": "Broadcast Variables",
@@ -591,7 +696,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "spark"
+    ]
   },
   {
     "name": "Accumulators",
@@ -608,7 +716,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "spark"
+    ]
   },
   {
     "name": "Closure",
@@ -625,7 +736,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "spark"
+    ]
   },
   {
     "name": "Wide vs Narrow Transformations",
@@ -646,7 +760,11 @@
       "DAG Scheduler",
       "Broadcast Join"
     ],
-    "symptom": "Extra wide transforms inflate runtime for little gain."
+    "symptom": "Extra wide transforms inflate runtime for little gain.",
+    "tags": [
+      "interview",
+      "spark"
+    ]
   },
   {
     "name": "Adaptive Query Execution (AQE)",
@@ -667,7 +785,12 @@
       "Broadcast Join",
       "Data Skew"
     ],
-    "symptom": "Static plan picks sort-merge when broadcast would win."
+    "symptom": "Static plan picks sort-merge when broadcast would win.",
+    "tags": [
+      "interview",
+      "performance",
+      "spark"
+    ]
   },
   {
     "name": "Catalyst Optimizer",
@@ -688,7 +811,11 @@
       "Predicate Pushdown",
       "Cost-Based Optimizer (CBO)"
     ],
-    "symptom": "Python UDF blocks optimizations \u2192 slower than SQL expr."
+    "symptom": "Python UDF blocks optimizations \u2192 slower than SQL expr.",
+    "tags": [
+      "interview",
+      "spark"
+    ]
   },
   {
     "name": "Tungsten Engine",
@@ -705,7 +832,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "spark"
+    ]
   },
   {
     "name": "Dynamic Partition Pruning",
@@ -722,7 +852,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "spark"
+    ]
   },
   {
     "name": "Skew Join Optimization",
@@ -739,7 +872,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "spark"
+    ]
   },
   {
     "name": "Grain",
@@ -760,7 +896,11 @@
       "Snapshot Fact",
       "Additive Facts"
     ],
-    "symptom": "KPI doesn't match finance because grains differ."
+    "symptom": "KPI doesn't match finance because grains differ.",
+    "tags": [
+      "interview",
+      "warehouse"
+    ]
   },
   {
     "name": "Granularity",
@@ -777,7 +917,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "warehouse"
+    ]
   },
   {
     "name": "Additive Facts",
@@ -794,7 +937,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "warehouse"
+    ]
   },
   {
     "name": "Semi-Additive Facts",
@@ -811,7 +957,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "warehouse"
+    ]
   },
   {
     "name": "Non-Additive Facts",
@@ -828,7 +977,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "warehouse"
+    ]
   },
   {
     "name": "Degenerate Dimension",
@@ -845,7 +997,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "warehouse"
+    ]
   },
   {
     "name": "Junk Dimension",
@@ -862,7 +1017,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "warehouse"
+    ]
   },
   {
     "name": "Role-Playing Dimension",
@@ -879,7 +1037,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "warehouse"
+    ]
   },
   {
     "name": "Conformed Dimension",
@@ -900,7 +1061,11 @@
       "Grain",
       "Data Lineage"
     ],
-    "symptom": "Two marts define \"customer\" differently; dashboards disagree."
+    "symptom": "Two marts define \"customer\" differently; dashboards disagree.",
+    "tags": [
+      "interview",
+      "warehouse"
+    ]
   },
   {
     "name": "Mini Dimension",
@@ -917,7 +1082,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "warehouse"
+    ]
   },
   {
     "name": "Bridge Table",
@@ -934,7 +1102,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "warehouse"
+    ]
   },
   {
     "name": "Factless Fact Table",
@@ -951,7 +1122,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "warehouse"
+    ]
   },
   {
     "name": "Snapshot Fact",
@@ -968,7 +1142,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "warehouse"
+    ]
   },
   {
     "name": "Accumulating Snapshot",
@@ -985,7 +1162,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "warehouse"
+    ]
   },
   {
     "name": "Periodic Snapshot",
@@ -1002,7 +1182,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "warehouse"
+    ]
   },
   {
     "name": "Data Lake",
@@ -1019,7 +1202,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "lakehouse"
+    ]
   },
   {
     "name": "Data Lakehouse",
@@ -1036,7 +1222,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "lakehouse"
+    ]
   },
   {
     "name": "Delta Lake",
@@ -1057,7 +1246,11 @@
       "ACID Tables",
       "Apache Iceberg"
     ],
-    "symptom": "Concurrent jobs overwrite parquet folders; readers see partial data."
+    "symptom": "Concurrent jobs overwrite parquet folders; readers see partial data.",
+    "tags": [
+      "interview",
+      "lakehouse"
+    ]
   },
   {
     "name": "Apache Iceberg",
@@ -1074,7 +1267,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "lakehouse"
+    ]
   },
   {
     "name": "Apache Hudi",
@@ -1091,7 +1287,11 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "lakehouse",
+      "streaming"
+    ]
   },
   {
     "name": "Time Travel",
@@ -1112,7 +1312,11 @@
       "Vacuum",
       "Checkpointing"
     ],
-    "symptom": "Can't reproduce yesterday's report after a bad overwrite."
+    "symptom": "Can't reproduce yesterday's report after a bad overwrite.",
+    "tags": [
+      "interview",
+      "lakehouse"
+    ]
   },
   {
     "name": "Schema Evolution",
@@ -1133,7 +1337,12 @@
       "Data Contracts",
       "Delta Lake"
     ],
-    "symptom": "Producer adds a column; downstream jobs break or ignore it silently."
+    "symptom": "Producer adds a column; downstream jobs break or ignore it silently.",
+    "tags": [
+      "interview",
+      "lakehouse",
+      "pipeline"
+    ]
   },
   {
     "name": "Schema Enforcement",
@@ -1150,7 +1359,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "lakehouse"
+    ]
   },
   {
     "name": "ACID Tables",
@@ -1167,7 +1379,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "lakehouse"
+    ]
   },
   {
     "name": "Compaction",
@@ -1188,7 +1403,10 @@
       "Optimize",
       "Z-Ordering"
     ],
-    "symptom": "Reads degrade daily as streaming adds tiny files."
+    "symptom": "Reads degrade daily as streaming adds tiny files.",
+    "tags": [
+      "lakehouse"
+    ]
   },
   {
     "name": "Vacuum",
@@ -1205,7 +1423,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "lakehouse"
+    ]
   },
   {
     "name": "Optimize",
@@ -1222,7 +1443,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "lakehouse"
+    ]
   },
   {
     "name": "Z-Ordering",
@@ -1243,7 +1467,10 @@
       "Partition Pruning",
       "Delta Lake"
     ],
-    "symptom": "Selective filters on non-partition columns still scan everything."
+    "symptom": "Selective filters on non-partition columns still scan everything.",
+    "tags": [
+      "lakehouse"
+    ]
   },
   {
     "name": "CAP Theorem",
@@ -1264,7 +1491,11 @@
       "Strong Consistency",
       "High Availability (HA)"
     ],
-    "symptom": "Expecting strong reads from an AP system during a region blip."
+    "symptom": "Expecting strong reads from an AP system during a region blip.",
+    "tags": [
+      "distributed",
+      "interview"
+    ]
   },
   {
     "name": "BASE",
@@ -1285,7 +1516,10 @@
       "Eventual Consistency",
       "Strong Consistency"
     ],
-    "symptom": "Applying strict ACID expectations to a geo-replicated cache."
+    "symptom": "Applying strict ACID expectations to a geo-replicated cache.",
+    "tags": [
+      "distributed"
+    ]
   },
   {
     "name": "Eventual Consistency",
@@ -1302,7 +1536,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "distributed"
+    ]
   },
   {
     "name": "Strong Consistency",
@@ -1319,7 +1556,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "distributed"
+    ]
   },
   {
     "name": "Replication",
@@ -1336,7 +1576,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "distributed"
+    ]
   },
   {
     "name": "Leader Election",
@@ -1353,7 +1596,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "distributed"
+    ]
   },
   {
     "name": "Consensus",
@@ -1370,7 +1616,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "distributed"
+    ]
   },
   {
     "name": "Raft",
@@ -1387,7 +1636,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "distributed"
+    ]
   },
   {
     "name": "Paxos",
@@ -1404,7 +1656,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "distributed"
+    ]
   },
   {
     "name": "Fault Tolerance",
@@ -1421,7 +1676,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "distributed"
+    ]
   },
   {
     "name": "High Availability (HA)",
@@ -1438,7 +1696,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "distributed"
+    ]
   },
   {
     "name": "Horizontal Scaling",
@@ -1455,7 +1716,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "distributed"
+    ]
   },
   {
     "name": "Vertical Scaling",
@@ -1472,7 +1736,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "distributed"
+    ]
   },
   {
     "name": "Event Time",
@@ -1493,7 +1760,11 @@
       "Processing Time",
       "Late Data"
     ],
-    "symptom": "Hourly metrics shift when late mobile events arrive."
+    "symptom": "Hourly metrics shift when late mobile events arrive.",
+    "tags": [
+      "interview",
+      "streaming"
+    ]
   },
   {
     "name": "Processing Time",
@@ -1510,7 +1781,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "streaming"
+    ]
   },
   {
     "name": "Ingestion Time",
@@ -1527,7 +1801,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "streaming"
+    ]
   },
   {
     "name": "Watermarks",
@@ -1548,7 +1825,11 @@
       "Late Data",
       "Windowing"
     ],
-    "symptom": "State grows forever, or late events are dropped too aggressively."
+    "symptom": "State grows forever, or late events are dropped too aggressively.",
+    "tags": [
+      "interview",
+      "streaming"
+    ]
   },
   {
     "name": "Windowing",
@@ -1565,7 +1846,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "streaming"
+    ]
   },
   {
     "name": "Late Data",
@@ -1582,7 +1866,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "streaming"
+    ]
   },
   {
     "name": "Stateful Processing",
@@ -1599,7 +1886,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "streaming"
+    ]
   },
   {
     "name": "Stateless Processing",
@@ -1616,7 +1906,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "streaming"
+    ]
   },
   {
     "name": "Exactly Once",
@@ -1637,7 +1930,12 @@
       "Idempotency",
       "Checkpointing"
     ],
-    "symptom": "Duplicates after restart even though processing \"felt\" safe."
+    "symptom": "Duplicates after restart even though processing \"felt\" safe.",
+    "tags": [
+      "interview",
+      "pipeline",
+      "streaming"
+    ]
   },
   {
     "name": "At Least Once",
@@ -1658,7 +1956,12 @@
       "Idempotency",
       "Dead Letter Queue (DLQ)"
     ],
-    "symptom": "Counts inflate after every pipeline retry."
+    "symptom": "Counts inflate after every pipeline retry.",
+    "tags": [
+      "interview",
+      "pipeline",
+      "streaming"
+    ]
   },
   {
     "name": "At Most Once",
@@ -1675,7 +1978,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "streaming"
+    ]
   },
   {
     "name": "Event Sourcing",
@@ -1696,7 +2002,11 @@
       "Exactly Once",
       "Idempotency"
     ],
-    "symptom": "Overwriting current state and losing audit history."
+    "symptom": "Overwriting current state and losing audit history.",
+    "tags": [
+      "pipeline",
+      "streaming"
+    ]
   },
   {
     "name": "CQRS",
@@ -1713,7 +2023,11 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "pipeline",
+      "streaming"
+    ]
   },
   {
     "name": "Idempotency",
@@ -1734,7 +2048,11 @@
       "Exactly Once",
       "Data Contracts"
     ],
-    "symptom": "Re-running a failed day duplicates rows in the target."
+    "symptom": "Re-running a failed day duplicates rows in the target.",
+    "tags": [
+      "interview",
+      "pipeline"
+    ]
   },
   {
     "name": "Checkpointing",
@@ -1755,7 +2073,12 @@
       "Exactly Once",
       "Fault Tolerance"
     ],
-    "symptom": "Streaming job reprocesses from earliest offsets after path loss."
+    "symptom": "Streaming job reprocesses from earliest offsets after path loss.",
+    "tags": [
+      "interview",
+      "pipeline",
+      "streaming"
+    ]
   },
   {
     "name": "Retry Strategy",
@@ -1772,7 +2095,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "pipeline"
+    ]
   },
   {
     "name": "Backoff Strategy",
@@ -1789,7 +2115,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "pipeline"
+    ]
   },
   {
     "name": "Circuit Breaker",
@@ -1810,7 +2139,10 @@
       "Backoff Strategy",
       "Dead Letter Queue (DLQ)"
     ],
-    "symptom": "Retries hammer a down warehouse and cascade timeouts."
+    "symptom": "Retries hammer a down warehouse and cascade timeouts.",
+    "tags": [
+      "pipeline"
+    ]
   },
   {
     "name": "Dead Letter Queue (DLQ)",
@@ -1831,7 +2163,12 @@
       "Data Validation",
       "Data Contracts"
     ],
-    "symptom": "One poison message blocks the whole consumer group."
+    "symptom": "One poison message blocks the whole consumer group.",
+    "tags": [
+      "interview",
+      "pipeline",
+      "streaming"
+    ]
   },
   {
     "name": "Data Contracts",
@@ -1852,7 +2189,12 @@
       "Schema Evolution",
       "Data Validation"
     ],
-    "symptom": "Silent column rename breaks 12 downstream jobs overnight."
+    "symptom": "Silent column rename breaks 12 downstream jobs overnight.",
+    "tags": [
+      "interview",
+      "pipeline",
+      "quality"
+    ]
   },
   {
     "name": "Pipeline Orchestration",
@@ -1869,7 +2211,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "pipeline"
+    ]
   },
   {
     "name": "Metadata-Driven Pipelines",
@@ -1886,7 +2231,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "pipeline"
+    ]
   },
   {
     "name": "Data Skew",
@@ -1907,7 +2255,12 @@
       "Skew Join Optimization",
       "Shuffle"
     ],
-    "symptom": "One task runs 10\u00d7 longer than the rest of the stage."
+    "symptom": "One task runs 10\u00d7 longer than the rest of the stage.",
+    "tags": [
+      "interview",
+      "performance",
+      "spark"
+    ]
   },
   {
     "name": "Broadcast Join",
@@ -1928,7 +2281,12 @@
       "Data Skew",
       "Adaptive Query Execution (AQE)"
     ],
-    "symptom": "Shuffling a tiny dimension across the cluster."
+    "symptom": "Shuffling a tiny dimension across the cluster.",
+    "tags": [
+      "interview",
+      "performance",
+      "spark"
+    ]
   },
   {
     "name": "Shuffle Join",
@@ -1945,7 +2303,11 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "performance",
+      "spark"
+    ]
   },
   {
     "name": "Sort Merge Join",
@@ -1966,7 +2328,12 @@
       "Shuffle",
       "Spill to Disk"
     ],
-    "symptom": "Join spills to disk; one key's partition is huge."
+    "symptom": "Join spills to disk; one key's partition is huge.",
+    "tags": [
+      "interview",
+      "performance",
+      "spark"
+    ]
   },
   {
     "name": "Hash Join",
@@ -1983,7 +2350,11 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "performance",
+      "spark"
+    ]
   },
   {
     "name": "Bucket Join",
@@ -2000,7 +2371,11 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "performance",
+      "spark"
+    ]
   },
   {
     "name": "Salting",
@@ -2021,7 +2396,11 @@
       "Skew Join Optimization",
       "Broadcast Join"
     ],
-    "symptom": "AQE still leaves one monstrous partition on a hot key."
+    "symptom": "AQE still leaves one monstrous partition on a hot key.",
+    "tags": [
+      "performance",
+      "spark"
+    ]
   },
   {
     "name": "Caching",
@@ -2042,7 +2421,11 @@
       "Memory Management",
       "Lazy Evaluation"
     ],
-    "symptom": "Same expensive subtree recomputed on every action."
+    "symptom": "Same expensive subtree recomputed on every action.",
+    "tags": [
+      "performance",
+      "spark"
+    ]
   },
   {
     "name": "Persistence Levels",
@@ -2059,7 +2442,11 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "performance",
+      "spark"
+    ]
   },
   {
     "name": "Parallelism",
@@ -2076,7 +2463,11 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "performance",
+      "spark"
+    ]
   },
   {
     "name": "Partition Sizing",
@@ -2093,7 +2484,11 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "performance",
+      "spark"
+    ]
   },
   {
     "name": "Small File Problem",
@@ -2114,7 +2509,13 @@
       "Optimize",
       "Partition Sizing"
     ],
-    "symptom": "Driver spends ages listing; thousands of tiny tasks."
+    "symptom": "Driver spends ages listing; thousands of tiny tasks.",
+    "tags": [
+      "interview",
+      "lakehouse",
+      "performance",
+      "spark"
+    ]
   },
   {
     "name": "Data Profiling",
@@ -2131,7 +2532,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "quality"
+    ]
   },
   {
     "name": "Data Validation",
@@ -2148,7 +2552,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "quality"
+    ]
   },
   {
     "name": "Data Lineage",
@@ -2169,7 +2576,11 @@
       "Data Catalog",
       "Observability"
     ],
-    "symptom": "Can't tell which dashboard breaks if a source column is dropped."
+    "symptom": "Can't tell which dashboard breaks if a source column is dropped.",
+    "tags": [
+      "interview",
+      "quality"
+    ]
   },
   {
     "name": "Metadata",
@@ -2186,7 +2597,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "quality"
+    ]
   },
   {
     "name": "Data Catalog",
@@ -2203,7 +2617,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "quality"
+    ]
   },
   {
     "name": "Master Data Management (MDM)",
@@ -2220,7 +2637,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "quality"
+    ]
   },
   {
     "name": "Data Governance",
@@ -2237,7 +2657,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "quality"
+    ]
   },
   {
     "name": "Data Stewardship",
@@ -2254,7 +2677,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "quality"
+    ]
   },
   {
     "name": "Observability",
@@ -2271,7 +2697,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "quality"
+    ]
   },
   {
     "name": "Freshness",
@@ -2292,7 +2721,11 @@
       "Completeness",
       "Pipeline Orchestration"
     ],
-    "symptom": "Job is green but data is 18 hours stale."
+    "symptom": "Job is green but data is 18 hours stale.",
+    "tags": [
+      "interview",
+      "quality"
+    ]
   },
   {
     "name": "Completeness",
@@ -2309,7 +2742,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "quality"
+    ]
   },
   {
     "name": "Accuracy",
@@ -2326,7 +2762,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "quality"
+    ]
   },
   {
     "name": "Consistency",
@@ -2343,7 +2782,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "quality"
+    ]
   },
   {
     "name": "Object Storage",
@@ -2364,7 +2806,12 @@
       "Delta Lake",
       "IAM"
     ],
-    "symptom": "Treating S3 like a local FS; millions of tiny LIST requests."
+    "symptom": "Treating S3 like a local FS; millions of tiny LIST requests.",
+    "tags": [
+      "cloud",
+      "interview",
+      "lakehouse"
+    ]
   },
   {
     "name": "Block Storage",
@@ -2381,7 +2828,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "cloud"
+    ]
   },
   {
     "name": "Lifecycle Policies",
@@ -2398,7 +2848,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "cloud"
+    ]
   },
   {
     "name": "IAM",
@@ -2419,7 +2872,10 @@
       "KMS",
       "Private Endpoints"
     ],
-    "symptom": "Long-lived access keys leaked from a notebook."
+    "symptom": "Long-lived access keys leaked from a notebook.",
+    "tags": [
+      "cloud"
+    ]
   },
   {
     "name": "Secrets Management",
@@ -2436,7 +2892,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "cloud"
+    ]
   },
   {
     "name": "KMS",
@@ -2453,7 +2912,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "cloud"
+    ]
   },
   {
     "name": "Encryption at Rest",
@@ -2470,7 +2932,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "cloud"
+    ]
   },
   {
     "name": "Encryption in Transit",
@@ -2487,7 +2952,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "cloud"
+    ]
   },
   {
     "name": "VPC",
@@ -2504,7 +2972,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "cloud"
+    ]
   },
   {
     "name": "Private Endpoints",
@@ -2521,7 +2992,10 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "cloud"
+    ]
   },
   {
     "name": "Docker",
@@ -2538,7 +3012,11 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "cloud",
+      "devops"
+    ]
   },
   {
     "name": "Kubernetes",
@@ -2555,7 +3033,11 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "cloud",
+      "devops"
+    ]
   },
   {
     "name": "CI/CD",
@@ -2572,7 +3054,11 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "cloud",
+      "devops"
+    ]
   },
   {
     "name": "GitOps",
@@ -2589,7 +3075,11 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "cloud",
+      "devops"
+    ]
   },
   {
     "name": "Terraform",
@@ -2606,7 +3096,11 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "cloud",
+      "devops"
+    ]
   },
   {
     "name": "Helm",
@@ -2623,7 +3117,11 @@
     "mustKnow": null,
     "snippet": "",
     "related": [],
-    "symptom": ""
+    "symptom": "",
+    "tags": [
+      "cloud",
+      "devops"
+    ]
   },
   {
     "name": "Infrastructure as Code (IaC)",
@@ -2644,6 +3142,10 @@
       "GitOps",
       "CI/CD"
     ],
-    "symptom": "Prod lake config drifts from staging; only one person knows clicks."
+    "symptom": "Prod lake config drifts from staging; only one person knows clicks.",
+    "tags": [
+      "cloud",
+      "devops"
+    ]
   }
 ]

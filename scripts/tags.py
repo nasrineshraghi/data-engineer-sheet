@@ -1,0 +1,71 @@
+# Default tags by category slug.
+# "interview" is auto-applied to Must-know 30 in the build script.
+
+CATEGORY_TAGS = {
+    "01-database-sql": ["sql"],
+    "02-spark-internals": ["spark"],
+    "03-data-warehouse": ["warehouse"],
+    "04-data-lake-lakehouse": ["lakehouse"],
+    "05-distributed-systems": ["distributed"],
+    "06-streaming": ["streaming"],
+    "07-pipeline-design": ["pipeline"],
+    "08-performance-tuning": ["performance", "spark"],
+    "09-data-quality-governance": ["quality"],
+    "10-cloud-storage": ["cloud"],
+    "11-devops": ["devops", "cloud"],
+}
+
+# Extra tags layered on top of category defaults (by concept name)
+CONCEPT_TAG_EXTRAS = {
+    "Shuffle": ["performance", "interview"],
+    "Data Skew": ["performance", "interview"],
+    "Broadcast Join": ["performance", "interview"],
+    "Sort Merge Join": ["performance"],
+    "Hash Join": ["performance"],
+    "Salting": ["performance", "spark"],
+    "Adaptive Query Execution (AQE)": ["performance", "interview"],
+    "Watermarks": ["interview"],
+    "Event Time": ["interview"],
+    "Exactly Once": ["pipeline", "interview"],
+    "At Least Once": ["pipeline", "interview"],
+    "Idempotency": ["interview"],
+    "Dead Letter Queue (DLQ)": ["streaming", "interview"],
+    "Checkpointing": ["streaming", "interview"],
+    "CAP Theorem": ["interview"],
+    "Delta Lake": ["interview"],
+    "Apache Iceberg": ["lakehouse"],
+    "Apache Hudi": ["lakehouse", "streaming"],
+    "Grain": ["interview"],
+    "Data Lineage": ["interview"],
+    "Predicate Pushdown": ["spark", "interview"],
+    "Partition Pruning": ["spark", "sql"],
+    "Small File Problem": ["lakehouse", "performance"],
+    "Object Storage": ["lakehouse"],
+    "Data Contracts": ["pipeline", "quality", "interview"],
+    "Freshness": ["quality", "interview"],
+    "Catalyst Optimizer": ["interview"],
+    "Lazy Evaluation": ["interview"],
+    "Job → Stage → Task": ["interview"],
+    "Wide vs Narrow Transformations": ["interview"],
+    "Time Travel": ["lakehouse", "interview"],
+    "Schema Evolution": ["lakehouse", "pipeline"],
+    "Circuit Breaker": ["pipeline"],
+    "Event Sourcing": ["streaming", "pipeline"],
+    "CQRS": ["streaming", "pipeline"],
+}
+
+# Preferred chip order in the UI
+TAG_ORDER = [
+    "interview",
+    "spark",
+    "streaming",
+    "sql",
+    "warehouse",
+    "lakehouse",
+    "distributed",
+    "pipeline",
+    "performance",
+    "quality",
+    "cloud",
+    "devops",
+]

@@ -4,6 +4,8 @@ Start here. Learn these before the long tail.
 
 1. **Cardinality** — Number of distinct values in a column (or relation size: number of rows).
 
+Tags: `interview`, `sql`
+
 ```
 SELECT COUNT(DISTINCT user_id) AS cardinality FROM events;
 ```
@@ -11,6 +13,8 @@ SELECT COUNT(DISTINCT user_id) AS cardinality FROM events;
 *In prod:* Bad join strategy because NDV was underestimated.
 
 2. **Grain** — Exact meaning of one fact row (business level of detail).
+
+Tags: `interview`, `warehouse`
 
 ```
 -- Fact grain: 1 row = 1 completed checkout
@@ -21,6 +25,8 @@ SELECT COUNT(DISTINCT user_id) AS cardinality FROM events;
 
 3. **Predicate Pushdown** — Move filters as close as possible to the data source so less data is read/shuffled.
 
+Tags: `interview`, `spark`, `sql`
+
 ```
 df = spark.read.parquet("s3://lake/events").filter("dt = '2024-01-01'")
 # filter pushed into scan / partition prune
@@ -29,6 +35,8 @@ df = spark.read.parquet("s3://lake/events").filter("dt = '2024-01-01'")
 *In prod:* Full scan of years of data for a one-day query.
 
 4. **Partition Pruning** — Skip reading partitions that cannot match the query filter.
+
+Tags: `interview`, `spark`, `sql`
 
 ```
 SELECT * FROM sales WHERE dt BETWEEN '2024-01-01' AND '2024-01-07';
@@ -39,6 +47,8 @@ SELECT * FROM sales WHERE dt BETWEEN '2024-01-01' AND '2024-01-07';
 
 5. **Shuffle** — Redistribute data across partitions by key (network + sort/hash).
 
+Tags: `interview`, `performance`, `spark`
+
 ```
 df.groupBy("user_id").count()  # wide transform → shuffle
 # Spark UI: Shuffle Read/Write bytes
@@ -47,6 +57,8 @@ df.groupBy("user_id").count()  # wide transform → shuffle
 *In prod:* Stage stuck; network/disk dominated by shuffle.
 
 6. **Job → Stage → Task** — - **Job:** triggered by an action (`count`, `write`, `collect`) - **Stage:** set of tasks with narrow deps between shuffles - **Task:** unit of work on one partition
+
+Tags: `interview`, `spark`
 
 ```
 # action → job; shuffle boundary → stage; partition → task
@@ -57,6 +69,8 @@ df.write.parquet(path)  # triggers a job
 
 7. **Lazy Evaluation** — Transformations build a plan; work runs only on actions.
 
+Tags: `interview`, `spark`
+
 ```
 f = df.filter(...).select(...)  # builds plan only
 f.count()                     # action runs the job
@@ -65,6 +79,8 @@ f.count()                     # action runs the job
 *In prod:* Thinking transforms already ran; surprise cost on first action.
 
 8. **Wide vs Narrow Transformations** — - **Narrow:** each input partition maps to ≤1 output partition (`map`, `filter`) — no shuffle - **Wide:** input partitions contribute to many outputs (`groupByKey`, `join`) — shuffle
+
+Tags: `interview`, `spark`
 
 ```
 # narrow: map/filter (no shuffle)
@@ -75,6 +91,8 @@ f.count()                     # action runs the job
 
 9. **Adaptive Query Execution (AQE)** — Spark SQL re-optimizes the plan at runtime using size stats after shuffles (Spark 3+).
 
+Tags: `interview`, `performance`, `spark`
+
 ```
 spark.conf.set("spark.sql.adaptive.enabled", "true")
 spark.conf.set("spark.sql.adaptive.skewJoin.enabled", "true")
@@ -84,6 +102,8 @@ spark.conf.set("spark.sql.adaptive.skewJoin.enabled", "true")
 
 10. **Catalyst Optimizer** — Spark SQL's rule + cost optimizer: analysis → logical optimization → physical planning.
 
+Tags: `interview`, `spark`
+
 ```
 df.explain(True)  # parsed/analyzed/optimized/physical plans
 ```
@@ -91,6 +111,8 @@ df.explain(True)  # parsed/analyzed/optimized/physical plans
 *In prod:* Python UDF blocks optimizations → slower than SQL expr.
 
 11. **Broadcast Join** — Replicate the small side to all executors; join locally (map-side).
+
+Tags: `interview`, `performance`, `spark`
 
 ```
 from pyspark.sql.functions import broadcast
@@ -101,6 +123,8 @@ fact.join(broadcast(dim), "id")
 
 12. **Sort Merge Join** — Shuffle both sides by key, sort, then merge — Spark's common large-large join.
 
+Tags: `interview`, `performance`, `spark`
+
 ```
 # default large-large join after shuffle+sort
 big.join(other_big, "user_id")
@@ -109,6 +133,8 @@ big.join(other_big, "user_id")
 *In prod:* Join spills to disk; one key's partition is huge.
 
 13. **Data Skew** — Uneven key/partition sizes so a few tasks do most of the work.
+
+Tags: `interview`, `performance`, `spark`
 
 ```
 df.groupBy("key").count().orderBy(desc("count")).show(20)
@@ -119,6 +145,8 @@ df.groupBy("key").count().orderBy(desc("count")).show(20)
 
 14. **Small File Problem** — Too many tiny files → heavy listing, task overhead, slow queries.
 
+Tags: `interview`, `lakehouse`, `performance`, `spark`
+
 ```
 df.coalesce(64).write.mode("overwrite").parquet(path)
 # or OPTIMIZE / compaction on lakehouse tables
@@ -128,6 +156,8 @@ df.coalesce(64).write.mode("overwrite").parquet(path)
 
 15. **Conformed Dimension** — Shared dimension with consistent keys and attributes across facts/marts.
 
+Tags: `interview`, `warehouse`
+
 ```
 -- same customer_key + attributes shared by sales & support facts
 ```
@@ -135,6 +165,8 @@ df.coalesce(64).write.mode("overwrite").parquet(path)
 *In prod:* Two marts define "customer" differently; dashboards disagree.
 
 16. **Delta Lake** — Open table format (Databricks-origin) with transaction log (`_delta_log`) for ACID on files.
+
+Tags: `interview`, `lakehouse`
 
 ```
 MERGE INTO target t USING source s ON t.id = s.id
@@ -146,6 +178,8 @@ WHEN NOT MATCHED THEN INSERT *;
 
 17. **Time Travel** — Query table as of a past version/timestamp via snapshots/logs.
 
+Tags: `interview`, `lakehouse`
+
 ```
 SELECT * FROM orders VERSION AS OF 120;
 -- or TIMESTAMP AS OF '2024-06-01'
@@ -155,6 +189,8 @@ SELECT * FROM orders VERSION AS OF 120;
 
 18. **Schema Evolution** — Safely change table schema (add/rename/drop columns) without full reload when supported.
 
+Tags: `interview`, `lakehouse`, `pipeline`
+
 ```
 df.write.format("delta").option("mergeSchema", "true").mode("append").save(path)
 ```
@@ -162,6 +198,8 @@ df.write.format("delta").option("mergeSchema", "true").mode("append").save(path)
 *In prod:* Producer adds a column; downstream jobs break or ignore it silently.
 
 19. **CAP Theorem** — In a network partition, a system can provide Consistency or Availability, not both (Partition tolerance assumed in distributed DBs).
+
+Tags: `distributed`, `interview`
 
 ```
 # In a partition: choose Consistency or Availability
@@ -172,6 +210,8 @@ df.write.format("delta").option("mergeSchema", "true").mode("append").save(path)
 
 20. **Event Time** — Timestamp when the event actually occurred in the real world.
 
+Tags: `interview`, `streaming`
+
 ```
 df.withWatermark("event_time", "10 minutes") \
   .groupBy(window("event_time", "1 hour")).count()
@@ -180,6 +220,8 @@ df.withWatermark("event_time", "10 minutes") \
 *In prod:* Hourly metrics shift when late mobile events arrive.
 
 21. **Watermarks** — Engine's notion of how far event time has advanced; used to close windows.
+
+Tags: `interview`, `streaming`
 
 ```
 .withWatermark("event_time", "15 minutes")
@@ -190,6 +232,8 @@ df.withWatermark("event_time", "10 minutes") \
 
 22. **Exactly Once** — Effect of each record applied once end-to-end (despite retries).
 
+Tags: `interview`, `pipeline`, `streaming`
+
 ```
 # Need checkpointing + idempotent/transactional sink
 query = df.writeStream.option("checkpointLocation", ckpt).foreachBatch(...)
@@ -198,6 +242,8 @@ query = df.writeStream.option("checkpointLocation", ckpt).foreachBatch(...)
 *In prod:* Duplicates after restart even though processing "felt" safe.
 
 23. **At Least Once** — Every record processed ≥1 time; duplicates possible on retry.
+
+Tags: `interview`, `pipeline`, `streaming`
 
 ```
 # retries may re-send — make sink upsert/idempotent
@@ -208,6 +254,8 @@ query = df.writeStream.option("checkpointLocation", ckpt).foreachBatch(...)
 
 24. **Idempotency** — Running the same operation multiple times yields the same result as running once.
 
+Tags: `interview`, `pipeline`
+
 ```
 # overwrite a partition instead of blind append
 df.write.mode("overwrite").partitionBy("dt").parquet(path)
@@ -217,6 +265,8 @@ df.write.mode("overwrite").partitionBy("dt").parquet(path)
 
 25. **Checkpointing** — Persist progress (offsets/state) so recovery resumes cleanly.
 
+Tags: `interview`, `pipeline`, `streaming`
+
 ```
 writeStream.option("checkpointLocation", "s3://ops/checkpoints/job_a")
 ```
@@ -224,6 +274,8 @@ writeStream.option("checkpointLocation", "s3://ops/checkpoints/job_a")
 *In prod:* Streaming job reprocesses from earliest offsets after path loss.
 
 26. **Dead Letter Queue (DLQ)** — Side channel for records that fail processing after retries.
+
+Tags: `interview`, `pipeline`, `streaming`
 
 ```
 try:
@@ -236,6 +288,8 @@ except BadRecord as e:
 
 27. **Data Contracts** — Explicit agreement on schema, semantics, SLAs, and ownership between producers and consumers.
 
+Tags: `interview`, `pipeline`, `quality`
+
 ```
 # CI: fail PR if producer schema breaks consumer contract
 # enforce required fields + types at write boundary
@@ -244,6 +298,8 @@ except BadRecord as e:
 *In prod:* Silent column rename breaks 12 downstream jobs overnight.
 
 28. **Data Lineage** — Trace where data came from and where it flows (table/column/job level).
+
+Tags: `interview`, `quality`
 
 ```
 # raw.orders → stg_orders → fct_orders → BI KPI
@@ -254,6 +310,8 @@ except BadRecord as e:
 
 29. **Freshness** — How up-to-date the data is vs expectation (SLA/SLO).
 
+Tags: `interview`, `quality`
+
 ```
 SELECT MAX(updated_at) FROM fct_orders;
 -- alert if now() - max_updated_at > SLA
@@ -262,6 +320,8 @@ SELECT MAX(updated_at) FROM fct_orders;
 *In prod:* Job is green but data is 18 hours stale.
 
 30. **Object Storage** — Store immutable objects (files) addressed by key in buckets; virtually infinite scale.
+
+Tags: `cloud`, `interview`, `lakehouse`
 
 ```
 s3://lake/bronze/events/dt=2024-01-01/part-000.parquet
