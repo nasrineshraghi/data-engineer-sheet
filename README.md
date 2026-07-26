@@ -2,8 +2,18 @@
 
 A practical glossary of techniques, keywords, and concepts every data engineer should know — with short definitions and examples. Not deep dives; enough to recall, interview, and apply.
 
+## Search
+
+**[Open the searchable glossary →](docs/index.html)**
+
+Type any keyword (e.g. `shuffle`, `watermark`, `AQE`). Filter by category. Press `/` to focus search.
+
+> After enabling **GitHub Pages** (Settings → Pages → Source: Deploy from branch → `/docs`), the live URL is:  
+> `https://nasrineshraghi.github.io/data-engineer-sheet/`
+
 ## How to use
 
+- **Search UI:** [docs/index.html](docs/index.html)
 - Browse keywords below → open the category file for **Definition · Why it matters · Example · Remember**
 - A–Z lookup: [INDEX.md](INDEX.md)
 - Search the repo (`Ctrl/Cmd + Shift + F`) by keyword

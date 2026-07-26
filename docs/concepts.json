@@ -1,0 +1,1901 @@
+[
+  {
+    "name": "Cardinality",
+    "category": "Database & SQL Concepts",
+    "categorySlug": "01-database-sql",
+    "file": "01-database-sql/concepts.md",
+    "definition": "Number of distinct values in a column (or relation size: number of rows).",
+    "why": "Optimizer uses cardinality to choose joins, indexes, and broadcast vs shuffle.",
+    "example": "`country` has ~200 distinct values (low cardinality). `user_id` may have millions (high cardinality).",
+    "remember": [
+      "Low cardinality \u2192 bitmap indexes / dictionaries often help",
+      "Wrong cardinality estimates \u2192 bad plans"
+    ]
+  },
+  {
+    "name": "Granularity (Grain)",
+    "category": "Database & SQL Concepts",
+    "categorySlug": "01-database-sql",
+    "file": "01-database-sql/concepts.md",
+    "definition": "The level of detail one row represents (what one row means).",
+    "why": "Wrong grain causes double-counting, bad joins, and incorrect metrics.",
+    "example": "Orders table grain = one row per `order_id`. Order-items grain = one row per `order_id + product_id`.",
+    "remember": [
+      "Always state grain before modeling",
+      "Never mix grains in one fact without care"
+    ]
+  },
+  {
+    "name": "Selectivity",
+    "category": "Database & SQL Concepts",
+    "categorySlug": "01-database-sql",
+    "file": "01-database-sql/concepts.md",
+    "definition": "Fraction of rows a predicate returns. High selectivity = few rows (selective filter).",
+    "why": "Selective predicates favor index seeks; low selectivity favors scans.",
+    "example": "`WHERE user_id = 42` is highly selective. `WHERE status = 'active'` on 90% active rows is not.",
+    "remember": [
+      "Selectivity \u2248 matching_rows / total_rows",
+      "Indexes help most on selective filters"
+    ]
+  },
+  {
+    "name": "Data Distribution",
+    "category": "Database & SQL Concepts",
+    "categorySlug": "01-database-sql",
+    "file": "01-database-sql/concepts.md",
+    "definition": "How values are spread across a column (uniform, skewed, sparse).",
+    "why": "Skew causes hot partitions, slow joins, and uneven executor load.",
+    "example": "80% of orders from one country \u2192 that partition/key dominates shuffle.",
+    "remember": [
+      "Check histograms / approx_percentile for skew",
+      "Salting and AQE help with skew"
+    ]
+  },
+  {
+    "name": "Histograms",
+    "category": "Database & SQL Concepts",
+    "categorySlug": "01-database-sql",
+    "file": "01-database-sql/concepts.md",
+    "definition": "Statistics summarizing value frequency distribution in a column.",
+    "why": "Help CBO estimate selectivity when values are uneven.",
+    "example": "Optimizer sees `status='cancelled'` is 2% of rows via histogram, not assuming uniform 25%.",
+    "remember": [
+      "Stale histograms \u2192 bad plans",
+      "Refresh stats after large loads"
+    ]
+  },
+  {
+    "name": "Cost-Based Optimizer (CBO)",
+    "category": "Database & SQL Concepts",
+    "categorySlug": "01-database-sql",
+    "file": "01-database-sql/concepts.md",
+    "definition": "Chooses execution plan by estimating cost using table/column statistics.",
+    "why": "Modern warehouses and Spark SQL rely on CBO for join order and strategies.",
+    "example": "With stats, CBO picks broadcast hash join for a small dimension; without stats, may shuffle both sides.",
+    "remember": [
+      "Collect/analyze stats regularly",
+      "No stats \u2248 guessing"
+    ]
+  },
+  {
+    "name": "Rule-Based Optimizer (RBO)",
+    "category": "Database & SQL Concepts",
+    "categorySlug": "01-database-sql",
+    "file": "01-database-sql/concepts.md",
+    "definition": "Rewrites queries using fixed heuristic rules (e.g., push filters early), not cost estimates.",
+    "why": "Fast and predictable; weak when data sizes vary.",
+    "example": "Always push `WHERE` before `JOIN` regardless of table size.",
+    "remember": [
+      "Spark Catalyst uses both rules and cost",
+      "RBO alone can miss better join strategies"
+    ]
+  },
+  {
+    "name": "Execution Plan",
+    "category": "Database & SQL Concepts",
+    "categorySlug": "01-database-sql",
+    "file": "01-database-sql/concepts.md",
+    "definition": "The concrete operators the engine will run (scans, joins, aggregates, sorts).",
+    "why": "Primary tool to debug slow queries.",
+    "example": "Plan shows `SortMergeJoin` + large `Exchange` (shuffle) \u2192 expensive.",
+    "remember": [
+      "Read bottom-up or follow arrows depending on engine",
+      "Look for scans, shuffles, spills"
+    ]
+  },
+  {
+    "name": "Explain Plan",
+    "category": "Database & SQL Concepts",
+    "categorySlug": "01-database-sql",
+    "file": "01-database-sql/concepts.md",
+    "definition": "Command/API that prints the logical and/or physical plan without always running the full query.",
+    "why": "Inspect strategy before/while tuning.",
+    "example": "```sql\nEXPLAIN ANALYZE SELECT * FROM orders WHERE order_date = '2024-01-01';\n-- Spark: df.explain(True)  or  EXPLAIN EXTENDED / COST\n```",
+    "remember": [
+      "`ANALYZE` / actual metrics beat estimated-only plans",
+      "Compare before vs after rewrite"
+    ]
+  },
+  {
+    "name": "Composite Index",
+    "category": "Database & SQL Concepts",
+    "categorySlug": "01-database-sql",
+    "file": "01-database-sql/concepts.md",
+    "definition": "Index on multiple columns in a defined order.",
+    "why": "Speeds queries filtering/sorting on the leading columns.",
+    "example": "Index `(customer_id, order_date)` helps `WHERE customer_id = ?` and `WHERE customer_id = ? AND order_date > ?`, not `WHERE order_date > ?` alone (usually).",
+    "remember": [
+      "Column order matters (leftmost prefix)",
+      "Don't over-index; writes get slower"
+    ]
+  },
+  {
+    "name": "Covering Index",
+    "category": "Database & SQL Concepts",
+    "categorySlug": "01-database-sql",
+    "file": "01-database-sql/concepts.md",
+    "definition": "Index that contains all columns a query needs, so the table heap/base isn't touched.",
+    "why": "Index-only scans are much faster for narrow queries.",
+    "example": "Query selects `id, email` with index on `(id) INCLUDE (email)` \u2192 covering.",
+    "remember": [
+      "Great for hot read paths",
+      "Wider indexes cost more storage/write amp"
+    ]
+  },
+  {
+    "name": "Clustered vs Non-Clustered Index",
+    "category": "Database & SQL Concepts",
+    "categorySlug": "01-database-sql",
+    "file": "01-database-sql/concepts.md",
+    "definition": "- **Clustered:** table rows stored in index key order (often primary key); typically one per table. - **Non-clustered:** separate structure pointing to rows; many allowed.",
+    "why": "Clustered key choice affects range scans and insert patterns.",
+    "example": "Clustered on `order_date` makes date-range queries fast; random UUIDs as clustered keys can fragment inserts.",
+    "remember": [
+      "InnoDB PK is clustered; SQL Server similar",
+      "Choose clustered key for common access pattern"
+    ]
+  },
+  {
+    "name": "Bitmap Index",
+    "category": "Database & SQL Concepts",
+    "categorySlug": "01-database-sql",
+    "file": "01-database-sql/concepts.md",
+    "definition": "Index storing bitmaps per distinct value; good for low-cardinality columns and AND/OR of predicates.",
+    "why": "Common in analytic DBs; poor for high-churn OLTP updates.",
+    "example": "Bitmap on `gender`, `region`, `status` for warehouse filters.",
+    "remember": [
+      "Low cardinality + analytics",
+      "Avoid on frequently updated columns"
+    ]
+  },
+  {
+    "name": "B-Tree Index",
+    "category": "Database & SQL Concepts",
+    "categorySlug": "01-database-sql",
+    "file": "01-database-sql/concepts.md",
+    "definition": "Balanced tree index supporting equality and range lookups; default in most RDBMS.",
+    "why": "Workhorse for OLTP and many warehouse lookups.",
+    "example": "B-tree on `email` \u2192 fast `WHERE email = 'a@b.com'`.",
+    "remember": [
+      "Equality + ranges",
+      "Not ideal alone for very low cardinality"
+    ]
+  },
+  {
+    "name": "Predicate Pushdown",
+    "category": "Database & SQL Concepts",
+    "categorySlug": "01-database-sql",
+    "file": "01-database-sql/concepts.md",
+    "definition": "Move filters as close as possible to the data source so less data is read/shuffled.",
+    "why": "Huge I/O and network savings on parquet/ORC and remote sources.",
+    "example": "`spark.read.parquet(...).filter(\"year=2024\")` pushes year filter into file/footer reading when partitioned.",
+    "remember": [
+      "Prefer partition columns and columnar formats",
+      "UDFs often block pushdown"
+    ]
+  },
+  {
+    "name": "Partition Pruning",
+    "category": "Database & SQL Concepts",
+    "categorySlug": "01-database-sql",
+    "file": "01-database-sql/concepts.md",
+    "definition": "Skip reading partitions that cannot match the query filter.",
+    "why": "Turns full scans into reading a fraction of data.",
+    "example": "Table partitioned by `dt`; `WHERE dt='2024-06-01'` reads only that partition.",
+    "remember": [
+      "Filter on partition columns explicitly",
+      "Dynamic partition pruning helps joins"
+    ]
+  },
+  {
+    "name": "Statistics",
+    "category": "Database & SQL Concepts",
+    "categorySlug": "01-database-sql",
+    "file": "01-database-sql/concepts.md",
+    "definition": "Metadata about tables/columns: row counts, NDV, min/max, histograms, size.",
+    "why": "Fuel for CBO and good join strategies.",
+    "example": "```sql\nANALYZE TABLE orders COMPUTE STATISTICS FOR COLUMNS customer_id, amount;\n```",
+    "remember": [
+      "Refresh after bulk loads/deletes",
+      "Missing stats \u2192 conservative/bad plans"
+    ]
+  },
+  {
+    "name": "Table Scan vs Index Scan",
+    "category": "Database & SQL Concepts",
+    "categorySlug": "01-database-sql",
+    "file": "01-database-sql/concepts.md",
+    "definition": "- **Table (full) scan:** read all rows/pages. - **Index scan:** walk an index (may still touch many rows).",
+    "why": "Scans aren't always bad \u2014 for large fractions of the table they can win.",
+    "example": "Selecting 2% of rows by PK \u2192 index. Selecting 70% \u2192 full scan often better.",
+    "remember": [
+      "Optimizer picks based on selectivity + cost",
+      "\"Index scan\" \u2260 cheap if it returns most of the table"
+    ]
+  },
+  {
+    "name": "Seek vs Scan",
+    "category": "Database & SQL Concepts",
+    "categorySlug": "01-database-sql",
+    "file": "01-database-sql/concepts.md",
+    "definition": "- **Seek:** jump to a specific key/range in the index. - **Scan:** read a contiguous slice (or all) of index/table.",
+    "why": "Seeks are for pinpoint lookups; scans for broader access.",
+    "example": "`WHERE id = 10` \u2192 seek. `WHERE id BETWEEN 1 AND 1000000` \u2192 range scan.",
+    "remember": [
+      "Seek + few rows = ideal",
+      "Large range scan can rival table scan"
+    ]
+  },
+  {
+    "name": "DAG Scheduler",
+    "category": "Spark Internals",
+    "categorySlug": "02-spark-internals",
+    "file": "02-spark-internals/concepts.md",
+    "definition": "Builds a DAG of stages from the RDD/DataFrame lineage and submits stage tasks when parents finish.",
+    "why": "Explains why shuffles create stage boundaries and how failures recompute.",
+    "example": "`map \u2192 filter \u2192 reduceByKey` \u2192 narrow stage then shuffle stage.",
+    "remember": [
+      "Stages split at wide dependencies (shuffles)",
+      "Failed tasks recompute from lineage"
+    ]
+  },
+  {
+    "name": "Task Scheduler",
+    "category": "Spark Internals",
+    "categorySlug": "02-spark-internals",
+    "file": "02-spark-internals/concepts.md",
+    "definition": "Assigns individual tasks to executors (resource offers from cluster manager).",
+    "why": "Locality, speculation, and stragglers live here.",
+    "example": "Prefer `PROCESS_LOCAL` / `NODE_LOCAL` tasks when data is cached on that executor.",
+    "remember": [
+      "One task \u2248 one partition",
+      "Speculation helps slow stragglers"
+    ]
+  },
+  {
+    "name": "Driver",
+    "category": "Spark Internals",
+    "categorySlug": "02-spark-internals",
+    "file": "02-spark-internals/concepts.md",
+    "definition": "The process that runs your main program, builds the DAG, and coordinates executors.",
+    "why": "Driver OOM or GC pauses stall the whole job.",
+    "example": "Collecting a huge DataFrame to the driver (`collect()`) crashes the driver.",
+    "remember": [
+      "Keep driver light",
+      "Avoid large `collect` / broadcast of huge objects"
+    ]
+  },
+  {
+    "name": "Executor",
+    "category": "Spark Internals",
+    "categorySlug": "02-spark-internals",
+    "file": "02-spark-internals/concepts.md",
+    "definition": "JVM worker process that runs tasks and stores shuffle/cache data.",
+    "why": "Memory, cores, and disk per executor dominate performance.",
+    "example": "10 executors \u00d7 4 cores \u2192 up to 40 concurrent tasks.",
+    "remember": [
+      "Tune `executor-memory` and cores together",
+      "Watch spill and GC"
+    ]
+  },
+  {
+    "name": "Worker",
+    "category": "Spark Internals",
+    "categorySlug": "02-spark-internals",
+    "file": "02-spark-internals/concepts.md",
+    "definition": "Cluster node process (e.g., Spark standalone worker) that hosts executors.",
+    "why": "Distinguishes machine vs JVM process.",
+    "example": "One worker machine runs multiple executors.",
+    "remember": [
+      "Worker \u2260 executor",
+      "YARN/K8s abstract workers differently"
+    ]
+  },
+  {
+    "name": "Cluster Manager",
+    "category": "Spark Internals",
+    "categorySlug": "02-spark-internals",
+    "file": "02-spark-internals/concepts.md",
+    "definition": "Allocates resources: Standalone, YARN, Kubernetes, Mesos (legacy).",
+    "why": "How cores/memory are requested and released.",
+    "example": "`spark.master=yarn` or `k8s://...` with dynamic allocation.",
+    "remember": [
+      "Dynamic allocation needs external shuffle service (classic YARN)",
+      "K8s common in modern platforms"
+    ]
+  },
+  {
+    "name": "Job \u2192 Stage \u2192 Task",
+    "category": "Spark Internals",
+    "categorySlug": "02-spark-internals",
+    "file": "02-spark-internals/concepts.md",
+    "definition": "- **Job:** triggered by an action (`count`, `write`, `collect`) - **Stage:** set of tasks with narrow deps between shuffles - **Task:** unit of work on one partition",
+    "why": "UI debugging language.",
+    "example": "One `write` action \u2192 1 job \u2192 3 stages \u2192 N tasks per stage.",
+    "remember": [
+      "Actions create jobs",
+      "Shuffles create stages",
+      "Partitions create tasks"
+    ]
+  },
+  {
+    "name": "Lineage",
+    "category": "Spark Internals",
+    "categorySlug": "02-spark-internals",
+    "file": "02-spark-internals/concepts.md",
+    "definition": "Graph of transformations needed to recompute an RDD/DataFrame partition.",
+    "why": "Fault tolerance without replicating all data.",
+    "example": "Lose executor \u2192 recompute lost partitions from source + lineage.",
+    "remember": [
+      "Checkpoint breaks long lineages",
+      "Lineage is logical, not always stored data"
+    ]
+  },
+  {
+    "name": "Lazy Evaluation",
+    "category": "Spark Internals",
+    "categorySlug": "02-spark-internals",
+    "file": "02-spark-internals/concepts.md",
+    "definition": "Transformations build a plan; work runs only on actions.",
+    "why": "Enables whole-stage optimization and predicate pushdown.",
+    "example": "Many `filter`/`select` calls do nothing until `show()` or `write`.",
+    "remember": [
+      "Chain transforms freely",
+      "Actions trigger compute (and cost)"
+    ]
+  },
+  {
+    "name": "Shuffle",
+    "category": "Spark Internals",
+    "categorySlug": "02-spark-internals",
+    "file": "02-spark-internals/concepts.md",
+    "definition": "Redistribute data across partitions by key (network + sort/hash).",
+    "why": "Usually the most expensive part of a job.",
+    "example": "`groupBy`, `join`, `repartition`, `distinct` often shuffle.",
+    "remember": [
+      "Minimize shuffles",
+      "Watch shuffle read/write in Spark UI"
+    ]
+  },
+  {
+    "name": "Spill to Disk",
+    "category": "Spark Internals",
+    "categorySlug": "02-spark-internals",
+    "file": "02-spark-internals/concepts.md",
+    "definition": "When memory is insufficient, intermediate data is written to local disk.",
+    "why": "Correctness preserved; speed drops.",
+    "example": "Large sort-merge join spills during sort.",
+    "remember": [
+      "Spill \u2260 failure; it's a warning sign",
+      "Increase memory, reduce partition size, or fix skew"
+    ]
+  },
+  {
+    "name": "Memory Management",
+    "category": "Spark Internals",
+    "categorySlug": "02-spark-internals",
+    "file": "02-spark-internals/concepts.md",
+    "definition": "Spark splits executor memory among execution (shuffles/joins), storage (cache), and user/overhead.",
+    "why": "Contention between cache and shuffle causes eviction/spill.",
+    "example": "Unified memory region shared by execution and storage (post Spark 1.6).",
+    "remember": [
+      "Don't cache everything",
+      "Tune fraction only after measuring"
+    ]
+  },
+  {
+    "name": "Serialization (Java/Kryo)",
+    "category": "Spark Internals",
+    "categorySlug": "02-spark-internals",
+    "file": "02-spark-internals/concepts.md",
+    "definition": "Convert objects to bytes for shuffle/cache/network. Kryo is faster/smaller than Java serializer when registered.",
+    "why": "Slow serialization burns CPU on every shuffle.",
+    "example": "`spark.serializer=org.apache.spark.serializer.KryoSerializer` + register classes.",
+    "remember": [
+      "Prefer DataFrames (Catalyst/Tungsten) over RDDs of custom objects",
+      "Kryo helps RDD/custom types"
+    ]
+  },
+  {
+    "name": "Broadcast Variables",
+    "category": "Spark Internals",
+    "categorySlug": "02-spark-internals",
+    "file": "02-spark-internals/concepts.md",
+    "definition": "Read-only copy of data sent once to each executor.",
+    "why": "Avoids shipping large lookup tables per task.",
+    "example": "Broadcast a small dimension for map-side join / `broadcast(df)`.",
+    "remember": [
+      "Size must fit executor memory",
+      "Default auto-broadcast threshold exists in Spark SQL"
+    ]
+  },
+  {
+    "name": "Accumulators",
+    "category": "Spark Internals",
+    "categorySlug": "02-spark-internals",
+    "file": "02-spark-internals/concepts.md",
+    "definition": "Write-only aggregate variables (counters) updated by executors, read on driver.",
+    "why": "Lightweight metrics without collecting data.",
+    "example": "Count malformed records while mapping.",
+    "remember": [
+      "Updates inside transforms may be recomputed on retry \u2014 use carefully",
+      "Prefer built-in Spark metrics when possible"
+    ]
+  },
+  {
+    "name": "Closure",
+    "category": "Spark Internals",
+    "categorySlug": "02-spark-internals",
+    "file": "02-spark-internals/concepts.md",
+    "definition": "Function + captured outer variables sent to executors.",
+    "why": "Accidental capture of huge objects (DB connections, full DataFrames) causes OOM or slow shipping.",
+    "example": "Capturing a large Python list in a UDF serializes it to every task.",
+    "remember": [
+      "Don't capture huge objects",
+      "Prefer broadcast for shared lookups"
+    ]
+  },
+  {
+    "name": "Wide vs Narrow Transformations",
+    "category": "Spark Internals",
+    "categorySlug": "02-spark-internals",
+    "file": "02-spark-internals/concepts.md",
+    "definition": "- **Narrow:** each input partition maps to \u22641 output partition (`map`, `filter`) \u2014 no shuffle - **Wide:** input partitions contribute to many outputs (`groupByKey`, `join`) \u2014 shuffle",
+    "why": "Wide = stage boundary + cost.",
+    "example": "`filter` narrow; `reduceByKey` wide.",
+    "remember": [
+      "Pipeline narrow transforms in one stage",
+      "Wide transforms need justification"
+    ]
+  },
+  {
+    "name": "Adaptive Query Execution (AQE)",
+    "category": "Spark Internals",
+    "categorySlug": "02-spark-internals",
+    "file": "02-spark-internals/concepts.md",
+    "definition": "Spark SQL re-optimizes the plan at runtime using size stats after shuffles (Spark 3+).",
+    "why": "Fixes bad static estimates: coalesces partitions, switches join strategy, handles skew.",
+    "example": "AQE converts sort-merge to broadcast when post-shuffle side is small.",
+    "remember": [
+      "Enable AQE in modern Spark (`spark.sql.adaptive.enabled`)",
+      "Helps skew join and partition coalescing"
+    ]
+  },
+  {
+    "name": "Catalyst Optimizer",
+    "category": "Spark Internals",
+    "categorySlug": "02-spark-internals",
+    "file": "02-spark-internals/concepts.md",
+    "definition": "Spark SQL's rule + cost optimizer: analysis \u2192 logical optimization \u2192 physical planning.",
+    "why": "Why DataFrames beat handwritten RDDs for SQL-like work.",
+    "example": "Constant folding, predicate pushdown, column pruning done automatically.",
+    "remember": [
+      "Prefer DataFrame/Dataset API",
+      "UDFs limit Catalyst optimizations"
+    ]
+  },
+  {
+    "name": "Tungsten Engine",
+    "category": "Spark Internals",
+    "categorySlug": "02-spark-internals",
+    "file": "02-spark-internals/concepts.md",
+    "definition": "Execution layer: off-heap/cache-aware memory, whole-stage codegen, binary processing.",
+    "why": "Faster CPU and less GC than row-object RDDs.",
+    "example": "Whole-stage codegen fuses operators into Java bytecode.",
+    "remember": [
+      "Works best with native expressions (not Python UDFs)",
+      "Columnar formats amplify gains"
+    ]
+  },
+  {
+    "name": "Dynamic Partition Pruning",
+    "category": "Spark Internals",
+    "categorySlug": "02-spark-internals",
+    "file": "02-spark-internals/concepts.md",
+    "definition": "At runtime, prune partitions of a large fact using values from a filtered dimension join.",
+    "why": "Star-schema queries read far less data.",
+    "example": "Join `sales` (partitioned by `date`) to `dim_date` filtered to one month \u2192 only those fact partitions scanned.",
+    "remember": [
+      "Needs partitioned fact + filter on dimension",
+      "Related to AQE / DPP features"
+    ]
+  },
+  {
+    "name": "Skew Join Optimization",
+    "category": "Spark Internals",
+    "categorySlug": "02-spark-internals",
+    "file": "02-spark-internals/concepts.md",
+    "definition": "Detect hot keys and split/handle them separately (AQE skew join, salting).",
+    "why": "One key can stall an entire stage.",
+    "example": "One `customer_id` with 40% of rows \u2192 AQE splits that partition.",
+    "remember": [
+      "Check Spark UI for straggler tasks",
+      "Salting is the manual fallback"
+    ]
+  },
+  {
+    "name": "Grain",
+    "category": "Data Warehouse Concepts",
+    "categorySlug": "03-data-warehouse",
+    "file": "03-data-warehouse/concepts.md",
+    "definition": "Exact meaning of one fact row (business level of detail).",
+    "why": "Foundation of dimensional modeling; wrong grain breaks metrics.",
+    "example": "\"One row per order line per day\" vs \"one row per order\".",
+    "remember": [
+      "Declare grain in one sentence before designing",
+      "All measures must match that grain"
+    ]
+  },
+  {
+    "name": "Granularity",
+    "category": "Data Warehouse Concepts",
+    "categorySlug": "03-data-warehouse",
+    "file": "03-data-warehouse/concepts.md",
+    "definition": "Same idea as grain \u2014 how fine or coarse the data is. Often used interchangeably with grain in DW.",
+    "why": "Aggregation level must match reporting needs.",
+    "example": "Daily grain vs monthly rollup tables.",
+    "remember": [
+      "Finer grain \u2192 more rows, more flexibility",
+      "Coarser \u2192 faster reports, less detail"
+    ]
+  },
+  {
+    "name": "Additive Facts",
+    "category": "Data Warehouse Concepts",
+    "categorySlug": "03-data-warehouse",
+    "file": "03-data-warehouse/concepts.md",
+    "definition": "Measures that can be summed across any dimension.",
+    "why": "Safest metrics for rollups.",
+    "example": "`sales_amount`, `quantity_sold` \u2014 sum by day, store, product all valid.",
+    "remember": [
+      "Prefer additive measures when possible",
+      "Document additivity of each measure"
+    ]
+  },
+  {
+    "name": "Semi-Additive Facts",
+    "category": "Data Warehouse Concepts",
+    "categorySlug": "03-data-warehouse",
+    "file": "03-data-warehouse/concepts.md",
+    "definition": "Summable across some dimensions, not others (often not across time).",
+    "why": "Easy to misuse in BI (double-count balances).",
+    "example": "Account balance \u2014 sum across customers OK; sum across days wrong (use last/average).",
+    "remember": [
+      "Inventory and balances are classic semi-additive",
+      "Use snapshot patterns carefully"
+    ]
+  },
+  {
+    "name": "Non-Additive Facts",
+    "category": "Data Warehouse Concepts",
+    "categorySlug": "03-data-warehouse",
+    "file": "03-data-warehouse/concepts.md",
+    "definition": "Cannot be summed meaningfully; ratios, percentages, temperatures.",
+    "why": "Must recalculate from components, not average averages blindly.",
+    "example": "`profit_margin` \u2014 store `profit` and `revenue`, compute margin at query time.",
+    "remember": [
+      "Store additive components",
+      "Aggregate then compute ratio"
+    ]
+  },
+  {
+    "name": "Degenerate Dimension",
+    "category": "Data Warehouse Concepts",
+    "categorySlug": "03-data-warehouse",
+    "file": "03-data-warehouse/concepts.md",
+    "definition": "Dimension-like identifier stored in the fact table with no separate dimension table.",
+    "why": "Avoids empty dimension tables for transactional IDs.",
+    "example": "`order_id`, `invoice_number` living on the fact row.",
+    "remember": [
+      "Common for transaction numbers",
+      "Still useful for drill-to-detail"
+    ]
+  },
+  {
+    "name": "Junk Dimension",
+    "category": "Data Warehouse Concepts",
+    "categorySlug": "03-data-warehouse",
+    "file": "03-data-warehouse/concepts.md",
+    "definition": "Single dimension table combining low-cardinality flags/indicators.",
+    "why": "Avoids many tiny dimensions cluttering the model.",
+    "example": "`is_gift`, `payment_type`, `channel` packed into `dim_order_flags`.",
+    "remember": [
+      "Keep cardinality manageable",
+      "Good for yes/no and small enums"
+    ]
+  },
+  {
+    "name": "Role-Playing Dimension",
+    "category": "Data Warehouse Concepts",
+    "categorySlug": "03-data-warehouse",
+    "file": "03-data-warehouse/concepts.md",
+    "definition": "Same dimension reused for multiple roles via different foreign keys.",
+    "why": "One `dim_date` serves order date, ship date, delivery date.",
+    "example": "`order_date_key`, `ship_date_key` both point to `dim_date`.",
+    "remember": [
+      "Views/aliases per role in BI tools",
+      "Don't duplicate date tables"
+    ]
+  },
+  {
+    "name": "Conformed Dimension",
+    "category": "Data Warehouse Concepts",
+    "categorySlug": "03-data-warehouse",
+    "file": "03-data-warehouse/concepts.md",
+    "definition": "Shared dimension with consistent keys and attributes across facts/marts.",
+    "why": "Enables cross-process drill-across reporting.",
+    "example": "Same `customer_key` and customer attributes in sales and support marts.",
+    "remember": [
+      "Enterprise consistency",
+      "Owned by a shared data team/process"
+    ]
+  },
+  {
+    "name": "Mini Dimension",
+    "category": "Data Warehouse Concepts",
+    "categorySlug": "03-data-warehouse",
+    "file": "03-data-warehouse/concepts.md",
+    "definition": "Split frequently changing attributes into a smaller dimension to limit type-2 explosion on the main dim.",
+    "why": "Keeps large customer dims manageable when demographics change often.",
+    "example": "`dim_customer` stable attrs + `dim_customer_profile` for segment/score that changes monthly.",
+    "remember": [
+      "Use when type-2 history would explode",
+      "Fact points to both keys when needed"
+    ]
+  },
+  {
+    "name": "Bridge Table",
+    "category": "Data Warehouse Concepts",
+    "categorySlug": "03-data-warehouse",
+    "file": "03-data-warehouse/concepts.md",
+    "definition": "Helper table resolving many-to-many between fact and dimension (or between dims).",
+    "why": "Correct weighting and multi-valued attributes.",
+    "example": "Order with multiple sales reps \u2192 `bridge_order_rep` with allocation weights.",
+    "remember": [
+      "Watch double-counting; use weights",
+      "Common for multi-valued dims (diagnoses, tags)"
+    ]
+  },
+  {
+    "name": "Factless Fact Table",
+    "category": "Data Warehouse Concepts",
+    "categorySlug": "03-data-warehouse",
+    "file": "03-data-warehouse/concepts.md",
+    "definition": "Fact table with keys only (no numeric measures) \u2014 records events or coverage.",
+    "why": "Answers \"did it happen?\" and \"what was assigned?\"",
+    "example": "Student attendance: `student_key`, `class_key`, `date_key` \u2014 count rows = attendance events.",
+    "remember": [
+      "Event tracking and coverage/eligibility",
+      "Measures are often counts of rows"
+    ]
+  },
+  {
+    "name": "Snapshot Fact",
+    "category": "Data Warehouse Concepts",
+    "categorySlug": "03-data-warehouse",
+    "file": "03-data-warehouse/concepts.md",
+    "definition": "Fact capturing state at a point in time (generic term; often periodic).",
+    "why": "Measures levels (balances, inventory) over time.",
+    "example": "Daily inventory on-hand per SKU per warehouse.",
+    "remember": [
+      "Semi-additive measures common",
+      "Choose periodic vs accumulating pattern"
+    ]
+  },
+  {
+    "name": "Accumulating Snapshot",
+    "category": "Data Warehouse Concepts",
+    "categorySlug": "03-data-warehouse",
+    "file": "03-data-warehouse/concepts.md",
+    "definition": "One row per process instance; columns updated as milestones complete (pipeline pipeline).",
+    "why": "Tracks lifecycle duration and conversion.",
+    "example": "Order fulfillment: `ordered_at`, `packed_at`, `shipped_at`, `delivered_at` on one row, updated in place.",
+    "remember": [
+      "Fixed known milestones",
+      "Lag metrics between dates"
+    ]
+  },
+  {
+    "name": "Periodic Snapshot",
+    "category": "Data Warehouse Concepts",
+    "categorySlug": "03-data-warehouse",
+    "file": "03-data-warehouse/concepts.md",
+    "definition": "New fact rows taken at regular intervals for all entities (day/week/month).",
+    "why": "Time-series of levels for reporting.",
+    "example": "End-of-day account balance for every account every day.",
+    "remember": [
+      "Dense over time",
+      "Storage heavy but query-friendly for trends"
+    ]
+  },
+  {
+    "name": "Data Lake",
+    "category": "Data Lake & Lakehouse",
+    "categorySlug": "04-data-lake-lakehouse",
+    "file": "04-data-lake-lakehouse/concepts.md",
+    "definition": "Central storage of raw and processed data in files (often object storage), schema-on-read.",
+    "why": "Cheap scale for diverse data; weak governance if unmanaged.",
+    "example": "S3/ADLS/GCS buckets with landing, bronze, silver zones as folders.",
+    "remember": [
+      "Storage \u2260 warehouse",
+      "Needs catalog, quality, and access control"
+    ]
+  },
+  {
+    "name": "Data Lakehouse",
+    "category": "Data Lake & Lakehouse",
+    "categorySlug": "04-data-lake-lakehouse",
+    "file": "04-data-lake-lakehouse/concepts.md",
+    "definition": "Lake storage + warehouse capabilities: ACID tables, governance, BI-friendly SQL.",
+    "why": "One copy of data for batch, streaming, and analytics.",
+    "example": "Delta/Iceberg tables on S3 queried by Spark, Trino, and BI tools.",
+    "remember": [
+      "Open table formats are the core",
+      "Combines lake cost with warehouse reliability"
+    ]
+  },
+  {
+    "name": "Delta Lake",
+    "category": "Data Lake & Lakehouse",
+    "categorySlug": "04-data-lake-lakehouse",
+    "file": "04-data-lake-lakehouse/concepts.md",
+    "definition": "Open table format (Databricks-origin) with transaction log (`_delta_log`) for ACID on files.",
+    "why": "Upserts, time travel, schema enforcement on object storage.",
+    "example": "`MERGE INTO target USING source ON ... WHEN MATCHED THEN UPDATE ...`",
+    "remember": [
+      "Transaction log is source of truth",
+      "`OPTIMIZE` + `VACUUM` for maintenance"
+    ]
+  },
+  {
+    "name": "Apache Iceberg",
+    "category": "Data Lake & Lakehouse",
+    "categorySlug": "04-data-lake-lakehouse",
+    "file": "04-data-lake-lakehouse/concepts.md",
+    "definition": "Open table format with snapshot metadata, hidden partitioning, strong engine interoperability.",
+    "why": "Multi-engine lakehouse (Spark, Flink, Trino, Athena).",
+    "example": "Partition evolution without rewriting all data paths visible to users.",
+    "remember": [
+      "Snapshots + manifests",
+      "Hidden partitioning is a key feature"
+    ]
+  },
+  {
+    "name": "Apache Hudi",
+    "category": "Data Lake & Lakehouse",
+    "categorySlug": "04-data-lake-lakehouse",
+    "file": "04-data-lake-lakehouse/concepts.md",
+    "definition": "Open table format focused on incremental processing, upserts, and streaming ingestion.",
+    "why": "Near-real-time lakes with copy-on-write or merge-on-read.",
+    "example": "Upsert CDC into a Hudi MOR table; readers see compacted view.",
+    "remember": [
+      "COW vs MOR tradeoffs (write vs read cost)",
+      "Strong for CDC / incremental pipelines"
+    ]
+  },
+  {
+    "name": "Time Travel",
+    "category": "Data Lake & Lakehouse",
+    "categorySlug": "04-data-lake-lakehouse",
+    "file": "04-data-lake-lakehouse/concepts.md",
+    "definition": "Query table as of a past version/timestamp via snapshots/logs.",
+    "why": "Reproduce reports, debug bad writes, audit.",
+    "example": "```sql\nSELECT * FROM orders VERSION AS OF 120;\n-- or TIMESTAMP AS OF '2024-06-01'\n```",
+    "remember": [
+      "Retention limited by vacuum/expire settings",
+      "Great for \"what did we have yesterday?\""
+    ]
+  },
+  {
+    "name": "Schema Evolution",
+    "category": "Data Lake & Lakehouse",
+    "categorySlug": "04-data-lake-lakehouse",
+    "file": "04-data-lake-lakehouse/concepts.md",
+    "definition": "Safely change table schema (add/rename/drop columns) without full reload when supported.",
+    "why": "Pipelines and producers change over time.",
+    "example": "Adding `discount_code` column to a Delta/Iceberg table.",
+    "remember": [
+      "Additive changes are safest",
+      "Breaking changes need contracts + migration"
+    ]
+  },
+  {
+    "name": "Schema Enforcement",
+    "category": "Data Lake & Lakehouse",
+    "categorySlug": "04-data-lake-lakehouse",
+    "file": "04-data-lake-lakehouse/concepts.md",
+    "definition": "Reject writes that don't match the table schema (or strict evolution rules).",
+    "why": "Stops corrupt/partial schemas from poisoning the lake.",
+    "example": "Write with extra unexpected type fails instead of silently creating junk files.",
+    "remember": [
+      "Enforce at write boundary",
+      "Pair with data contracts"
+    ]
+  },
+  {
+    "name": "ACID Tables",
+    "category": "Data Lake & Lakehouse",
+    "categorySlug": "04-data-lake-lakehouse",
+    "file": "04-data-lake-lakehouse/concepts.md",
+    "definition": "Atomicity, Consistency, Isolation, Durability for table operations on the lake.",
+    "why": "Readers never see partial commits; concurrent writers coordinated.",
+    "example": "A failed job leaves no half-visible partition after transactional commit.",
+    "remember": [
+      "File formats alone aren't ACID \u2014 table formats add it",
+      "Isolation level still matters for readers"
+    ]
+  },
+  {
+    "name": "Compaction",
+    "category": "Data Lake & Lakehouse",
+    "categorySlug": "04-data-lake-lakehouse",
+    "file": "04-data-lake-lakehouse/concepts.md",
+    "definition": "Rewrite many small files into larger optimized files.",
+    "why": "Fixes small-file problem; improves scan speed.",
+    "example": "Iceberg rewrite / Hudi compact / Delta OPTIMIZE.",
+    "remember": [
+      "Schedule regularly on hot tables",
+      "Trade compute now for faster reads later"
+    ]
+  },
+  {
+    "name": "Vacuum",
+    "category": "Data Lake & Lakehouse",
+    "categorySlug": "04-data-lake-lakehouse",
+    "file": "04-data-lake-lakehouse/concepts.md",
+    "definition": "Delete obsolete data files no longer referenced by the table (past retention).",
+    "why": "Reclaims storage; ends time-travel past retention.",
+    "example": "`VACUUM table_name RETAIN 168 HOURS;` (Delta).",
+    "remember": [
+      "Too aggressive vacuum breaks time travel / long readers",
+      "Coordinate retention with consumers"
+    ]
+  },
+  {
+    "name": "Optimize",
+    "category": "Data Lake & Lakehouse",
+    "categorySlug": "04-data-lake-lakehouse",
+    "file": "04-data-lake-lakehouse/concepts.md",
+    "definition": "Maintenance command to compact/layout data for faster reads (Delta `OPTIMIZE`).",
+    "why": "Combines small files; optional Z-Order clustering.",
+    "example": "`OPTIMIZE sales ZORDER BY (customer_id, event_date);`",
+    "remember": [
+      "Run on tables with heavy small-file ingest",
+      "Not free \u2014 schedule off-peak"
+    ]
+  },
+  {
+    "name": "Z-Ordering",
+    "category": "Data Lake & Lakehouse",
+    "categorySlug": "04-data-lake-lakehouse",
+    "file": "04-data-lake-lakehouse/concepts.md",
+    "definition": "Multi-dimensional clustering of data files so related values co-locate (minmax skipping improves).",
+    "why": "Faster filters on high-cardinality columns that aren't partition keys.",
+    "example": "Z-Order by `user_id` so point lookups skip most files.",
+    "remember": [
+      "Complement to partitioning, not a replacement",
+      "Best for selective multi-column filters"
+    ]
+  },
+  {
+    "name": "CAP Theorem",
+    "category": "Distributed Systems",
+    "categorySlug": "05-distributed-systems",
+    "file": "05-distributed-systems/concepts.md",
+    "definition": "In a network partition, a system can provide Consistency or Availability, not both (Partition tolerance assumed in distributed DBs).",
+    "why": "Forces explicit tradeoffs in data platforms.",
+    "example": "During partition, CP system rejects writes; AP system accepts writes that may conflict.",
+    "remember": [
+      "Real systems tune the C/A tradeoff",
+      "\"CA without P\" isn't realistic for multi-node"
+    ]
+  },
+  {
+    "name": "BASE",
+    "category": "Distributed Systems",
+    "categorySlug": "05-distributed-systems",
+    "file": "05-distributed-systems/concepts.md",
+    "definition": "Basically Available, Soft state, Eventually consistent \u2014 alternative mindset to strict ACID across distributed services.",
+    "why": "Many large-scale stores and caches lean BASE.",
+    "example": "Shopping cart eventually syncs across regions; brief stale reads OK.",
+    "remember": [
+      "Soft state may change without input (anti-entropy)",
+      "Pair with application-level conflict handling"
+    ]
+  },
+  {
+    "name": "Eventual Consistency",
+    "category": "Distributed Systems",
+    "categorySlug": "05-distributed-systems",
+    "file": "05-distributed-systems/concepts.md",
+    "definition": "If no new updates, all replicas converge to the same value eventually.",
+    "why": "Default for many geo-replicated and highly available systems.",
+    "example": "Read-after-write may fail briefly across regions; later reads agree.",
+    "remember": [
+      "Document staleness windows for consumers",
+      "Use stronger reads when needed (quorum/linearizable APIs)"
+    ]
+  },
+  {
+    "name": "Strong Consistency",
+    "category": "Distributed Systems",
+    "categorySlug": "05-distributed-systems",
+    "file": "05-distributed-systems/concepts.md",
+    "definition": "After a write commits, all subsequent reads see it (linearizability / similar guarantees vary by system).",
+    "why": "Simpler app logic; higher latency/cost.",
+    "example": "Financial ledger balance must be strongly consistent.",
+    "remember": [
+      "Costs latency and availability under partitions",
+      "Use where correctness > availability"
+    ]
+  },
+  {
+    "name": "Replication",
+    "category": "Distributed Systems",
+    "categorySlug": "05-distributed-systems",
+    "file": "05-distributed-systems/concepts.md",
+    "definition": "Keep multiple copies of data for durability and/or read scale.",
+    "why": "Failure domains and read throughput.",
+    "example": "Kafka topic RF=3; Postgres primary + replicas; S3 cross-region copy.",
+    "remember": [
+      "Sync vs async replication tradeoffs",
+      "Replica lag affects read-your-writes"
+    ]
+  },
+  {
+    "name": "Leader Election",
+    "category": "Distributed Systems",
+    "categorySlug": "05-distributed-systems",
+    "file": "05-distributed-systems/concepts.md",
+    "definition": "Cluster chooses a primary coordinator for writes or decisions.",
+    "why": "Avoids split-brain conflicting writes.",
+    "example": "ZooKeeper/etcd/Raft elect Kafka controller or DB primary.",
+    "remember": [
+      "Fencing tokens prevent old leaders writing",
+      "Elections add brief unavailability"
+    ]
+  },
+  {
+    "name": "Consensus",
+    "category": "Distributed Systems",
+    "categorySlug": "05-distributed-systems",
+    "file": "05-distributed-systems/concepts.md",
+    "definition": "Nodes agree on a value/order of operations despite failures.",
+    "why": "Metadata, configs, and transaction logs need agreement.",
+    "example": "Agreeing on the next committed Kafka controller epoch or Raft log entry.",
+    "remember": [
+      "Quorum majority required",
+      "Expensive; keep consensus sets small"
+    ]
+  },
+  {
+    "name": "Raft",
+    "category": "Distributed Systems",
+    "categorySlug": "05-distributed-systems",
+    "file": "05-distributed-systems/concepts.md",
+    "definition": "Consensus algorithm emphasizing understandability: leader, log replication, terms.",
+    "why": "Used by etcd, Consul, many modern systems.",
+    "example": "etcd stores K8s state via Raft.",
+    "remember": [
+      "Strong leader model",
+      "Majority of voters must ack"
+    ]
+  },
+  {
+    "name": "Paxos",
+    "category": "Distributed Systems",
+    "categorySlug": "05-distributed-systems",
+    "file": "05-distributed-systems/concepts.md",
+    "definition": "Classic family of consensus protocols (Multi-Paxos, etc.).",
+    "why": "Theoretical foundation; still in older systems (Chubby-like).",
+    "example": "Google Chubby historically influenced by Paxos.",
+    "remember": [
+      "Harder to implement correctly than Raft",
+      "Same goal: agree under failures"
+    ]
+  },
+  {
+    "name": "Fault Tolerance",
+    "category": "Distributed Systems",
+    "categorySlug": "05-distributed-systems",
+    "file": "05-distributed-systems/concepts.md",
+    "definition": "System continues correctly despite component failures.",
+    "why": "Commodity hardware fails; jobs and stores must survive.",
+    "example": "Spark recomputes lost partitions; Kafka replicates partitions.",
+    "remember": [
+      "Detect, isolate, recover",
+      "Design for failure, not perfection"
+    ]
+  },
+  {
+    "name": "High Availability (HA)",
+    "category": "Distributed Systems",
+    "categorySlug": "05-distributed-systems",
+    "file": "05-distributed-systems/concepts.md",
+    "definition": "Minimize downtime via redundancy and fast failover.",
+    "why": "SLAs for pipelines and serving layers.",
+    "example": "Multi-AZ brokers; standby scheduler; health checks + auto restart.",
+    "remember": [
+      "HA \u2260 zero data loss (depends on durability config)",
+      "Measure MTTR and availability %"
+    ]
+  },
+  {
+    "name": "Horizontal Scaling",
+    "category": "Distributed Systems",
+    "categorySlug": "05-distributed-systems",
+    "file": "05-distributed-systems/concepts.md",
+    "definition": "Add more nodes to increase capacity.",
+    "why": "Default for big data systems.",
+    "example": "Add Spark executors or Kafka brokers.",
+    "remember": [
+      "Needs partitionable workloads",
+      "Shuffle/network can become bottleneck"
+    ]
+  },
+  {
+    "name": "Vertical Scaling",
+    "category": "Distributed Systems",
+    "categorySlug": "05-distributed-systems",
+    "file": "05-distributed-systems/concepts.md",
+    "definition": "Give one machine more CPU/RAM/disk.",
+    "why": "Simple until limits/cost/HA constraints hit.",
+    "example": "Upsize a warehouse warehouse node or driver machine.",
+    "remember": [
+      "Ceiling exists; single point of failure risk",
+      "Mix: scale out data plane, scale up hot coordinators carefully"
+    ]
+  },
+  {
+    "name": "Event Time",
+    "category": "Streaming",
+    "categorySlug": "06-streaming",
+    "file": "06-streaming/concepts.md",
+    "definition": "Timestamp when the event actually occurred in the real world.",
+    "why": "Correct windows despite late/out-of-order arrival.",
+    "example": "Click happened at 10:00; arrived at 10:07 \u2192 event time = 10:00.",
+    "remember": [
+      "Prefer event time for analytics windows",
+      "Requires watermarks for progress"
+    ]
+  },
+  {
+    "name": "Processing Time",
+    "category": "Streaming",
+    "categorySlug": "06-streaming",
+    "file": "06-streaming/concepts.md",
+    "definition": "Time on the machine when the event is processed.",
+    "why": "Simple but wrong for delayed data.",
+    "example": "Same click processed at 10:07 \u2192 processing-time window uses 10:07.",
+    "remember": [
+      "OK for monitoring ops latency",
+      "Bad for business \"hourly sales\""
+    ]
+  },
+  {
+    "name": "Ingestion Time",
+    "category": "Streaming",
+    "categorySlug": "06-streaming",
+    "file": "06-streaming/concepts.md",
+    "definition": "Time when the event enters the streaming system.",
+    "why": "Middle ground; stable clock at entry, not true event time.",
+    "example": "Kafka timestamp at produce/consume (depending on config).",
+    "remember": [
+      "Better than processing time for some cases",
+      "Still not true business event time"
+    ]
+  },
+  {
+    "name": "Watermarks",
+    "category": "Streaming",
+    "categorySlug": "06-streaming",
+    "file": "06-streaming/concepts.md",
+    "definition": "Engine's notion of how far event time has advanced; used to close windows.",
+    "why": "Trade completeness vs latency for late data.",
+    "example": "Watermark = max_event_time - 10 minutes \u2192 close hour window when watermark passes end + grace.",
+    "remember": [
+      "Too tight \u2192 drop late events",
+      "Too loose \u2192 high latency/state"
+    ]
+  },
+  {
+    "name": "Windowing",
+    "category": "Streaming",
+    "categorySlug": "06-streaming",
+    "file": "06-streaming/concepts.md",
+    "definition": "Group stream events into finite buckets: tumbling, sliding, session.",
+    "why": "Aggregations need bounded scopes.",
+    "example": "Tumbling 5-min count of orders; session window by user inactivity gap.",
+    "remember": [
+      "Tumbling: fixed, non-overlap",
+      "Sliding: overlap; session: activity-based"
+    ]
+  },
+  {
+    "name": "Late Data",
+    "category": "Streaming",
+    "categorySlug": "06-streaming",
+    "file": "06-streaming/concepts.md",
+    "definition": "Events arriving after the watermark/window allowed them.",
+    "why": "Reality of mobile/offline producers.",
+    "example": "Event time 10:01 arrives at 10:25 with 5-min watermark \u2014 late.",
+    "remember": [
+      "Side outputs / allowed lateness / update previous results",
+      "Decide drop vs correct"
+    ]
+  },
+  {
+    "name": "Stateful Processing",
+    "category": "Streaming",
+    "categorySlug": "06-streaming",
+    "file": "06-streaming/concepts.md",
+    "definition": "Operators keep state across events (windows, joins, dedupe).",
+    "why": "Enables real aggregations; needs checkpointing and TTL.",
+    "example": "Running count per user; stream-stream join.",
+    "remember": [
+      "State grows \u2014 set TTL",
+      "Checkpoint state for exactly-once"
+    ]
+  },
+  {
+    "name": "Stateless Processing",
+    "category": "Streaming",
+    "categorySlug": "06-streaming",
+    "file": "06-streaming/concepts.md",
+    "definition": "Each event handled independently; no cross-event state.",
+    "why": "Easier scale and recovery.",
+    "example": "Map parse JSON \u2192 enrich from broadcast config \u2192 filter.",
+    "remember": [
+      "Prefer when possible",
+      "Filter/map/flatMap style ops"
+    ]
+  },
+  {
+    "name": "Exactly Once",
+    "category": "Streaming",
+    "categorySlug": "06-streaming",
+    "file": "06-streaming/concepts.md",
+    "definition": "Effect of each record applied once end-to-end (despite retries).",
+    "why": "No double-counting in sinks.",
+    "example": "Kafka \u2192 Flink \u2192 transactional sink / idempotent sink with checkpoints.",
+    "remember": [
+      "Needs idempotent or transactional sinks",
+      "\"Exactly once\" is end-to-end, not just processing"
+    ]
+  },
+  {
+    "name": "At Least Once",
+    "category": "Streaming",
+    "categorySlug": "06-streaming",
+    "file": "06-streaming/concepts.md",
+    "definition": "Every record processed \u22651 time; duplicates possible on retry.",
+    "why": "Common default; simpler than exactly-once.",
+    "example": "Restart after crash reprocesses last uncommitted batch.",
+    "remember": [
+      "Pair with idempotent writes",
+      "Often \"good enough\" with dedupe keys"
+    ]
+  },
+  {
+    "name": "At Most Once",
+    "category": "Streaming",
+    "categorySlug": "06-streaming",
+    "file": "06-streaming/concepts.md",
+    "definition": "Process \u22641 time; may lose data on failure.",
+    "why": "Lowest latency/complexity; rare for critical pipelines.",
+    "example": "Fire metrics where loss is acceptable.",
+    "remember": [
+      "Don't use for money/inventory",
+      "Explicit tradeoff: loss over duplicates"
+    ]
+  },
+  {
+    "name": "Event Sourcing",
+    "category": "Streaming",
+    "categorySlug": "06-streaming",
+    "file": "06-streaming/concepts.md",
+    "definition": "Persist state as an append-only sequence of events; rebuild state by replay.",
+    "why": "Auditability and temporal queries.",
+    "example": "`OrderPlaced`, `ItemAdded`, `OrderShipped` rebuild current order.",
+    "remember": [
+      "Source of truth = event log",
+      "Snapshots speed replay"
+    ]
+  },
+  {
+    "name": "CQRS",
+    "category": "Streaming",
+    "categorySlug": "06-streaming",
+    "file": "06-streaming/concepts.md",
+    "definition": "Command Query Responsibility Segregation \u2014 separate write model from read model(s).",
+    "why": "Scale reads/writes independently; tailor projections.",
+    "example": "Write orders to OLTP; project read-optimized order search index.",
+    "remember": [
+      "Often paired with event sourcing",
+      "Read models can be eventually consistent"
+    ]
+  },
+  {
+    "name": "Idempotency",
+    "category": "Pipeline Design",
+    "categorySlug": "07-pipeline-design",
+    "file": "07-pipeline-design/concepts.md",
+    "definition": "Running the same operation multiple times yields the same result as running once.",
+    "why": "Retries and backfills won't duplicate or corrupt data.",
+    "example": "Upsert by primary key; overwrite partition `dt=2024-01-01` instead of append-only blindly.",
+    "remember": [
+      "Design sinks for safe replay",
+      "Natural keys + MERGE / partition overwrite"
+    ]
+  },
+  {
+    "name": "Checkpointing",
+    "category": "Pipeline Design",
+    "categorySlug": "07-pipeline-design",
+    "file": "07-pipeline-design/concepts.md",
+    "definition": "Persist progress (offsets/state) so recovery resumes cleanly.",
+    "why": "Fault-tolerant streaming and long batch stages.",
+    "example": "Spark Structured Streaming checkpoint location stores offsets + state.",
+    "remember": [
+      "Checkpoint path is critical state \u2014 back it up/protect it",
+      "Changing query identity may invalidate checkpoints"
+    ]
+  },
+  {
+    "name": "Retry Strategy",
+    "category": "Pipeline Design",
+    "categorySlug": "07-pipeline-design",
+    "file": "07-pipeline-design/concepts.md",
+    "definition": "Policy for re-attempting failed work (how many, when, which errors).",
+    "why": "Transient cloud/network faults are normal.",
+    "example": "Retry S3/API 429/5xx up to 5 times; fail fast on 400 auth errors.",
+    "remember": [
+      "Distinguish transient vs permanent errors",
+      "Cap retries to avoid thundering herds"
+    ]
+  },
+  {
+    "name": "Backoff Strategy",
+    "category": "Pipeline Design",
+    "categorySlug": "07-pipeline-design",
+    "file": "07-pipeline-design/concepts.md",
+    "definition": "Increase wait between retries (often exponential + jitter).",
+    "why": "Prevents stampeding a recovering dependency.",
+    "example": "Wait 1s, 2s, 4s, 8s with random jitter.",
+    "remember": [
+      "Always add jitter",
+      "Set max backoff"
+    ]
+  },
+  {
+    "name": "Circuit Breaker",
+    "category": "Pipeline Design",
+    "categorySlug": "07-pipeline-design",
+    "file": "07-pipeline-design/concepts.md",
+    "definition": "Stop calling a failing dependency temporarily after error threshold; probe later.",
+    "why": "Fails fast; protects both sides from cascade.",
+    "example": "After 50 warehouse connection failures, open circuit for 60s, then half-open trial.",
+    "remember": [
+      "Use for shared DBs/APIs",
+      "Pair with timeouts"
+    ]
+  },
+  {
+    "name": "Dead Letter Queue (DLQ)",
+    "category": "Pipeline Design",
+    "categorySlug": "07-pipeline-design",
+    "file": "07-pipeline-design/concepts.md",
+    "definition": "Side channel for records that fail processing after retries.",
+    "why": "Unblocks the main pipeline; enables quarantine and replay.",
+    "example": "Malformed JSON \u2192 DLQ topic/table with error reason; alert and fix.",
+    "remember": [
+      "Monitor DLQ depth",
+      "Have a replay runbook"
+    ]
+  },
+  {
+    "name": "Data Contracts",
+    "category": "Pipeline Design",
+    "categorySlug": "07-pipeline-design",
+    "file": "07-pipeline-design/concepts.md",
+    "definition": "Explicit agreement on schema, semantics, SLAs, and ownership between producers and consumers.",
+    "why": "Prevents silent breaking changes.",
+    "example": "Producer guarantees `orders.v2` fields + daily freshness < 2h; CI validates schema.",
+    "remember": [
+      "Version schemas",
+      "Enforce in CI/CD and at write time"
+    ]
+  },
+  {
+    "name": "Pipeline Orchestration",
+    "category": "Pipeline Design",
+    "categorySlug": "07-pipeline-design",
+    "file": "07-pipeline-design/concepts.md",
+    "definition": "Schedule, dependency management, retries, and observability of multi-step data jobs.",
+    "why": "Production reliability beyond a single script.",
+    "example": "Airflow/Dagster/Prefect/Azure DF: extract \u2192 transform \u2192 test \u2192 publish.",
+    "remember": [
+      "Prefer data-aware sensors over blind cron when possible",
+      "Idempotent tasks + clear SLAs"
+    ]
+  },
+  {
+    "name": "Metadata-Driven Pipelines",
+    "category": "Pipeline Design",
+    "categorySlug": "07-pipeline-design",
+    "file": "07-pipeline-design/concepts.md",
+    "definition": "Behavior configured by metadata (tables, mappings, rules) rather than hard-coded per table jobs.",
+    "why": "Scales to hundreds of similar pipelines.",
+    "example": "Config table lists source, target, PK, SCD type \u2192 one generic loader.",
+    "remember": [
+      "Great for ingestion patterns",
+      "Keep escape hatches for special cases"
+    ]
+  },
+  {
+    "name": "Data Skew",
+    "category": "Performance Tuning",
+    "categorySlug": "08-performance-tuning",
+    "file": "08-performance-tuning/concepts.md",
+    "definition": "Uneven key/partition sizes so a few tasks do most of the work.",
+    "why": "Stage time \u2248 slowest task.",
+    "example": "`null` or popular `country_code` holds 50% of join keys.",
+    "remember": [
+      "Detect via task duration histograms",
+      "Fix with salting, AQE skew join, or pre-agg"
+    ]
+  },
+  {
+    "name": "Broadcast Join",
+    "category": "Performance Tuning",
+    "categorySlug": "08-performance-tuning",
+    "file": "08-performance-tuning/concepts.md",
+    "definition": "Replicate the small side to all executors; join locally (map-side).",
+    "why": "Avoids shuffling the large side.",
+    "example": "Fact \u00d7 small dimension (`broadcast(dim)`).",
+    "remember": [
+      "Small side must fit memory",
+      "Best default for star-schema dims"
+    ]
+  },
+  {
+    "name": "Shuffle Join",
+    "category": "Performance Tuning",
+    "categorySlug": "08-performance-tuning",
+    "file": "08-performance-tuning/concepts.md",
+    "definition": "Generic term for joins that redistribute both sides by join key (often sort-merge or shuffle-hash).",
+    "why": "Expensive but necessary for two large tables.",
+    "example": "Large `orders` \u22c8 large `payments` on `order_id`.",
+    "remember": [
+      "Ensure join keys have good distribution",
+      "Filter early before shuffle"
+    ]
+  },
+  {
+    "name": "Sort Merge Join",
+    "category": "Performance Tuning",
+    "categorySlug": "08-performance-tuning",
+    "file": "08-performance-tuning/concepts.md",
+    "definition": "Shuffle both sides by key, sort, then merge \u2014 Spark's common large-large join.",
+    "why": "Scalable; sensitive to skew and spill.",
+    "example": "Default for two big DataFrames when broadcast isn't chosen.",
+    "remember": [
+      "Watch sort spill",
+      "AQE may switch strategy"
+    ]
+  },
+  {
+    "name": "Hash Join",
+    "category": "Performance Tuning",
+    "categorySlug": "08-performance-tuning",
+    "file": "08-performance-tuning/concepts.md",
+    "definition": "Build hash table on one side, probe with the other (in-memory or spilled).",
+    "why": "Fast when build side fits (or partially).",
+    "example": "Broadcast hash join = hash join with replicated build side.",
+    "remember": [
+      "Build = smaller side ideally",
+      "OOM if build side underestimated"
+    ]
+  },
+  {
+    "name": "Bucket Join",
+    "category": "Performance Tuning",
+    "categorySlug": "08-performance-tuning",
+    "file": "08-performance-tuning/concepts.md",
+    "definition": "Tables pre-bucketed (and often sorted) on the same key so joins avoid full shuffle.",
+    "why": "Speeds repeated joins on stable keys.",
+    "example": "Both tables bucketed by `user_id` into 200 buckets \u2192 bucket join.",
+    "remember": [
+      "Bucket count must match (or be compatible)",
+      "Worth it for heavy reuse patterns"
+    ]
+  },
+  {
+    "name": "Salting",
+    "category": "Performance Tuning",
+    "categorySlug": "08-performance-tuning",
+    "file": "08-performance-tuning/concepts.md",
+    "definition": "Add a random salt to hot keys to spread them across partitions, then remove/aggregate.",
+    "why": "Manual skew fix when AQE isn't enough.",
+    "example": "Hot `customer_id` \u2192 `customer_id + salt_0..N` on both sides for join, then drop salt.",
+    "remember": [
+      "Increases rows temporarily",
+      "Choose salt range from skew severity"
+    ]
+  },
+  {
+    "name": "Caching",
+    "category": "Performance Tuning",
+    "categorySlug": "08-performance-tuning",
+    "file": "08-performance-tuning/concepts.md",
+    "definition": "Keep a dataset in memory/disk across actions to avoid recomputation.",
+    "why": "Iterative algorithms and multi-action reuse.",
+    "example": "`df.cache()` before multiple joins/aggregations on same base.",
+    "remember": [
+      "Unpersist when done",
+      "Cache only reused expensive stages"
+    ]
+  },
+  {
+    "name": "Persistence Levels",
+    "category": "Performance Tuning",
+    "categorySlug": "08-performance-tuning",
+    "file": "08-performance-tuning/concepts.md",
+    "definition": "Storage level for cached data: memory only, memory+disk, disk only, serialized, replicated.",
+    "why": "Trade speed vs memory pressure vs reliability.",
+    "example": "`MEMORY_AND_DISK` safer than `MEMORY_ONLY` for large frames.",
+    "remember": [
+      "DataFrames: `cache` \u2248 MEMORY_AND_DISK",
+      "Replication costs memory"
+    ]
+  },
+  {
+    "name": "Parallelism",
+    "category": "Performance Tuning",
+    "categorySlug": "08-performance-tuning",
+    "file": "08-performance-tuning/concepts.md",
+    "definition": "Degree of concurrent tasks (related to partitions and cores).",
+    "why": "Too low = idle cluster; too high = scheduling overhead.",
+    "example": "`repartition(200)` to use ~200 cores effectively for a stage.",
+    "remember": [
+      "Target a few partitions per core",
+      "Aim for reasonable partition file sizes"
+    ]
+  },
+  {
+    "name": "Partition Sizing",
+    "category": "Performance Tuning",
+    "categorySlug": "08-performance-tuning",
+    "file": "08-performance-tuning/concepts.md",
+    "definition": "Choosing number/size of partitions (and output files) for balanced work.",
+    "why": "Core lever for Spark/Hive performance.",
+    "example": "Target ~128\u2013256 MB per partition file for many lake workloads (rule of thumb, not law).",
+    "remember": [
+      "Too small \u2192 small files",
+      "Too large \u2192 spill/OOM risk"
+    ]
+  },
+  {
+    "name": "Small File Problem",
+    "category": "Performance Tuning",
+    "categorySlug": "08-performance-tuning",
+    "file": "08-performance-tuning/concepts.md",
+    "definition": "Too many tiny files \u2192 heavy listing, task overhead, slow queries.",
+    "why": "Streaming/micro-batch ingest often creates this.",
+    "example": "100k files of 1 MB instead of 400 files of 256 MB.",
+    "remember": [
+      "Compact regularly",
+      "Coalesce/repartition before write; avoid over-partitioning"
+    ]
+  },
+  {
+    "name": "Data Profiling",
+    "category": "Data Quality & Governance",
+    "categorySlug": "09-data-quality-governance",
+    "file": "09-data-quality-governance/concepts.md",
+    "definition": "Statistical survey of a dataset: nulls, distincts, distributions, patterns.",
+    "why": "Baseline before modeling and for anomaly detection.",
+    "example": "12% null `email`; `amount` min/max/p99; top values of `status`.",
+    "remember": [
+      "Profile new sources early",
+      "Re-profile after major changes"
+    ]
+  },
+  {
+    "name": "Data Validation",
+    "category": "Data Quality & Governance",
+    "categorySlug": "09-data-quality-governance",
+    "file": "09-data-quality-governance/concepts.md",
+    "definition": "Automated checks that data meets rules (schema, ranges, uniqueness, referential).",
+    "why": "Catch bad data before it hits consumers.",
+    "example": "Great Expectations / dbt tests: `order_id` unique, `amount >= 0`, FK to customers.",
+    "remember": [
+      "Fail or quarantine on critical rules",
+      "Warn on softer anomalies"
+    ]
+  },
+  {
+    "name": "Data Lineage",
+    "category": "Data Quality & Governance",
+    "categorySlug": "09-data-quality-governance",
+    "file": "09-data-quality-governance/concepts.md",
+    "definition": "Trace where data came from and where it flows (table/column/job level).",
+    "why": "Impact analysis, debugging, compliance.",
+    "example": "`raw.orders` \u2192 `stg_orders` \u2192 `fct_orders` \u2192 dashboard KPI.",
+    "remember": [
+      "Column-level lineage is gold for audits",
+      "Automate from orchestrator/SQL parsers/catalog"
+    ]
+  },
+  {
+    "name": "Metadata",
+    "category": "Data Quality & Governance",
+    "categorySlug": "09-data-quality-governance",
+    "file": "09-data-quality-governance/concepts.md",
+    "definition": "Data about data: schema, owners, freshness, partitions, descriptions.",
+    "why": "Discoverability and safe use.",
+    "example": "Table description, column glossary, last update time, PII tags.",
+    "remember": [
+      "Treat metadata as a product",
+      "Stale metadata is worse than none if trusted blindly"
+    ]
+  },
+  {
+    "name": "Data Catalog",
+    "category": "Data Quality & Governance",
+    "categorySlug": "09-data-quality-governance",
+    "file": "09-data-quality-governance/concepts.md",
+    "definition": "Searchable inventory of datasets with metadata, ownership, and often lineage.",
+    "why": "\"Where is customer revenue defined?\"",
+    "example": "DataHub, Collibra, Unity Catalog, Glue Data Catalog, OpenMetadata.",
+    "remember": [
+      "Integrate with ingestion + BI",
+      "Ownership + certification badges help trust"
+    ]
+  },
+  {
+    "name": "Master Data Management (MDM)",
+    "category": "Data Quality & Governance",
+    "categorySlug": "09-data-quality-governance",
+    "file": "09-data-quality-governance/concepts.md",
+    "definition": "Processes/systems to create a single trusted master for core entities (customer, product).",
+    "why": "Deduped golden records across systems.",
+    "example": "Merge CRM + billing customers into golden `customer_id` with survivorship rules.",
+    "remember": [
+      "Matching + survivorship + stewardship",
+      "Hard organizationally, not just technically"
+    ]
+  },
+  {
+    "name": "Data Governance",
+    "category": "Data Quality & Governance",
+    "categorySlug": "09-data-quality-governance",
+    "file": "09-data-quality-governance/concepts.md",
+    "definition": "Policies, roles, and controls for data quality, security, privacy, and usage.",
+    "why": "Trust, compliance (GDPR etc.), consistent definitions.",
+    "example": "PII classification, access reviews, approved metric definitions.",
+    "remember": [
+      "People + process + platform",
+      "Embed in pipelines, not only documents"
+    ]
+  },
+  {
+    "name": "Data Stewardship",
+    "category": "Data Quality & Governance",
+    "categorySlug": "09-data-quality-governance",
+    "file": "09-data-quality-governance/concepts.md",
+    "definition": "Human ownership of domain data quality and definitions.",
+    "why": "Governance without stewards doesn't stick.",
+    "example": "Finance steward owns `revenue` definition and approves changes.",
+    "remember": [
+      "Assign stewards per domain",
+      "Stewards \u2260 only platform engineers"
+    ]
+  },
+  {
+    "name": "Observability",
+    "category": "Data Quality & Governance",
+    "categorySlug": "09-data-quality-governance",
+    "file": "09-data-quality-governance/concepts.md",
+    "definition": "Ability to understand pipeline health via metrics, logs, traces, and data checks.",
+    "why": "Detect silent data failures, not just job crashes.",
+    "example": "Freshness, row-count anomalies, schema drift alerts, job duration SLOs.",
+    "remember": [
+      "Observe data + compute",
+      "Alert on symptoms that matter to consumers"
+    ]
+  },
+  {
+    "name": "Freshness",
+    "category": "Data Quality & Governance",
+    "categorySlug": "09-data-quality-governance",
+    "file": "09-data-quality-governance/concepts.md",
+    "definition": "How up-to-date the data is vs expectation (SLA/SLO).",
+    "why": "Stale dashboards mislead decisions.",
+    "example": "\"Orders table max `updated_at` < 1 hour ago\".",
+    "remember": [
+      "Define per table SLA",
+      "Alert on breach, not only job fail"
+    ]
+  },
+  {
+    "name": "Completeness",
+    "category": "Data Quality & Governance",
+    "categorySlug": "09-data-quality-governance",
+    "file": "09-data-quality-governance/concepts.md",
+    "definition": "Required data is present (rows and fields).",
+    "why": "Missing partitions/nulls break KPIs.",
+    "example": "All 24 hourly partitions arrived; `customer_id` null rate < 0.1%.",
+    "remember": [
+      "Partition completeness checks",
+      "Critical field null thresholds"
+    ]
+  },
+  {
+    "name": "Accuracy",
+    "category": "Data Quality & Governance",
+    "categorySlug": "09-data-quality-governance",
+    "file": "09-data-quality-governance/concepts.md",
+    "definition": "Data correctly represents real-world values.",
+    "why": "Valid schema can still be wrong.",
+    "example": "Currency conversion rates match source system within tolerance.",
+    "remember": [
+      "Often needs business reconciliation",
+      "Sample audits + source compares"
+    ]
+  },
+  {
+    "name": "Consistency",
+    "category": "Data Quality & Governance",
+    "categorySlug": "09-data-quality-governance",
+    "file": "09-data-quality-governance/concepts.md",
+    "definition": "Same facts agree across systems/tables within defined rules.",
+    "why": "Conflicting numbers destroy trust.",
+    "example": "Sum of order lines equals order header total; warehouse matches finance extract.",
+    "remember": [
+      "Cross-system reconciliations",
+      "Define which system is source of truth"
+    ]
+  },
+  {
+    "name": "Object Storage",
+    "category": "Cloud & Storage",
+    "categorySlug": "10-cloud-storage",
+    "file": "10-cloud-storage/concepts.md",
+    "definition": "Store immutable objects (files) addressed by key in buckets; virtually infinite scale.",
+    "why": "Default substrate for data lakes.",
+    "example": "S3, ADLS Gen2, GCS holding parquet/Delta tables.",
+    "remember": [
+      "Eventually consistent listing quirks are rarer now but design carefully",
+      "Cheap capacity; watch request/API costs"
+    ]
+  },
+  {
+    "name": "Block Storage",
+    "category": "Cloud & Storage",
+    "categorySlug": "10-cloud-storage",
+    "file": "10-cloud-storage/concepts.md",
+    "definition": "Disk volumes attached to VMs (like SAN/local disks).",
+    "why": "Databases, Kafka brokers, Spark local shuffle disks.",
+    "example": "EBS/Azure Disks for Postgres data directory.",
+    "remember": [
+      "Higher IOPS for stateful services",
+      "Not the primary lake storage"
+    ]
+  },
+  {
+    "name": "Lifecycle Policies",
+    "category": "Cloud & Storage",
+    "categorySlug": "10-cloud-storage",
+    "file": "10-cloud-storage/concepts.md",
+    "definition": "Automatic transition/expire of objects by age/prefix (hot \u2192 cool \u2192 archive \u2192 delete).",
+    "why": "Cost control for lakes and logs.",
+    "example": "Raw logs to Glacier after 90 days; delete after 365.",
+    "remember": [
+      "Align with compliance retention",
+      "Archive retrieval can be slow/expensive"
+    ]
+  },
+  {
+    "name": "IAM",
+    "category": "Cloud & Storage",
+    "categorySlug": "10-cloud-storage",
+    "file": "10-cloud-storage/concepts.md",
+    "definition": "Identity and Access Management \u2014 who can do what on which resources.",
+    "why": "Security boundary for every cloud data platform.",
+    "example": "Role for Spark job: read `s3://lake/bronze/*`, write `s3://lake/silver/*` only.",
+    "remember": [
+      "Least privilege",
+      "Prefer roles over long-lived keys"
+    ]
+  },
+  {
+    "name": "Secrets Management",
+    "category": "Cloud & Storage",
+    "categorySlug": "10-cloud-storage",
+    "file": "10-cloud-storage/concepts.md",
+    "definition": "Store/rotate credentials and API keys outside code.",
+    "why": "Prevent leaks in repos and logs.",
+    "example": "AWS Secrets Manager / Azure Key Vault / HashiCorp Vault for DB passwords.",
+    "remember": [
+      "Never commit secrets",
+      "Rotate and audit access"
+    ]
+  },
+  {
+    "name": "KMS",
+    "category": "Cloud & Storage",
+    "categorySlug": "10-cloud-storage",
+    "file": "10-cloud-storage/concepts.md",
+    "definition": "Key Management Service \u2014 create and control encryption keys.",
+    "why": "Separate permission to use keys from permission to see data.",
+    "example": "S3 SSE-KMS; revoke key usage to lock data access.",
+    "remember": [
+      "Key policies are critical",
+      "Audit key usage"
+    ]
+  },
+  {
+    "name": "Encryption at Rest",
+    "category": "Cloud & Storage",
+    "categorySlug": "10-cloud-storage",
+    "file": "10-cloud-storage/concepts.md",
+    "definition": "Data encrypted on disk/storage media.",
+    "why": "Protects against disk theft and some breach scenarios.",
+    "example": "S3 default encryption; encrypted EBS volumes.",
+    "remember": [
+      "Usually mandatory in enterprises",
+      "Combine with IAM + KMS"
+    ]
+  },
+  {
+    "name": "Encryption in Transit",
+    "category": "Cloud & Storage",
+    "categorySlug": "10-cloud-storage",
+    "file": "10-cloud-storage/concepts.md",
+    "definition": "Data encrypted on the network (TLS/HTTPS).",
+    "why": "Protects against eavesdropping on the wire.",
+    "example": "TLS to warehouses, HTTPS to APIs, SSL to Postgres.",
+    "remember": [
+      "Enforce TLS everywhere practical",
+      "Mind internal service mesh policies"
+    ]
+  },
+  {
+    "name": "VPC",
+    "category": "Cloud & Storage",
+    "categorySlug": "10-cloud-storage",
+    "file": "10-cloud-storage/concepts.md",
+    "definition": "Virtual Private Cloud \u2014 isolated network for your cloud resources.",
+    "why": "Network security and private connectivity.",
+    "example": "Data platform subnets with no public IPs; NAT for egress.",
+    "remember": [
+      "Segment public/private subnets",
+      "Control egress for cost and security"
+    ]
+  },
+  {
+    "name": "Private Endpoints",
+    "category": "Cloud & Storage",
+    "categorySlug": "10-cloud-storage",
+    "file": "10-cloud-storage/concepts.md",
+    "definition": "Private network interfaces to cloud services without public internet.",
+    "why": "Keep data plane traffic off public network.",
+    "example": "S3/GCP Private Service Connect / Azure Private Link to storage and warehouses.",
+    "remember": [
+      "Prefer for production lake + warehouse access",
+      "DNS and firewall rules matter"
+    ]
+  },
+  {
+    "name": "Docker",
+    "category": "DevOps for Data",
+    "categorySlug": "11-devops",
+    "file": "11-devops/concepts.md",
+    "definition": "Package app + dependencies into portable container images.",
+    "why": "Same Spark/Python job runs locally, CI, and prod.",
+    "example": "Image with `spark-submit` entrypoint and pinned library versions.",
+    "remember": [
+      "Pin base image digests for reproducibility",
+      "Keep images lean; separate build vs runtime if needed"
+    ]
+  },
+  {
+    "name": "Kubernetes",
+    "category": "DevOps for Data",
+    "categorySlug": "11-devops",
+    "file": "11-devops/concepts.md",
+    "definition": "Orchestrates containers: scheduling, scaling, restarts, service discovery.",
+    "why": "Common runtime for Spark-on-K8s, Airflow, Flink, microservices.",
+    "example": "SparkApplication CRD submits driver/executors as pods.",
+    "remember": [
+      "Requests/limits matter for stability",
+      "Persistent volumes for stateful components"
+    ]
+  },
+  {
+    "name": "CI/CD",
+    "category": "DevOps for Data",
+    "categorySlug": "11-devops",
+    "file": "11-devops/concepts.md",
+    "definition": "Continuous Integration / Continuous Delivery \u2014 automate test and deploy of code/config.",
+    "why": "Safe, repeatable pipeline and dbt/SQL changes.",
+    "example": "PR runs unit tests + SQL lint \u2192 merge deploys DAG to Airflow.",
+    "remember": [
+      "Test data contracts in CI",
+      "Separate deploy of code vs heavy data backfills"
+    ]
+  },
+  {
+    "name": "GitOps",
+    "category": "DevOps for Data",
+    "categorySlug": "11-devops",
+    "file": "11-devops/concepts.md",
+    "definition": "Desired system state lives in Git; controllers sync cluster to match.",
+    "why": "Auditable infra and app deploys.",
+    "example": "Argo CD applies Helm charts from `infra` repo on merge to main.",
+    "remember": [
+      "Git is source of truth",
+      "PRs become change control"
+    ]
+  },
+  {
+    "name": "Terraform",
+    "category": "DevOps for Data",
+    "categorySlug": "11-devops",
+    "file": "11-devops/concepts.md",
+    "definition": "Declarative Infrastructure as Code tool (HCL) for cloud resources.",
+    "why": "Reproducible buckets, IAM, warehouses, networks.",
+    "example": "Terraform creates S3 lake buckets, Glue catalog DB, IAM roles.",
+    "remember": [
+      "Remote state + locks",
+      "Plan before apply; module wisely"
+    ]
+  },
+  {
+    "name": "Helm",
+    "category": "DevOps for Data",
+    "categorySlug": "11-devops",
+    "file": "11-devops/concepts.md",
+    "definition": "Package manager for Kubernetes \u2014 charts template K8s manifests.",
+    "why": "Standard way to deploy Airflow, Spark operator, monitoring stacks.",
+    "example": "`helm upgrade --install airflow bitnami/airflow -f values.yaml`.",
+    "remember": [
+      "values.yaml is your config surface",
+      "Version charts carefully"
+    ]
+  },
+  {
+    "name": "Infrastructure as Code (IaC)",
+    "category": "DevOps for Data",
+    "categorySlug": "11-devops",
+    "file": "11-devops/concepts.md",
+    "definition": "Define and version infrastructure in code (Terraform, CloudFormation, Pulumi, Bicep).",
+    "why": "Repeatable environments; peer-reviewed changes.",
+    "example": "Dev/stage/prod lakes created from the same modules with different variables.",
+    "remember": [
+      "No click-ops for critical paths",
+      "Codify networking, IAM, and data stores together"
+    ]
+  }
+]
