@@ -53,6 +53,7 @@ Also: **streak** counter, deep links `?tag=kafka` · `?mode=quiz` · `?mode=scen
 | 14 | [Kafka](14-kafka/concepts.md) | Topics, offsets, EOS, schema registry |
 | 15 | [Airflow](15-airflow/concepts.md) | DAGs, sensors, backfill, datasets |
 | 16 | [Cost Optimization](16-cost-optimization/concepts.md) | Pruning, tiering, right-sizing |
+| 17 | [Snowflake](17-snowflake/concepts.md) | Warehouses, micro-partitions, Snowpipe, streams |
 
 ## All keywords
 ### Database & SQL Concepts
@@ -318,6 +319,27 @@ Also: **streak** counter, deep links `?tag=kafka` · `?mode=quiz` · `?mode=scen
 - Right-Sizing Warehouses
 - Cost Observability
 - Incremental vs Full Refresh
+
+### Snowflake
+[17-snowflake/concepts.md](17-snowflake/concepts.md)
+
+- Virtual Warehouse
+- Separation of Storage and Compute
+- Micro-partitions
+- Clustering Key
+- Time Travel (Snowflake)
+- Fail-safe
+- Zero-Copy Clone
+- Stage
+- COPY INTO
+- Snowpipe
+- Stream (Snowflake)
+- Task
+- VARIANT
+- Result Cache
+- Query Profile
+- Secure Data Sharing
+- Roles & RBAC
 
 ## Contributing
 

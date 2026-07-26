@@ -18,6 +18,7 @@ CATEGORY_TAGS = {
     "14-kafka": ["kafka", "streaming", "interview"],
     "15-airflow": ["airflow", "pipeline", "interview"],
     "16-cost-optimization": ["cost", "performance", "interview"],
+    "17-snowflake": ["snowflake", "warehouse", "interview"],
 }
 
 # Extra tags layered on top of category defaults (by concept name)
@@ -67,6 +68,7 @@ TAG_ORDER = [
     "kafka",
     "airflow",
     "dbt",
+    "snowflake",
     "cdc",
     "sql",
     "warehouse",

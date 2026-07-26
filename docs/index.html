@@ -130,6 +130,7 @@
     .chip[data-tag="kafka"], .chip[data-flash-tag="kafka"], .chip[data-quiz-tag="kafka"] { background: #faf5ff; border-color: #c084fc; color: #7e22ce; }
     .chip[data-tag="airflow"], .chip[data-flash-tag="airflow"], .chip[data-quiz-tag="airflow"] { background: #eef2ff; border-color: #818cf8; color: #4338ca; }
     .chip[data-tag="dbt"], .chip[data-flash-tag="dbt"], .chip[data-quiz-tag="dbt"] { background: #fff1f2; border-color: #fb7185; color: #be123c; }
+    .chip[data-tag="snowflake"], .chip[data-flash-tag="snowflake"], .chip[data-quiz-tag="snowflake"] { background: #eff6ff; border-color: #38bdf8; color: #0369a1; }
     .chip[data-tag="cdc"], .chip[data-flash-tag="cdc"], .chip[data-quiz-tag="cdc"] { background: #f0fdf4; border-color: #4ade80; color: #15803d; }
     .chip[data-tag="sql"], .chip[data-flash-tag="sql"], .chip[data-quiz-tag="sql"] { background: #eff6ff; border-color: #60a5fa; color: #1d4ed8; }
     .chip[data-tag="cost"], .chip[data-flash-tag="cost"], .chip[data-quiz-tag="cost"] { background: #fefce8; border-color: #facc15; color: #a16207; }
@@ -5312,6 +5313,448 @@
       "interview",
       "performance"
     ]
+  },
+  {
+    "name": "Virtual Warehouse",
+    "category": "Snowflake",
+    "categorySlug": "17-snowflake",
+    "file": "17-snowflake/concepts.md",
+    "definition": "Dedicated compute cluster (size XS\u20134XL+) that runs queries and DML; billed while running.",
+    "why": "Scale compute independently of storage; isolate workloads (ETL vs BI).",
+    "example": "`CREATE WAREHOUSE etl_wh WITH WAREHOUSE_SIZE = 'M' AUTO_SUSPEND = 60;`",
+    "remember": [
+      "Auto-suspend saves credits",
+      "Separate warehouses for noisy ETL vs dashboards"
+    ],
+    "mustKnow": null,
+    "snippet": "CREATE WAREHOUSE etl_wh WAREHOUSE_SIZE='M' AUTO_SUSPEND=60 AUTO_RESUME=TRUE;",
+    "related": [
+      "Separation of Storage and Compute",
+      "Result Cache",
+      "Query Profile"
+    ],
+    "symptom": "BI and ETL share one warehouse; dashboards stall during loads.",
+    "tags": [
+      "interview",
+      "snowflake",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Separation of Storage and Compute",
+    "category": "Snowflake",
+    "categorySlug": "17-snowflake",
+    "file": "17-snowflake/concepts.md",
+    "definition": "Data lives in cloud storage; warehouses attach compute on demand.",
+    "why": "Many teams/warehouses can query the same data without copying.",
+    "example": "Finance XL warehouse and Data Eng M warehouse both query `PROD.ANALYTICS` tables.",
+    "remember": [
+      "Storage \u2248 cheap continuous cost; compute \u2248 bursty credits",
+      "No classic \u201cresize the cluster that holds the data\u201d"
+    ],
+    "mustKnow": null,
+    "snippet": "-- same tables, different warehouses\nUSE WAREHOUSE bi_wh; SELECT ...;\nUSE WAREHOUSE etl_wh; MERGE ...;",
+    "related": [
+      "Virtual Warehouse",
+      "Cost Observability",
+      "Right-Sizing Warehouses"
+    ],
+    "symptom": "Team thinks they must duplicate data to isolate compute.",
+    "tags": [
+      "interview",
+      "snowflake",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Micro-partitions",
+    "category": "Snowflake",
+    "categorySlug": "17-snowflake",
+    "file": "17-snowflake/concepts.md",
+    "definition": "Immutable ~16MB columnar storage units Snowflake manages automatically (with metadata min/max).",
+    "why": "Enable pruning; clustering improves locality for filters.",
+    "example": "Filter `WHERE order_date = '2024-01-01'` skips micro-partitions outside that range.",
+    "remember": [
+      "You don\u2019t create micro-partitions manually",
+      "Clustering keys guide co-location as data grows"
+    ],
+    "mustKnow": null,
+    "snippet": "-- check pruning in Query Profile: partitions scanned vs total",
+    "related": [
+      "Clustering Key",
+      "Query Profile",
+      "Scan Pruning / Partitioning"
+    ],
+    "symptom": "Filter on unhelpful column scans almost all partitions.",
+    "tags": [
+      "interview",
+      "snowflake",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Clustering Key",
+    "category": "Snowflake",
+    "categorySlug": "17-snowflake",
+    "file": "17-snowflake/concepts.md",
+    "definition": "Optional key(s) that guide how related rows are co-located across micro-partitions.",
+    "why": "Better pruning on large tables filtered by those columns.",
+    "example": "`ALTER TABLE events CLUSTER BY (event_date, customer_id);`",
+    "remember": [
+      "Useful on multi-TB tables with repeated filter patterns",
+      "Over-clustering wastes recluster credits"
+    ],
+    "mustKnow": null,
+    "snippet": "ALTER TABLE events CLUSTER BY (event_date, customer_id);\n-- monitor SYSTEM$CLUSTERING_INFORMATION",
+    "related": [
+      "Micro-partitions",
+      "Query Profile",
+      "Cost Observability"
+    ],
+    "symptom": "Huge table filtered by date still reads most micro-partitions.",
+    "tags": [
+      "interview",
+      "snowflake",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Time Travel (Snowflake)",
+    "category": "Snowflake",
+    "categorySlug": "17-snowflake",
+    "file": "17-snowflake/concepts.md",
+    "definition": "Query or restore table data as of a past timestamp/statement within retention (typically 1\u201390 days).",
+    "why": "Undo bad loads; audit historical state.",
+    "example": "`SELECT * FROM orders AT (TIMESTAMP => '2024-06-01 12:00:00');`",
+    "remember": [
+      "Longer retention \u2192 more storage cost",
+      "Different from Fail-safe"
+    ],
+    "mustKnow": null,
+    "snippet": "SELECT * FROM orders AT (TIMESTAMP => '2024-06-01 12:00:00'::TIMESTAMP_TZ);\nUNDROP TABLE orders;",
+    "related": [
+      "Fail-safe",
+      "Zero-Copy Clone",
+      "Time Travel"
+    ],
+    "symptom": "Bad MERGE discovered hours later with no way to see prior state.",
+    "tags": [
+      "interview",
+      "snowflake",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Fail-safe",
+    "category": "Snowflake",
+    "categorySlug": "17-snowflake",
+    "file": "17-snowflake/concepts.md",
+    "definition": "7-day Snowflake-managed recovery window after Time Travel ends (not for user queries).",
+    "why": "Disaster recovery last resort via Snowflake Support.",
+    "example": "Accidental drop discovered after Time Travel expired \u2192 Fail-safe recovery request.",
+    "remember": [
+      "Not a substitute for Time Travel / backups you control",
+      "Historical data access only through Snowflake"
+    ],
+    "mustKnow": null,
+    "snippet": "-- 7-day Snowflake-managed recovery AFTER time travel\n-- request via Snowflake Support (not SQL)",
+    "related": [
+      "Time Travel (Snowflake)",
+      "Fault Tolerance",
+      "Zero-Copy Clone"
+    ],
+    "symptom": "Expecting Fail-safe to be self-serve like AT(TIMESTAMP).",
+    "tags": [
+      "interview",
+      "snowflake",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Zero-Copy Clone",
+    "category": "Snowflake",
+    "categorySlug": "17-snowflake",
+    "file": "17-snowflake/concepts.md",
+    "definition": "Instant copy of database/schema/table that shares storage until data diverges.",
+    "why": "Fast DEV/QA copies without duplicating bytes upfront.",
+    "example": "`CREATE TABLE orders_dev CLONE prod.analytics.orders;`",
+    "remember": [
+      "Cheap until writes cause divergence",
+      "Great for experiments and backfill tests"
+    ],
+    "mustKnow": null,
+    "snippet": "CREATE SCHEMA analytics_dev CLONE analytics_prod;",
+    "related": [
+      "Time Travel (Snowflake)",
+      "Virtual Warehouse",
+      "Backfill"
+    ],
+    "symptom": "Nightly full COPY of prod into DEV burns storage and time.",
+    "tags": [
+      "interview",
+      "snowflake",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Stage",
+    "category": "Snowflake",
+    "categorySlug": "17-snowflake",
+    "file": "17-snowflake/concepts.md",
+    "definition": "Named location for files (internal Snowflake stage or external S3/Azure/GCS) used by COPY/Snowpipe.",
+    "why": "Standard landing zone for bulk loads.",
+    "example": "`COPY INTO target FROM @my_ext_stage/path/ FILE_FORMAT = (TYPE=PARQUET);`",
+    "remember": [
+      "External stages need storage integration / credentials",
+      "Prefer patterned paths by date"
+    ],
+    "mustKnow": null,
+    "snippet": "CREATE STAGE s3_raw URL='s3://bucket/raw/' STORAGE_INTEGRATION=si;\nLIST @s3_raw;",
+    "related": [
+      "COPY INTO",
+      "Snowpipe",
+      "Object Storage"
+    ],
+    "symptom": "Ad-hoc credentialed COPY from laptops into prod.",
+    "tags": [
+      "interview",
+      "snowflake",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "COPY INTO",
+    "category": "Snowflake",
+    "categorySlug": "17-snowflake",
+    "file": "17-snowflake/concepts.md",
+    "definition": "Bulk load (or unload) command between stages and tables.",
+    "why": "High-throughput ingestion workhorse.",
+    "example": "`COPY INTO raw.events FROM @stage/dt=2024-01-01/ PATTERN='.*[.]parquet';`",
+    "remember": [
+      "Idempotent-ish with force/purge options \u2014 design carefully",
+      "Validate file formats and error options"
+    ],
+    "mustKnow": null,
+    "snippet": "COPY INTO raw.events\nFROM @s3_raw/dt=2024-01-01/\nFILE_FORMAT=(TYPE=PARQUET);",
+    "related": [
+      "Stage",
+      "Snowpipe",
+      "Idempotency"
+    ],
+    "symptom": "Re-running COPY duplicates rows without a truncate/MERGE strategy.",
+    "tags": [
+      "interview",
+      "snowflake",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Snowpipe",
+    "category": "Snowflake",
+    "categorySlug": "17-snowflake",
+    "file": "17-snowflake/concepts.md",
+    "definition": "Continuous/auto-ingest service that loads files from stages as they arrive (often via event notifications).",
+    "why": "Near-real-time landing without scheduling heavy COPY jobs.",
+    "example": "S3 event \u2192 Snowpipe \u2192 `raw.events` within minutes.",
+    "remember": [
+      "Great for many small files; watch pipe errors",
+      "Downstream transforms still need orchestration"
+    ],
+    "mustKnow": null,
+    "snippet": "CREATE PIPE events_pipe AUTO_INGEST=TRUE AS\nCOPY INTO raw.events FROM @s3_raw FILE_FORMAT=(TYPE=JSON);",
+    "related": [
+      "Stage",
+      "COPY INTO",
+      "Stream (Snowflake)"
+    ],
+    "symptom": "Pipe error queue grows; files land but table stays empty.",
+    "tags": [
+      "interview",
+      "snowflake",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Stream (Snowflake)",
+    "category": "Snowflake",
+    "categorySlug": "17-snowflake",
+    "file": "17-snowflake/concepts.md",
+    "definition": "Change-tracking object on a table (CDC-style inserts/updates/deletes) for incremental processing.",
+    "why": "Build incremental ETL without re-scanning full tables.",
+    "example": "`CREATE STREAM orders_stream ON TABLE orders; SELECT * FROM orders_stream WHERE METADATA$ACTION = 'INSERT';`",
+    "remember": [
+      "Consuming a stream advances offsets \u2014 design transactions carefully",
+      "Pair with Tasks for scheduled apply"
+    ],
+    "mustKnow": null,
+    "snippet": "CREATE STREAM stg_orders_stream ON TABLE stg_orders;\nSELECT * FROM stg_orders_stream WHERE METADATA$ACTION='INSERT';",
+    "related": [
+      "Task",
+      "Change Data Capture (CDC)",
+      "Incremental Model"
+    ],
+    "symptom": "Full-table rebuild every hour instead of reading changes.",
+    "tags": [
+      "interview",
+      "snowflake",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Task",
+    "category": "Snowflake",
+    "categorySlug": "17-snowflake",
+    "file": "17-snowflake/concepts.md",
+    "definition": "Scheduled SQL/procedure job in Snowflake (can chain into task trees).",
+    "why": "Lightweight in-platform orchestration for SQL transforms.",
+    "example": "Hourly task merges stream changes into a curated table.",
+    "remember": [
+      "Not a full Airflow replacement for complex multi-system DAGs",
+      "Monitor failed task history"
+    ],
+    "mustKnow": null,
+    "snippet": "CREATE TASK merge_orders WAREHOUSE=etl_wh SCHEDULE='60 MINUTE'\nAS MERGE INTO cur.orders t USING stg.orders_stream s ...;",
+    "related": [
+      "Stream (Snowflake)",
+      "DAG",
+      "Pipeline Orchestration"
+    ],
+    "symptom": "Complex multi-cloud DAG forced entirely into Snowflake Tasks.",
+    "tags": [
+      "interview",
+      "snowflake",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "VARIANT",
+    "category": "Snowflake",
+    "categorySlug": "17-snowflake",
+    "file": "17-snowflake/concepts.md",
+    "definition": "Semi-structured column type for JSON/Avro/XML-like nested data.",
+    "why": "Land flexible payloads then flatten into relational models.",
+    "example": "`SELECT payload:user.id::STRING AS user_id FROM raw_events;`",
+    "remember": [
+      "Queryable without predefined schema",
+      "Flatten hot paths into typed columns for BI performance"
+    ],
+    "mustKnow": null,
+    "snippet": "SELECT payload:user.id::STRING AS user_id,\n       payload:events[0].type::STRING AS first_event\nFROM raw_json;",
+    "related": [
+      "Schema Evolution",
+      "Data Lake",
+      "dbt Model"
+    ],
+    "symptom": "BI tools choke on deep VARIANT paths with no flattened model.",
+    "tags": [
+      "interview",
+      "snowflake",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Result Cache",
+    "category": "Snowflake",
+    "categorySlug": "17-snowflake",
+    "file": "17-snowflake/concepts.md",
+    "definition": "Cached query results reused when identical SQL hits unchanged data (24h, no warehouse needed).",
+    "why": "Repeated dashboard SQL can be nearly free/instant.",
+    "example": "Same BI extract refreshed by many users within minutes \u2192 cache hits.",
+    "remember": [
+      "Any underlying data change invalidates",
+      "Different from local warehouse disk cache"
+    ],
+    "mustKnow": null,
+    "snippet": "-- identical SQL + unchanged data => result cache (no WH credits)",
+    "related": [
+      "Virtual Warehouse",
+      "Result Caching",
+      "Query Profile"
+    ],
+    "symptom": "Assuming all fast queries mean the warehouse size is perfect.",
+    "tags": [
+      "interview",
+      "snowflake",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Query Profile",
+    "category": "Snowflake",
+    "categorySlug": "17-snowflake",
+    "file": "17-snowflake/concepts.md",
+    "definition": "Visual breakdown of a query\u2019s operators, pruning, spillage, and time.",
+    "why": "Primary Snowflake performance debugging tool.",
+    "example": "Profile shows TableScan reading most micro-partitions \u2192 add filter/clustering.",
+    "remember": [
+      "Look for partition scan %, spilling, exploding joins",
+      "Fix data layout before upsizing warehouse"
+    ],
+    "mustKnow": null,
+    "snippet": "-- History \u2192 Query ID \u2192 Profile\n-- check partitions scanned, spilling, join explosion",
+    "related": [
+      "Micro-partitions",
+      "Clustering Key",
+      "Virtual Warehouse"
+    ],
+    "symptom": "Upsizing warehouse repeatedly without reading the profile.",
+    "tags": [
+      "interview",
+      "snowflake",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Secure Data Sharing",
+    "category": "Snowflake",
+    "categorySlug": "17-snowflake",
+    "file": "17-snowflake/concepts.md",
+    "definition": "Share live database objects with other Snowflake accounts without copying data.",
+    "why": "Provider/consumer data products with governance.",
+    "example": "Share `analytics.sales_mart` to a partner reader account.",
+    "remember": [
+      "Consumers query shared objects in their account",
+      "Revoke access instantly vs sending flat files"
+    ],
+    "mustKnow": null,
+    "snippet": "CREATE SHARE partner_share;\nGRANT USAGE ON DATABASE analytics TO SHARE partner_share;\nGRANT SELECT ON VIEW analytics.public.sales_mart TO SHARE partner_share;",
+    "related": [
+      "Roles & RBAC",
+      "Data Contracts",
+      "Object Storage"
+    ],
+    "symptom": "Emailing weekly CSV extracts instead of a live share.",
+    "tags": [
+      "interview",
+      "snowflake",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Roles & RBAC",
+    "category": "Snowflake",
+    "categorySlug": "17-snowflake",
+    "file": "17-snowflake/concepts.md",
+    "definition": "Access control via roles granted privileges on warehouses, databases, schemas, tables.",
+    "why": "Least-privilege for ETL roles vs analyst roles.",
+    "example": "`GRANT USAGE ON WAREHOUSE bi_wh TO ROLE analyst; GRANT SELECT ON ALL TABLES IN SCHEMA marts TO ROLE analyst;`",
+    "remember": [
+      "Users activate a primary role (plus secondary roles if enabled)",
+      "Own objects carefully \u2014 avoid personal ownership in prod"
+    ],
+    "mustKnow": null,
+    "snippet": "GRANT USAGE ON WAREHOUSE bi_wh TO ROLE analyst;\nGRANT SELECT ON ALL TABLES IN SCHEMA marts TO ROLE analyst;",
+    "related": [
+      "IAM",
+      "Secure Data Sharing",
+      "Data Governance"
+    ],
+    "symptom": "Everyone uses ACCOUNTADMIN for daily queries.",
+    "tags": [
+      "interview",
+      "snowflake",
+      "warehouse"
+    ]
   }
 ]</script>
   <script type="application/json" id="scenarios-data">[
@@ -5430,7 +5873,7 @@
     const $ = (id) => document.getElementById(id);
     const LEARN_KEY = "de-sheet-learned-v1";
     const STREAK_KEY = "de-sheet-streak-v1";
-    const TAG_ORDER = ["interview","spark","streaming","kafka","airflow","dbt","cdc","sql","warehouse","lakehouse","distributed","pipeline","performance","cost","quality","cloud","devops"];
+    const TAG_ORDER = ["interview","spark","streaming","kafka","airflow","dbt","snowflake","cdc","sql","warehouse","lakehouse","distributed","pipeline","performance","cost","quality","cloud","devops"];
 
     let concepts = [], scenarios = [], byName = new Map();
     let activeCategory = "All", activeTag = "All", flashTag = "interview", quizTag = "interview";
@@ -5515,7 +5958,7 @@
 
     const TAG_COLORS = {
       interview: "#c2410c", spark: "#a16207", streaming: "#0e7490", kafka: "#7e22ce",
-      airflow: "#4338ca", dbt: "#be123c", cdc: "#15803d", sql: "#1d4ed8",
+      airflow: "#4338ca", dbt: "#be123c", snowflake: "#0369a1", cdc: "#15803d", sql: "#1d4ed8",
       cost: "#a16207", performance: "#b45309", lakehouse: "#0f766e", warehouse: "#0369a1",
       pipeline: "#9f1239", quality: "#047857", cloud: "#1d4ed8", devops: "#6d28d9", distributed: "#7c3aed"
     };

@@ -2,7 +2,7 @@
 
 One-page cheat sheet: keyword · section · definition · example.
 
-**200 concepts** · [Study app](docs/index.html) · [HTML table](docs/table.html)
+**217 concepts** · [Study app](docs/index.html) · [HTML table](docs/table.html)
 
 | Keyword | Section | Definition | Example |
 |---|---|---|---|
@@ -161,6 +161,23 @@ One-page cheat sheet: keyword · section · definition · example.
 | **Metadata-Driven Pipelines** | Pipeline Design | Behavior configured by metadata (tables, mappings, rules) rather than hard-coded per table jobs. | Config table lists source, target, PK, SCD type → one generic loader. |
 | **Pipeline Orchestration** | Pipeline Design | Schedule, dependency management, retries, and observability of multi-step data jobs. | Airflow/Dagster/Prefect/Azure DF: extract → transform → test → publish. |
 | **Retry Strategy** | Pipeline Design | Policy for re-attempting failed work (how many, when, which errors). | Retry S3/API 429/5xx up to 5 times; fail fast on 400 auth errors. |
+| **Clustering Key** | Snowflake | Optional key(s) that guide how related rows are co-located across micro-partitions. | `ALTER TABLE events CLUSTER BY (event_date, customer_id);` |
+| **COPY INTO** | Snowflake | Bulk load (or unload) command between stages and tables. | `COPY INTO raw.events FROM @stage/dt=2024-01-01/ PATTERN='.*[.]parquet';` |
+| **Fail-safe** | Snowflake | 7-day Snowflake-managed recovery window after Time Travel ends (not for user queries). | Accidental drop discovered after Time Travel expired → Fail-safe recovery request. |
+| **Micro-partitions** | Snowflake | Immutable ~16MB columnar storage units Snowflake manages automatically (with metadata min/max). | Filter `WHERE order_date = '2024-01-01'` skips micro-partitions outside that range. |
+| **Query Profile** | Snowflake | Visual breakdown of a query’s operators, pruning, spillage, and time. | Profile shows TableScan reading most micro-partitions → add filter/clustering. |
+| **Result Cache** | Snowflake | Cached query results reused when identical SQL hits unchanged data (24h, no warehouse needed). | Same BI extract refreshed by many users within minutes → cache hits. |
+| **Roles & RBAC** | Snowflake | Access control via roles granted privileges on warehouses, databases, schemas, tables. | `GRANT USAGE ON WAREHOUSE bi_wh TO ROLE analyst; GRANT SELECT ON ALL TABLES IN SCHEMA marts TO ROLE analyst;` |
+| **Secure Data Sharing** | Snowflake | Share live database objects with other Snowflake accounts without copying data. | Share `analytics.sales_mart` to a partner reader account. |
+| **Separation of Storage and Compute** | Snowflake | Data lives in cloud storage; warehouses attach compute on demand. | Finance XL warehouse and Data Eng M warehouse both query `PROD.ANALYTICS` tables. |
+| **Snowpipe** | Snowflake | Continuous/auto-ingest service that loads files from stages as they arrive (often via event notifications). | S3 event → Snowpipe → `raw.events` within minutes. |
+| **Stage** | Snowflake | Named location for files (internal Snowflake stage or external S3/Azure/GCS) used by COPY/Snowpipe. | `COPY INTO target FROM @my_ext_stage/path/ FILE_FORMAT = (TYPE=PARQUET);` |
+| **Stream (Snowflake)** | Snowflake | Change-tracking object on a table (CDC-style inserts/updates/deletes) for incremental processing. | `CREATE STREAM orders_stream ON TABLE orders; SELECT * FROM orders_stream WHERE METADATA$ACTION = 'INSERT';` |
+| **Task** | Snowflake | Scheduled SQL/procedure job in Snowflake (can chain into task trees). | Hourly task merges stream changes into a curated table. |
+| **Time Travel (Snowflake)** | Snowflake | Query or restore table data as of a past timestamp/statement within retention (typically 1–90 days). | `SELECT * FROM orders AT (TIMESTAMP => '2024-06-01 12:00:00');` |
+| **VARIANT** | Snowflake | Semi-structured column type for JSON/Avro/XML-like nested data. | `SELECT payload:user.id::STRING AS user_id FROM raw_events;` |
+| **Virtual Warehouse** | Snowflake | Dedicated compute cluster (size XS–4XL+) that runs queries and DML; billed while running. | `CREATE WAREHOUSE etl_wh WITH WAREHOUSE_SIZE = 'M' AUTO_SUSPEND = 60;` |
+| **Zero-Copy Clone** | Snowflake | Instant copy of database/schema/table that shares storage until data diverges. | `CREATE TABLE orders_dev CLONE prod.analytics.orders;` |
 | **Accumulators** | Spark Internals | Write-only aggregate variables (counters) updated by executors, read on driver. | Count malformed records while mapping. |
 | **Adaptive Query Execution (AQE)** | Spark Internals | Spark SQL re-optimizes the plan at runtime using size stats after shuffles (Spark 3+). | AQE converts sort-merge to broadcast when post-shuffle side is small. |
 | **Broadcast Variables** | Spark Internals | Read-only copy of data sent once to each executor. | Broadcast a small dimension for map-side join / `broadcast(df)`. |

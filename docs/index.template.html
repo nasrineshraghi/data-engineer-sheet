@@ -130,6 +130,7 @@
     .chip[data-tag="kafka"], .chip[data-flash-tag="kafka"], .chip[data-quiz-tag="kafka"] { background: #faf5ff; border-color: #c084fc; color: #7e22ce; }
     .chip[data-tag="airflow"], .chip[data-flash-tag="airflow"], .chip[data-quiz-tag="airflow"] { background: #eef2ff; border-color: #818cf8; color: #4338ca; }
     .chip[data-tag="dbt"], .chip[data-flash-tag="dbt"], .chip[data-quiz-tag="dbt"] { background: #fff1f2; border-color: #fb7185; color: #be123c; }
+    .chip[data-tag="snowflake"], .chip[data-flash-tag="snowflake"], .chip[data-quiz-tag="snowflake"] { background: #eff6ff; border-color: #38bdf8; color: #0369a1; }
     .chip[data-tag="cdc"], .chip[data-flash-tag="cdc"], .chip[data-quiz-tag="cdc"] { background: #f0fdf4; border-color: #4ade80; color: #15803d; }
     .chip[data-tag="sql"], .chip[data-flash-tag="sql"], .chip[data-quiz-tag="sql"] { background: #eff6ff; border-color: #60a5fa; color: #1d4ed8; }
     .chip[data-tag="cost"], .chip[data-flash-tag="cost"], .chip[data-quiz-tag="cost"] { background: #fefce8; border-color: #facc15; color: #a16207; }
@@ -367,7 +368,7 @@
     const $ = (id) => document.getElementById(id);
     const LEARN_KEY = "de-sheet-learned-v1";
     const STREAK_KEY = "de-sheet-streak-v1";
-    const TAG_ORDER = ["interview","spark","streaming","kafka","airflow","dbt","cdc","sql","warehouse","lakehouse","distributed","pipeline","performance","cost","quality","cloud","devops"];
+    const TAG_ORDER = ["interview","spark","streaming","kafka","airflow","dbt","snowflake","cdc","sql","warehouse","lakehouse","distributed","pipeline","performance","cost","quality","cloud","devops"];
 
     let concepts = [], scenarios = [], byName = new Map();
     let activeCategory = "All", activeTag = "All", flashTag = "interview", quizTag = "interview";
@@ -452,7 +453,7 @@
 
     const TAG_COLORS = {
       interview: "#c2410c", spark: "#a16207", streaming: "#0e7490", kafka: "#7e22ce",
-      airflow: "#4338ca", dbt: "#be123c", cdc: "#15803d", sql: "#1d4ed8",
+      airflow: "#4338ca", dbt: "#be123c", snowflake: "#0369a1", cdc: "#15803d", sql: "#1d4ed8",
       cost: "#a16207", performance: "#b45309", lakehouse: "#0f766e", warehouse: "#0369a1",
       pipeline: "#9f1239", quality: "#047857", cloud: "#1d4ed8", devops: "#6d28d9", distributed: "#7c3aed"
     };

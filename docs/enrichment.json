@@ -1806,5 +1806,158 @@
       "Cost Observability"
     ],
     "symptom": "Multi-TB fact rebuilds every hour 'just to be safe'."
+  },
+  "Virtual Warehouse": {
+    "snippet": "CREATE WAREHOUSE etl_wh WAREHOUSE_SIZE='M' AUTO_SUSPEND=60 AUTO_RESUME=TRUE;",
+    "related": [
+      "Separation of Storage and Compute",
+      "Result Cache",
+      "Query Profile"
+    ],
+    "symptom": "BI and ETL share one warehouse; dashboards stall during loads."
+  },
+  "Separation of Storage and Compute": {
+    "snippet": "-- same tables, different warehouses\nUSE WAREHOUSE bi_wh; SELECT ...;\nUSE WAREHOUSE etl_wh; MERGE ...;",
+    "related": [
+      "Virtual Warehouse",
+      "Cost Observability",
+      "Right-Sizing Warehouses"
+    ],
+    "symptom": "Team thinks they must duplicate data to isolate compute."
+  },
+  "Micro-partitions": {
+    "snippet": "-- check pruning in Query Profile: partitions scanned vs total",
+    "related": [
+      "Clustering Key",
+      "Query Profile",
+      "Scan Pruning / Partitioning"
+    ],
+    "symptom": "Filter on unhelpful column scans almost all partitions."
+  },
+  "Clustering Key": {
+    "snippet": "ALTER TABLE events CLUSTER BY (event_date, customer_id);\n-- monitor SYSTEM$CLUSTERING_INFORMATION",
+    "related": [
+      "Micro-partitions",
+      "Query Profile",
+      "Cost Observability"
+    ],
+    "symptom": "Huge table filtered by date still reads most micro-partitions."
+  },
+  "Time Travel (Snowflake)": {
+    "snippet": "SELECT * FROM orders AT (TIMESTAMP => '2024-06-01 12:00:00'::TIMESTAMP_TZ);\nUNDROP TABLE orders;",
+    "related": [
+      "Fail-safe",
+      "Zero-Copy Clone",
+      "Time Travel"
+    ],
+    "symptom": "Bad MERGE discovered hours later with no way to see prior state."
+  },
+  "Fail-safe": {
+    "snippet": "-- 7-day Snowflake-managed recovery AFTER time travel\n-- request via Snowflake Support (not SQL)",
+    "related": [
+      "Time Travel (Snowflake)",
+      "Fault Tolerance",
+      "Zero-Copy Clone"
+    ],
+    "symptom": "Expecting Fail-safe to be self-serve like AT(TIMESTAMP)."
+  },
+  "Zero-Copy Clone": {
+    "snippet": "CREATE SCHEMA analytics_dev CLONE analytics_prod;",
+    "related": [
+      "Time Travel (Snowflake)",
+      "Virtual Warehouse",
+      "Backfill"
+    ],
+    "symptom": "Nightly full COPY of prod into DEV burns storage and time."
+  },
+  "Stage": {
+    "snippet": "CREATE STAGE s3_raw URL='s3://bucket/raw/' STORAGE_INTEGRATION=si;\nLIST @s3_raw;",
+    "related": [
+      "COPY INTO",
+      "Snowpipe",
+      "Object Storage"
+    ],
+    "symptom": "Ad-hoc credentialed COPY from laptops into prod."
+  },
+  "COPY INTO": {
+    "snippet": "COPY INTO raw.events\nFROM @s3_raw/dt=2024-01-01/\nFILE_FORMAT=(TYPE=PARQUET);",
+    "related": [
+      "Stage",
+      "Snowpipe",
+      "Idempotency"
+    ],
+    "symptom": "Re-running COPY duplicates rows without a truncate/MERGE strategy."
+  },
+  "Snowpipe": {
+    "snippet": "CREATE PIPE events_pipe AUTO_INGEST=TRUE AS\nCOPY INTO raw.events FROM @s3_raw FILE_FORMAT=(TYPE=JSON);",
+    "related": [
+      "Stage",
+      "COPY INTO",
+      "Stream (Snowflake)"
+    ],
+    "symptom": "Pipe error queue grows; files land but table stays empty."
+  },
+  "Stream (Snowflake)": {
+    "snippet": "CREATE STREAM stg_orders_stream ON TABLE stg_orders;\nSELECT * FROM stg_orders_stream WHERE METADATA$ACTION='INSERT';",
+    "related": [
+      "Task",
+      "Change Data Capture (CDC)",
+      "Incremental Model"
+    ],
+    "symptom": "Full-table rebuild every hour instead of reading changes."
+  },
+  "Task": {
+    "snippet": "CREATE TASK merge_orders WAREHOUSE=etl_wh SCHEDULE='60 MINUTE'\nAS MERGE INTO cur.orders t USING stg.orders_stream s ...;",
+    "related": [
+      "Stream (Snowflake)",
+      "DAG",
+      "Pipeline Orchestration"
+    ],
+    "symptom": "Complex multi-cloud DAG forced entirely into Snowflake Tasks."
+  },
+  "VARIANT": {
+    "snippet": "SELECT payload:user.id::STRING AS user_id,\n       payload:events[0].type::STRING AS first_event\nFROM raw_json;",
+    "related": [
+      "Schema Evolution",
+      "Data Lake",
+      "dbt Model"
+    ],
+    "symptom": "BI tools choke on deep VARIANT paths with no flattened model."
+  },
+  "Result Cache": {
+    "snippet": "-- identical SQL + unchanged data => result cache (no WH credits)",
+    "related": [
+      "Virtual Warehouse",
+      "Result Caching",
+      "Query Profile"
+    ],
+    "symptom": "Assuming all fast queries mean the warehouse size is perfect."
+  },
+  "Query Profile": {
+    "snippet": "-- History \u2192 Query ID \u2192 Profile\n-- check partitions scanned, spilling, join explosion",
+    "related": [
+      "Micro-partitions",
+      "Clustering Key",
+      "Virtual Warehouse"
+    ],
+    "symptom": "Upsizing warehouse repeatedly without reading the profile."
+  },
+  "Secure Data Sharing": {
+    "snippet": "CREATE SHARE partner_share;\nGRANT USAGE ON DATABASE analytics TO SHARE partner_share;\nGRANT SELECT ON VIEW analytics.public.sales_mart TO SHARE partner_share;",
+    "related": [
+      "Roles & RBAC",
+      "Data Contracts",
+      "Object Storage"
+    ],
+    "symptom": "Emailing weekly CSV extracts instead of a live share."
+  },
+  "Roles & RBAC": {
+    "snippet": "GRANT USAGE ON WAREHOUSE bi_wh TO ROLE analyst;\nGRANT SELECT ON ALL TABLES IN SCHEMA marts TO ROLE analyst;",
+    "related": [
+      "IAM",
+      "Secure Data Sharing",
+      "Data Governance"
+    ],
+    "symptom": "Everyone uses ACCOUNTADMIN for daily queries."
   }
 }

@@ -74,7 +74,7 @@ tr:hover td { background:#ecfeff; }
 <body>
 <main class="wrap">
   <h1>Quick reference table</h1>
-  <p class="sub">200 keywords · definition · example · section · <a href="index.html">Study app</a> · <a href="../QUICK_REF.md">Markdown</a></p>
+  <p class="sub">217 keywords · definition · example · section · <a href="index.html">Study app</a> · <a href="../QUICK_REF.md">Markdown</a></p>
   <div class="toolbar">
     <input id="q" type="search" placeholder="Filter keywords, definitions, examples…" />
     <select id="sec"><option value="">All sections</option><option value="Airflow">Airflow</option>
@@ -90,10 +90,11 @@ tr:hover td { background:#ecfeff; }
 <option value="Kafka">Kafka</option>
 <option value="Performance Tuning">Performance Tuning</option>
 <option value="Pipeline Design">Pipeline Design</option>
+<option value="Snowflake">Snowflake</option>
 <option value="Spark Internals">Spark Internals</option>
 <option value="Streaming">Streaming</option>
 <option value="dbt">dbt</option></select>
-    <div class="count"><strong id="shown">200</strong> / 200</div>
+    <div class="count"><strong id="shown">217</strong> / 217</div>
   </div>
   <div class="table-wrap">
     <table>
@@ -256,6 +257,23 @@ tr:hover td { background:#ecfeff; }
 <tr><td class="kw">Metadata-Driven Pipelines</td><td class="sec"><span class="pill">Pipeline Design</span></td><td>Behavior configured by metadata (tables, mappings, rules) rather than hard-coded per table jobs.</td><td class="ex">Config table lists source, target, PK, SCD type → one generic loader.</td></tr>
 <tr><td class="kw">Pipeline Orchestration</td><td class="sec"><span class="pill">Pipeline Design</span></td><td>Schedule, dependency management, retries, and observability of multi-step data jobs.</td><td class="ex">Airflow/Dagster/Prefect/Azure DF: extract → transform → test → publish.</td></tr>
 <tr><td class="kw">Retry Strategy</td><td class="sec"><span class="pill">Pipeline Design</span></td><td>Policy for re-attempting failed work (how many, when, which errors).</td><td class="ex">Retry S3/API 429/5xx up to 5 times; fail fast on 400 auth errors.</td></tr>
+<tr><td class="kw">Clustering Key</td><td class="sec"><span class="pill">Snowflake</span></td><td>Optional key(s) that guide how related rows are co-located across micro-partitions.</td><td class="ex">`ALTER TABLE events CLUSTER BY (event_date, customer_id);`</td></tr>
+<tr><td class="kw">COPY INTO</td><td class="sec"><span class="pill">Snowflake</span></td><td>Bulk load (or unload) command between stages and tables.</td><td class="ex">`COPY INTO raw.events FROM @stage/dt=2024-01-01/ PATTERN=&#x27;.*[.]parquet&#x27;;`</td></tr>
+<tr><td class="kw">Fail-safe</td><td class="sec"><span class="pill">Snowflake</span></td><td>7-day Snowflake-managed recovery window after Time Travel ends (not for user queries).</td><td class="ex">Accidental drop discovered after Time Travel expired → Fail-safe recovery request.</td></tr>
+<tr><td class="kw">Micro-partitions</td><td class="sec"><span class="pill">Snowflake</span></td><td>Immutable ~16MB columnar storage units Snowflake manages automatically (with metadata min/max).</td><td class="ex">Filter `WHERE order_date = &#x27;2024-01-01&#x27;` skips micro-partitions outside that range.</td></tr>
+<tr><td class="kw">Query Profile</td><td class="sec"><span class="pill">Snowflake</span></td><td>Visual breakdown of a query’s operators, pruning, spillage, and time.</td><td class="ex">Profile shows TableScan reading most micro-partitions → add filter/clustering.</td></tr>
+<tr><td class="kw">Result Cache</td><td class="sec"><span class="pill">Snowflake</span></td><td>Cached query results reused when identical SQL hits unchanged data (24h, no warehouse needed).</td><td class="ex">Same BI extract refreshed by many users within minutes → cache hits.</td></tr>
+<tr><td class="kw">Roles &amp; RBAC</td><td class="sec"><span class="pill">Snowflake</span></td><td>Access control via roles granted privileges on warehouses, databases, schemas, tables.</td><td class="ex">`GRANT USAGE ON WAREHOUSE bi_wh TO ROLE analyst; GRANT SELECT ON ALL TABLES IN SCHEMA marts TO ROLE analyst;`</td></tr>
+<tr><td class="kw">Secure Data Sharing</td><td class="sec"><span class="pill">Snowflake</span></td><td>Share live database objects with other Snowflake accounts without copying data.</td><td class="ex">Share `analytics.sales_mart` to a partner reader account.</td></tr>
+<tr><td class="kw">Separation of Storage and Compute</td><td class="sec"><span class="pill">Snowflake</span></td><td>Data lives in cloud storage; warehouses attach compute on demand.</td><td class="ex">Finance XL warehouse and Data Eng M warehouse both query `PROD.ANALYTICS` tables.</td></tr>
+<tr><td class="kw">Snowpipe</td><td class="sec"><span class="pill">Snowflake</span></td><td>Continuous/auto-ingest service that loads files from stages as they arrive (often via event notifications).</td><td class="ex">S3 event → Snowpipe → `raw.events` within minutes.</td></tr>
+<tr><td class="kw">Stage</td><td class="sec"><span class="pill">Snowflake</span></td><td>Named location for files (internal Snowflake stage or external S3/Azure/GCS) used by COPY/Snowpipe.</td><td class="ex">`COPY INTO target FROM @my_ext_stage/path/ FILE_FORMAT = (TYPE=PARQUET);`</td></tr>
+<tr><td class="kw">Stream (Snowflake)</td><td class="sec"><span class="pill">Snowflake</span></td><td>Change-tracking object on a table (CDC-style inserts/updates/deletes) for incremental processing.</td><td class="ex">`CREATE STREAM orders_stream ON TABLE orders; SELECT * FROM orders_stream WHERE METADATA$ACTION = &#x27;INSERT&#x27;;`</td></tr>
+<tr><td class="kw">Task</td><td class="sec"><span class="pill">Snowflake</span></td><td>Scheduled SQL/procedure job in Snowflake (can chain into task trees).</td><td class="ex">Hourly task merges stream changes into a curated table.</td></tr>
+<tr><td class="kw">Time Travel (Snowflake)</td><td class="sec"><span class="pill">Snowflake</span></td><td>Query or restore table data as of a past timestamp/statement within retention (typically 1–90 days).</td><td class="ex">`SELECT * FROM orders AT (TIMESTAMP =&gt; &#x27;2024-06-01 12:00:00&#x27;);`</td></tr>
+<tr><td class="kw">VARIANT</td><td class="sec"><span class="pill">Snowflake</span></td><td>Semi-structured column type for JSON/Avro/XML-like nested data.</td><td class="ex">`SELECT payload:user.id::STRING AS user_id FROM raw_events;`</td></tr>
+<tr><td class="kw">Virtual Warehouse</td><td class="sec"><span class="pill">Snowflake</span></td><td>Dedicated compute cluster (size XS–4XL+) that runs queries and DML; billed while running.</td><td class="ex">`CREATE WAREHOUSE etl_wh WITH WAREHOUSE_SIZE = &#x27;M&#x27; AUTO_SUSPEND = 60;`</td></tr>
+<tr><td class="kw">Zero-Copy Clone</td><td class="sec"><span class="pill">Snowflake</span></td><td>Instant copy of database/schema/table that shares storage until data diverges.</td><td class="ex">`CREATE TABLE orders_dev CLONE prod.analytics.orders;`</td></tr>
 <tr><td class="kw">Accumulators</td><td class="sec"><span class="pill">Spark Internals</span></td><td>Write-only aggregate variables (counters) updated by executors, read on driver.</td><td class="ex">Count malformed records while mapping.</td></tr>
 <tr><td class="kw">Adaptive Query Execution (AQE)</td><td class="sec"><span class="pill">Spark Internals</span></td><td>Spark SQL re-optimizes the plan at runtime using size stats after shuffles (Spark 3+).</td><td class="ex">AQE converts sort-merge to broadcast when post-shuffle side is small.</td></tr>
 <tr><td class="kw">Broadcast Variables</td><td class="sec"><span class="pill">Spark Internals</span></td><td>Read-only copy of data sent once to each executor.</td><td class="ex">Broadcast a small dimension for map-side join / `broadcast(df)`.</td></tr>

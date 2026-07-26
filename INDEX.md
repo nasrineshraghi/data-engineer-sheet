@@ -37,6 +37,7 @@ Jump to the category file for definition + example.
 | Closure | [Spark Internals](02-spark-internals/concepts.md) |
 | Cluster Manager | [Spark Internals](02-spark-internals/concepts.md) |
 | Clustered vs Non-Clustered Index | [Database & SQL Concepts](01-database-sql/concepts.md) |
+| Clustering Key | [Snowflake](17-snowflake/concepts.md) |
 | Column Pruning | [Cost Optimization](16-cost-optimization/concepts.md) |
 | Compaction | [Data Lake & Lakehouse](04-data-lake-lakehouse/concepts.md) |
 | Compaction (Kafka) | [Kafka](14-kafka/concepts.md) |
@@ -46,6 +47,7 @@ Jump to the category file for definition + example.
 | Consensus | [Distributed Systems](05-distributed-systems/concepts.md) |
 | Consistency | [Data Quality & Governance](09-data-quality-governance/concepts.md) |
 | Consumer Group | [Kafka](14-kafka/concepts.md) |
+| COPY INTO | [Snowflake](17-snowflake/concepts.md) |
 | Cost Observability | [Cost Optimization](16-cost-optimization/concepts.md) |
 | Cost-Based Optimizer (CBO) | [Database & SQL Concepts](01-database-sql/concepts.md) |
 | Covering Index | [Database & SQL Concepts](01-database-sql/concepts.md) |
@@ -87,6 +89,7 @@ Jump to the category file for definition + example.
 | Explain Plan | [Database & SQL Concepts](01-database-sql/concepts.md) |
 | Exposures | [dbt](13-dbt/concepts.md) |
 | Factless Fact Table | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
+| Fail-safe | [Snowflake](17-snowflake/concepts.md) |
 | Fault Tolerance | [Distributed Systems](05-distributed-systems/concepts.md) |
 | File Size Tuning | [Cost Optimization](16-cost-optimization/concepts.md) |
 | Freshness | [Data Quality & Governance](09-data-quality-governance/concepts.md) |
@@ -123,6 +126,7 @@ Jump to the category file for definition + example.
 | Memory Management | [Spark Internals](02-spark-internals/concepts.md) |
 | Metadata | [Data Quality & Governance](09-data-quality-governance/concepts.md) |
 | Metadata-Driven Pipelines | [Pipeline Design](07-pipeline-design/concepts.md) |
+| Micro-partitions | [Snowflake](17-snowflake/concepts.md) |
 | Mini Dimension | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
 | Natural Key | [CDC & SCD](12-cdc-scd/concepts.md) |
 | Non-Additive Facts | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
@@ -143,15 +147,18 @@ Jump to the category file for definition + example.
 | Private Endpoints | [Cloud & Storage](10-cloud-storage/concepts.md) |
 | Processing Time | [Streaming](06-streaming/concepts.md) |
 | Producer / Consumer | [Kafka](14-kafka/concepts.md) |
+| Query Profile | [Snowflake](17-snowflake/concepts.md) |
 | Query-Based CDC | [CDC & SCD](12-cdc-scd/concepts.md) |
 | Raft | [Distributed Systems](05-distributed-systems/concepts.md) |
 | ref() | [dbt](13-dbt/concepts.md) |
 | Replication | [Distributed Systems](05-distributed-systems/concepts.md) |
 | Replication Factor | [Kafka](14-kafka/concepts.md) |
+| Result Cache | [Snowflake](17-snowflake/concepts.md) |
 | Result Caching | [Cost Optimization](16-cost-optimization/concepts.md) |
 | Retry Strategy | [Pipeline Design](07-pipeline-design/concepts.md) |
 | Right-Sizing Warehouses | [Cost Optimization](16-cost-optimization/concepts.md) |
 | Role-Playing Dimension | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
+| Roles & RBAC | [Snowflake](17-snowflake/concepts.md) |
 | Rule-Based Optimizer (RBO) | [Database & SQL Concepts](01-database-sql/concepts.md) |
 | Salting | [Performance Tuning](08-performance-tuning/concepts.md) |
 | Scan Pruning / Partitioning | [Cost Optimization](16-cost-optimization/concepts.md) |
@@ -163,11 +170,13 @@ Jump to the category file for definition + example.
 | Schema Evolution | [Data Lake & Lakehouse](04-data-lake-lakehouse/concepts.md) |
 | Schema Registry | [Kafka](14-kafka/concepts.md) |
 | Secrets Management | [Cloud & Storage](10-cloud-storage/concepts.md) |
+| Secure Data Sharing | [Snowflake](17-snowflake/concepts.md) |
 | Seeds | [dbt](13-dbt/concepts.md) |
 | Seek vs Scan | [Database & SQL Concepts](01-database-sql/concepts.md) |
 | Selectivity | [Database & SQL Concepts](01-database-sql/concepts.md) |
 | Semi-Additive Facts | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
 | Sensor | [Airflow](15-airflow/concepts.md) |
+| Separation of Storage and Compute | [Snowflake](17-snowflake/concepts.md) |
 | Serialization (Java/Kryo) | [Spark Internals](02-spark-internals/concepts.md) |
 | Shuffle | [Spark Internals](02-spark-internals/concepts.md) |
 | Shuffle Join | [Performance Tuning](08-performance-tuning/concepts.md) |
@@ -176,27 +185,34 @@ Jump to the category file for definition + example.
 | Slim CI / State Defer | [dbt](13-dbt/concepts.md) |
 | Small File Problem | [Performance Tuning](08-performance-tuning/concepts.md) |
 | Snapshot Fact | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
+| Snowpipe | [Snowflake](17-snowflake/concepts.md) |
 | Soft Delete vs Hard Delete | [CDC & SCD](12-cdc-scd/concepts.md) |
 | Sort Merge Join | [Performance Tuning](08-performance-tuning/concepts.md) |
 | Sources | [dbt](13-dbt/concepts.md) |
 | Spill to Disk | [Spark Internals](02-spark-internals/concepts.md) |
 | Spot / Preemptible Workers | [Cost Optimization](16-cost-optimization/concepts.md) |
+| Stage | [Snowflake](17-snowflake/concepts.md) |
 | Stateful Processing | [Streaming](06-streaming/concepts.md) |
 | Stateless Processing | [Streaming](06-streaming/concepts.md) |
 | Statistics | [Database & SQL Concepts](01-database-sql/concepts.md) |
 | Storage Tiering | [Cost Optimization](16-cost-optimization/concepts.md) |
+| Stream (Snowflake) | [Snowflake](17-snowflake/concepts.md) |
 | Strong Consistency | [Distributed Systems](05-distributed-systems/concepts.md) |
 | Surrogate Key | [CDC & SCD](12-cdc-scd/concepts.md) |
 | Table Scan vs Index Scan | [Database & SQL Concepts](01-database-sql/concepts.md) |
+| Task | [Snowflake](17-snowflake/concepts.md) |
 | Task / Operator | [Airflow](15-airflow/concepts.md) |
 | Task Scheduler | [Spark Internals](02-spark-internals/concepts.md) |
 | Terraform | [DevOps for Data](11-devops/concepts.md) |
 | Tests (dbt) | [dbt](13-dbt/concepts.md) |
 | Time Travel | [Data Lake & Lakehouse](04-data-lake-lakehouse/concepts.md) |
+| Time Travel (Snowflake) | [Snowflake](17-snowflake/concepts.md) |
 | Topic | [Kafka](14-kafka/concepts.md) |
 | Tungsten Engine | [Spark Internals](02-spark-internals/concepts.md) |
 | Vacuum | [Data Lake & Lakehouse](04-data-lake-lakehouse/concepts.md) |
+| VARIANT | [Snowflake](17-snowflake/concepts.md) |
 | Vertical Scaling | [Distributed Systems](05-distributed-systems/concepts.md) |
+| Virtual Warehouse | [Snowflake](17-snowflake/concepts.md) |
 | VPC | [Cloud & Storage](10-cloud-storage/concepts.md) |
 | Watermarks | [Streaming](06-streaming/concepts.md) |
 | Wide vs Narrow Transformations | [Spark Internals](02-spark-internals/concepts.md) |
@@ -204,3 +220,4 @@ Jump to the category file for definition + example.
 | Worker | [Spark Internals](02-spark-internals/concepts.md) |
 | XCom | [Airflow](15-airflow/concepts.md) |
 | Z-Ordering | [Data Lake & Lakehouse](04-data-lake-lakehouse/concepts.md) |
+| Zero-Copy Clone | [Snowflake](17-snowflake/concepts.md) |

@@ -30,6 +30,7 @@ CATEGORIES = [
     ("14-kafka", "Kafka"),
     ("15-airflow", "Airflow"),
     ("16-cost-optimization", "Cost Optimization"),
+    ("17-snowflake", "Snowflake"),
 ]
 
 
