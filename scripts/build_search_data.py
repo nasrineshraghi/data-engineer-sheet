@@ -223,11 +223,15 @@ def main() -> None:
         )
         table_path.write_text(table_html)
 
-    template_path = DOCS / "index.template.html"
-    html_path = DOCS / "index.html"
-    if template_path.exists():
-        # Data loads via fetch(concepts.json / scenarios.json / playbook.json)
-        html_path.write_text(template_path.read_text())
+    # Static homepage (no JS) — always visible on GitHub Pages
+    home_template = DOCS / "home.template.html"
+    if home_template.exists():
+        (DOCS / "index.html").write_text(home_template.read_text())
+
+    # Interactive study app
+    app_template = DOCS / "index.template.html"
+    if app_template.exists():
+        (DOCS / "app.html").write_text(app_template.read_text())
 
     with_snip = sum(1 for c in all_concepts if c.get("snippet"))
     with_sym = sum(1 for c in all_concepts if c.get("symptom"))
@@ -235,7 +239,8 @@ def main() -> None:
     print(
         f"Wrote {len(all_concepts)} concepts ({len(must)} must-know, "
         f"{with_snip} snippets, {with_sym} symptoms, {with_rel} related, "
-        f"{len(scenarios)} scenarios, {len(playbook)} playbook)"
+        f"{len(scenarios)} scenarios, {len(playbook)} playbook); "
+        f"pages: index.html (home) + app.html + table.html"
     )
 
 

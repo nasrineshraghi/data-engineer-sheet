@@ -4,13 +4,18 @@ A practical glossary of techniques, keywords, and concepts every data engineer s
 
 ## Live on GitHub Pages
 
+Use the **full** URL (include `/data-engineer-sheet/`):
+
 | Open this | Link |
 |-----------|------|
-| **Summary table (all keywords)** | https://nasrineshraghi.github.io/data-engineer-sheet/table.html |
-| **Study app (Essentials / Prod)** | https://nasrineshraghi.github.io/data-engineer-sheet/ |
-| **Markdown summary table** (in the repo) | [QUICK_REF.md](QUICK_REF.md) |
+| **Home (always works)** | https://nasrineshraghi.github.io/data-engineer-sheet/ |
+| **Summary table** | https://nasrineshraghi.github.io/data-engineer-sheet/table.html |
+| **Study app** | https://nasrineshraghi.github.io/data-engineer-sheet/app.html |
+| **Markdown summary** | [QUICK_REF.md](QUICK_REF.md) |
 
-If the Pages links 404: repo **Settings → Pages → Deploy from a branch → `gh-pages` / `(root)` → Save**.
+Do **not** open only `nasrineshraghi.github.io` (missing the repo path).
+
+If Pages 404s: repo **Settings → Pages → Deploy from a branch → `gh-pages` / `(root)` → Save**.
 
 ## New here? Start with this
 
