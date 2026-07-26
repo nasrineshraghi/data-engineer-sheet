@@ -7,6 +7,10 @@
 *.swp
 *~
 
+# Python
+__pycache__/
+*.py[cod]
+
 # Local notes (optional personal scratch)
 .env
 *.local.md
