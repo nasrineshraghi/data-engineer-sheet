@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DE Sheet Home v5</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      background: #0f766e;
+      color: #fff;
+      min-height: 100vh;
+      padding: 1.25rem;
+    }
+    .box {
+      max-width: 640px;
+      margin: 1rem auto;
+      background: #fff;
+      color: #12202e;
+      border-radius: 16px;
+      padding: 1.25rem 1.35rem;
+    }
+    h1 { margin: 0 0 0.5rem; font-size: 1.75rem; color: #0f766e; }
+    p { line-height: 1.5; color: #334155; }
+    .ok {
+      display: inline-block;
+      background: #16a34a;
+      color: #fff;
+      font-weight: 800;
+      padding: 0.4rem 0.75rem;
+      border-radius: 999px;
+      margin-bottom: 0.75rem;
+    }
+    a.btn {
+      display: block;
+      text-align: left;
+      text-decoration: none;
+      font-weight: 800;
+      padding: 0.95rem 1rem;
+      border-radius: 12px;
+      margin: 0.55rem 0;
+      color: #fff;
+    }
+    a.btn span {
+      display: block;
+      font-weight: 600;
+      font-size: 0.85rem;
+      opacity: 0.92;
+      margin-top: 0.2rem;
+    }
+    .orange { background: #ea580c; }
+    .teal { background: #0f766e; }
+    .blue { background: #0284c7; }
+    .gold { background: #ca8a04; }
+    .purple { background: #7c3aed; }
+    .warn {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background: #fff7ed;
+      border: 1px solid #fdba74;
+      border-radius: 10px;
+      color: #9a3412;
+      font-size: 0.92rem;
+    }
+    code { background: #f1f5f9; padding: 0.15rem 0.35rem; border-radius: 4px; color: #0f172a; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="ok">SITE WORKS · home v5</div>
+    <h1>Data Engineer Sheet</h1>
+    <p>Each button opens a <strong>different HTML page</strong> (no shared blank app). Pick one:</p>
+
+    <a class="btn orange" href="essentials.html">1) Essentials (10)
+      <span>Grain, Idempotency, Shuffle… — learn these first</span>
+    </a>
+    <a class="btn teal" href="prod.html">2) Prod playbook
+      <span>Symptom → what to do → which concepts</span>
+    </a>
+    <a class="btn gold" href="must.html">3) Must-know 30
+      <span>Next layer after Essentials</span>
+    </a>
+    <a class="btn blue" href="api.html">4) APIs for data engineers
+      <span>REST, auth, pagination, webhooks, contracts</span>
+    </a>
+    <a class="btn blue" href="table.html" style="background:#0369a1">5) Summary table (all keywords)
+      <span>Full searchable glossary — always works</span>
+    </a>
+    <a class="btn purple" href="app.html?mode=essentials">6) Study app (quiz / cards)
+      <span>Optional interactive mode — use 1–5 if this fails</span>
+    </a>
+
+    <div class="warn">
+      <strong>Use the full URL:</strong><br />
+      <code>https://nasrineshraghi.github.io/data-engineer-sheet/</code><br /><br />
+      Hard refresh if stuck: Mac <code>Cmd+Shift+R</code> · Windows <code>Ctrl+Shift+R</code>
+    </div>
+  </div>
+</body>
+</html>

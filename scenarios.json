@@ -1,0 +1,72 @@
+[
+  {
+    "id": "dup-orders-retry",
+    "title": "Double-counted orders after retry",
+    "prompt": "A daily orders job failed halfway, was rerun, and revenue doubled for that day. Which 3 concepts best explain the failure and the fix?",
+    "answers": ["Idempotency", "At Least Once", "Checkpointing"],
+    "explain": "Retries replay work. Without idempotent writes (overwrite/MERGE) and clear checkpoints/offsets, at-least-once delivery duplicates rows."
+  },
+  {
+    "id": "straggler-join",
+    "title": "One task runs forever on a join",
+    "prompt": "Spark UI shows 199 tasks done in 2 minutes and 1 task still running after 40 minutes on a big join. Which concepts apply?",
+    "answers": ["Data Skew", "Shuffle", "Salting"],
+    "explain": "A hot key balloons one shuffle partition. Skew detection/salting/AQE skew join spreads the hot key."
+  },
+  {
+    "id": "stale-green",
+    "title": "Job is green but dashboard is wrong",
+    "prompt": "Airflow DAG succeeded, yet executives say numbers are from yesterday. Which concepts matter?",
+    "answers": ["Freshness", "Observability", "SLA / Callback"],
+    "explain": "Pipeline success ≠ data freshness. Track max(updated_at)/partition arrival and alert on SLAs, not only task status."
+  },
+  {
+    "id": "small-files-slow",
+    "title": "Queries got slower every week",
+    "prompt": "A streaming job writes continuously to a lake table. Listing and queries crawl. Which concepts?",
+    "answers": ["Small File Problem", "Compaction", "File Size Tuning"],
+    "explain": "Micro-batches create tiny files. Compact/optimize and target healthy file sizes."
+  },
+  {
+    "id": "late-events",
+    "title": "Hourly metrics keep changing",
+    "prompt": "An hourly KPI changes when you refresh three hours later. Events are mobile clicks. Which concepts?",
+    "answers": ["Event Time", "Watermarks", "Late Data"],
+    "explain": "Processing-time windows move with arrival. Event-time + watermarks define when windows close and how late data is handled."
+  },
+  {
+    "id": "grain-blowup",
+    "title": "Revenue explodes after a join",
+    "prompt": "Joining orders to order_items makes total revenue 3× finance. Which concepts?",
+    "answers": ["Grain", "Additive Facts", "Bridge Table"],
+    "explain": "Mismatched grain multiplies measures. Declare grain and aggregate to the reporting grain before summing."
+  },
+  {
+    "id": "schema-break",
+    "title": "Overnight breakage after a producer change",
+    "prompt": "A producer renamed a field; 12 Spark jobs failed at 3am. Which concepts prevent this?",
+    "answers": ["Data Contracts", "Schema Enforcement", "Schema Registry"],
+    "explain": "Contracts + enforce-on-write + registry compatibility catch breaking changes before fan-out."
+  },
+  {
+    "id": "scd-point-in-time",
+    "title": "Customer segment wrong on old orders",
+    "prompt": "Historical orders show today’s segment, not the segment at purchase time. Which concepts?",
+    "answers": ["SCD Type 2", "Surrogate Key", "Effective Dating"],
+    "explain": "Type-2 history with surrogate keys and effective dates enables point-in-time joins."
+  },
+  {
+    "id": "kafka-dup-consumer",
+    "title": "Consumer reprocesses a chunk after rebalance",
+    "prompt": "After a deploy, a consumer group rebalances and some events are processed twice into the warehouse. Which concepts?",
+    "answers": ["At Least Once", "Offset", "Idempotency"],
+    "explain": "Kafka consumers are typically at-least-once. Commit policy + idempotent sinks prevent duplicate effects."
+  },
+  {
+    "id": "cost-spike",
+    "title": "Warehouse bill doubled",
+    "prompt": "Same dashboards, 2× spend. Query history shows SELECT * on a wide Parquet fact and full scans. Which concepts?",
+    "answers": ["Column Pruning", "Scan Pruning / Partitioning", "Cost Observability"],
+    "explain": "Bytes scanned drive cost. Project columns, prune partitions, and attribute spend to queries/teams."
+  }
+]

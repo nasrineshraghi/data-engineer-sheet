@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<title>DE Sheet — Essentials (10)</title>
+<style>
+:root { --ink:#152033; --muted:#5a6b7d; --line:#e2e8f0; --bg:#f4f7fb; --teal:#0f766e; --orange:#ea580c; --sky:#0369a1; }
+* { box-sizing: border-box; }
+body { margin:0; color:var(--ink); font-family:system-ui,-apple-system,Segoe UI,sans-serif; background:var(--bg); line-height:1.5; }
+.wrap { width:min(820px, calc(100% - 2rem)); margin:0 auto; padding:1.5rem 0 3rem; }
+.banner { background:#ea580c; color:#fff; padding:.85rem 1rem; font-weight:800; font-size:1rem; }
+nav.bar { display:flex; flex-wrap:wrap; gap:.5rem; padding:.75rem 0 1rem; }
+nav.bar a { text-decoration:none; font-weight:700; font-size:.9rem; padding:.4rem .75rem; border-radius:999px; background:#fff; color:var(--teal); border:1px solid var(--line); }
+nav.bar a.on { background:var(--teal); color:#fff; border-color:var(--teal); }
+nav.bar a.table { background:var(--orange); color:#fff; border-color:var(--orange); }
+h1 { font-family:Georgia,serif; font-size:clamp(1.7rem,4vw,2.3rem); margin:0 0 .35rem; }
+.sub { color:var(--muted); margin:0 0 1.25rem; }
+.card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:1rem 1.1rem; margin:0 0 .75rem; }
+.card h2 { margin:0 0 .35rem; font-size:1.1rem; color:var(--teal); }
+.card .why { color:var(--orange); font-weight:700; font-size:.92rem; margin:.35rem 0; }
+.card .def, .card .do, .card .see { margin:.25rem 0; }
+.card .habit { margin:.4rem 0 0; padding:.5rem .65rem; background:#f0fdfa; border-radius:8px; font-size:.9rem; }
+.card .concepts { margin:.5rem 0 0; font-size:.9rem; color:var(--sky); font-weight:600; }
+table { width:100%; border-collapse:collapse; background:#fff; border-radius:12px; overflow:hidden; border:1px solid var(--line); }
+th, td { text-align:left; padding:.65rem .75rem; border-bottom:1px solid var(--line); vertical-align:top; font-size:.92rem; }
+th { background:#0f766e; color:#fff; font-size:.8rem; text-transform:uppercase; letter-spacing:.03em; }
+td.n { width:2rem; color:var(--muted); font-weight:700; }
+td.kw { font-weight:800; color:var(--teal); white-space:nowrap; }
+.foot { margin-top:1.5rem; color:var(--muted); font-size:.9rem; }
+.foot a { color:var(--sky); font-weight:700; }
+</style>
+</head>
+<body>
+<div class="banner">ESSENTIALS · the only 10 to learn first</div>
+<div class="wrap">
+<nav class="bar">
+  <a href="index.html">Home</a>
+  <a href="essentials.html" class="on">Essentials</a>
+  <a href="prod.html" class="">Prod</a>
+  <a href="must.html" class="">Must 30</a>
+  <a href="api.html" class="">API</a>
+  <a href="table.html" class="table">Summary table</a>
+</nav>
+<h1>Essentials (10)</h1>
+<p class="sub">Ignore the rest of the glossary until you can explain each of these in one sentence.</p>
+<table><thead><tr><th>#</th><th>Concept</th><th>Definition</th><th>Remember</th></tr></thead><tbody><tr><td class="n">1</td><td class="kw">Grain</td><td>Exact meaning of one fact row (business level of detail).</td><td>Know what one row means before you join or aggregate</td></tr><tr><td class="n">2</td><td class="kw">Idempotency</td><td>Running the same operation multiple times yields the same result as running once.</td><td>Safe to retry = no duplicate mess</td></tr><tr><td class="n">3</td><td class="kw">Shuffle</td><td>Redistribute data across partitions by key (network + sort/hash).</td><td>Moving data across the network is usually the expensive part</td></tr><tr><td class="n">4</td><td class="kw">Partition Pruning</td><td>Skip reading partitions that cannot match the query filter.</td><td>Date (or key) filters should skip whole folders of data</td></tr><tr><td class="n">5</td><td class="kw">Predicate Pushdown</td><td>Move filters as close as possible to the data source so less data is read/shuffled.</td><td>Filter early so you read less</td></tr><tr><td class="n">6</td><td class="kw">Cardinality</td><td>Number of distinct values in a column (or relation size: number of rows).</td><td>Distinct counts drive join and group-by cost</td></tr><tr><td class="n">7</td><td class="kw">Lazy Evaluation</td><td>Transformations build a plan; work runs only on actions.</td><td>Spark builds a plan; an action runs it</td></tr><tr><td class="n">8</td><td class="kw">Job → Stage → Task</td><td>- **Job:** triggered by an action (`count`, `write`, `collect`) - **Stage:** set of tasks with narrow deps between shuffles - **Task:** unit of work on one partition</td><td>How to read the Spark UI when something is slow</td></tr><tr><td class="n">9</td><td class="kw">At Least Once</td><td>Every record processed ≥1 time; duplicates possible on retry.</td><td>Failures often mean duplicates unless you dedupe</td></tr><tr><td class="n">10</td><td class="kw">Freshness</td><td>How up-to-date the data is vs expectation (SLA/SLO).</td><td>Green pipeline ≠ data is recent enough</td></tr></tbody></table>
+<p class="foot">Different pages = different content. If a link looks the same, hard-refresh (<code>Cmd+Shift+R</code>).</p>
+</div>
+</body>
+</html>

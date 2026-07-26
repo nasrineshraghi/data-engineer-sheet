@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Data Engineer Sheet — Study App</title>
+  <meta name="description" content="Searchable DE glossary with flashcards, quiz, scenarios, and word of the day." />
+  <style>
+    :root {
+      --ink: #12202e;
+      --muted: #4a5d72;
+      --soft: #f1f5f9;
+      --paper: #ffffff;
+      --line: rgba(18,32,46,.12);
+      --teal: #0d9488;
+      --teal-deep: #0f766e;
+      --coral: #e11d48;
+      --sky: #0284c7;
+      --gold: #ca8a04;
+      --violet: #7c3aed;
+      --orange: #ea580c;
+      --good: #16a34a;
+      --bad: #dc2626;
+      --font-display: Georgia, "Times New Roman", serif;
+      --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      --font-read: Georgia, "Times New Roman", serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: var(--font-body);
+      background:
+        radial-gradient(900px 520px at -5% 0%, rgba(14,165,233,.26), transparent 55%),
+        radial-gradient(800px 480px at 100% 5%, rgba(225,29,72,.16), transparent 50%),
+        radial-gradient(700px 420px at 50% 100%, rgba(202,138,4,.14), transparent 55%),
+        linear-gradient(160deg, #e0f2fe 0%, #fdf2f8 42%, #ecfdf5 100%);
+    }
+    .wrap {
+      width: min(760px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 2.75rem 0 4.5rem;
+    }
+    .brand {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 5.5vw, 3.3rem);
+      font-weight: 700;
+      line-height: 1.02;
+      letter-spacing: -0.03em;
+      margin: 0 0 .6rem;
+      color: #0f766e;
+    }
+    .brand span {
+      display: block;
+      color: #ea580c;
+    }
+    .lede {
+      margin: 0 0 1.35rem;
+      max-width: 30rem;
+      color: var(--muted);
+      font-size: 1.02rem;
+      line-height: 1.6;
+    }
+    .wotd {
+      border: 2px solid transparent;
+      border-radius: 18px;
+      background:
+        linear-gradient(#fff, #fff) padding-box,
+        linear-gradient(120deg, #0d9488, #0284c7, #e11d48, #ca8a04) border-box;
+      padding: 1.15rem 1.25rem;
+      margin-bottom: 1.35rem;
+      cursor: pointer;
+      box-shadow: 0 14px 34px rgba(2,132,199,.12);
+    }
+    .wotd .eyebrow {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--coral);
+      margin-bottom: .35rem;
+    }
+    .wotd h2 {
+      font-family: var(--font-display);
+      margin: 0 0 .4rem;
+      font-size: 1.45rem;
+      letter-spacing: -0.02em;
+      color: var(--sky);
+    }
+    .wotd p {
+      margin: 0;
+      font-family: var(--font-read);
+      font-size: 1.05rem;
+      line-height: 1.55;
+      color: #334155;
+    }
+    .wotd .prod {
+      margin-top: .65rem;
+      font-family: var(--font-body);
+      font-size: .88rem;
+      color: var(--muted);
+    }
+    .modes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+    .mode-btn {
+      border: 1.5px solid transparent;
+      background: rgba(255,255,255,.72);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: .45rem .8rem;
+      font: inherit;
+      font-size: .84rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .mode-btn:hover { transform: translateY(-1px); }
+    .mode-btn[data-mode="table"].active { background: #0369a1; color: #fff; box-shadow: 0 8px 18px rgba(3,105,161,.3); }
+    .mode-btn[data-mode="essentials"].active { background: #ea580c; color: #fff; box-shadow: 0 8px 18px rgba(234,88,12,.3); }
+    .mode-btn[data-mode="search"].active { background: #0284c7; color: #fff; box-shadow: 0 8px 18px rgba(2,132,199,.3); }
+    .mode-btn[data-mode="must"].active { background: #ca8a04; color: #fff; box-shadow: 0 8px 18px rgba(202,138,4,.3); }
+    .mode-btn[data-mode="flash"].active { background: #0d9488; color: #fff; box-shadow: 0 8px 18px rgba(13,148,136,.3); }
+    .mode-btn[data-mode="quiz"].active { background: #7c3aed; color: #fff; box-shadow: 0 8px 18px rgba(124,58,237,.3); }
+    .mode-btn[data-mode="scenarios"].active { background: #e11d48; color: #fff; box-shadow: 0 8px 18px rgba(225,29,72,.3); }
+    .mode-btn[data-mode="prod"].active { background: #0f766e; color: #fff; box-shadow: 0 8px 18px rgba(15,118,110,.3); }
+    .progress-pill {
+      margin-left: auto;
+      font-size: .78rem;
+      color: #fff;
+      background: linear-gradient(120deg, #0d9488, #0284c7);
+      padding: .4rem .75rem;
+      border-radius: 999px;
+      box-shadow: 0 8px 16px rgba(13,148,136,.22);
+    }
+    .progress-pill strong { color: #fef08a; }
+    .panel[hidden] { display: none; }
+    .panel { display: block; }
+    .search-shell { margin-bottom: 1rem; }
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      padding: .9rem 1.05rem;
+      border: 2px solid transparent;
+      border-radius: 999px;
+      background:
+        linear-gradient(#fff, #fff) padding-box,
+        linear-gradient(90deg, #0d9488, #0284c7, #e11d48) border-box;
+      box-shadow: 0 12px 30px rgba(2,132,199,.1);
+    }
+    #q {
+      flex: 1;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      font: inherit;
+      font-size: 1rem;
+      min-width: 0;
+    }
+    #q::placeholder { color: #94a3b8; }
+    .clear-btn {
+      border: 0;
+      background: transparent;
+      color: var(--coral);
+      font: inherit;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: none;
+    }
+    .clear-btn.show { display: inline; }
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .75rem;
+      align-items: center;
+      margin-bottom: 1.1rem;
+      color: var(--muted);
+      font-size: .88rem;
+    }
+    .meta-row strong { color: var(--sky); }
+    details.filters {
+      width: 100%;
+      border: 1px solid rgba(2,132,199,.2);
+      border-radius: 14px;
+      background: rgba(255,255,255,.85);
+      padding: .15rem .2rem;
+    }
+    details.filters > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: .65rem .85rem;
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--sky);
+    }
+    details.filters > summary::-webkit-details-marker { display: none; }
+    details.filters > summary::after { content: " +"; color: var(--muted); font-weight: 500; }
+    details.filters[open] > summary::after { content: " −"; }
+    .filter-inner { padding: 0 .85rem 0.9rem; display: grid; gap: .75rem; }
+    .filter-label {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--sky);
+      margin-bottom: .35rem;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: .35rem; }
+    .chip {
+      border: 1.5px solid var(--line);
+      background: #fff;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: .28rem .6rem;
+      font-size: .74rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .chip.active { background: var(--sky); border-color: var(--sky); color: #fff; }
+    .chip[data-tag="interview"], .chip[data-flash-tag="interview"], .chip[data-quiz-tag="interview"] { background: #fff7ed; border-color: #fb923c; color: #c2410c; }
+    .chip[data-tag="spark"], .chip[data-flash-tag="spark"], .chip[data-quiz-tag="spark"] { background: #fffbeb; border-color: #fbbf24; color: #a16207; }
+    .chip[data-tag="streaming"], .chip[data-flash-tag="streaming"], .chip[data-quiz-tag="streaming"] { background: #ecfeff; border-color: #22d3ee; color: #0e7490; }
+    .chip[data-tag="kafka"], .chip[data-flash-tag="kafka"], .chip[data-quiz-tag="kafka"] { background: #faf5ff; border-color: #c084fc; color: #7e22ce; }
+    .chip[data-tag="airflow"], .chip[data-flash-tag="airflow"], .chip[data-quiz-tag="airflow"] { background: #eef2ff; border-color: #818cf8; color: #4338ca; }
+    .chip[data-tag="dbt"], .chip[data-flash-tag="dbt"], .chip[data-quiz-tag="dbt"] { background: #fff1f2; border-color: #fb7185; color: #be123c; }
+    .chip[data-tag="snowflake"], .chip[data-flash-tag="snowflake"], .chip[data-quiz-tag="snowflake"] { background: #eff6ff; border-color: #38bdf8; color: #0369a1; }
+    .chip[data-tag="api"], .chip[data-flash-tag="api"], .chip[data-quiz-tag="api"] { background: #f5f3ff; border-color: #a78bfa; color: #5b21b6; }
+    .chip[data-tag="parquet"], .chip[data-flash-tag="parquet"], .chip[data-quiz-tag="parquet"],
+    .chip[data-tag="file-format"], .chip[data-flash-tag="file-format"], .chip[data-quiz-tag="file-format"] { background: #fff7ed; border-color: #fb923c; color: #c2410c; }
+    .chip[data-tag="clinical"], .chip[data-flash-tag="clinical"], .chip[data-quiz-tag="clinical"],
+    .chip[data-tag="medication"], .chip[data-flash-tag="medication"], .chip[data-quiz-tag="medication"],
+    .chip[data-tag="lab"], .chip[data-flash-tag="lab"], .chip[data-quiz-tag="lab"],
+    .chip[data-tag="healthcare"], .chip[data-flash-tag="healthcare"], .chip[data-quiz-tag="healthcare"] {
+      background: #ecfdf5; border-color: #34d399; color: #047857;
+    }
+    .chip[data-tag="cdc"], .chip[data-flash-tag="cdc"], .chip[data-quiz-tag="cdc"] { background: #f0fdf4; border-color: #4ade80; color: #15803d; }
+    .chip[data-tag="sql"], .chip[data-flash-tag="sql"], .chip[data-quiz-tag="sql"] { background: #eff6ff; border-color: #60a5fa; color: #1d4ed8; }
+    .chip[data-tag="cost"], .chip[data-flash-tag="cost"], .chip[data-quiz-tag="cost"] { background: #fefce8; border-color: #facc15; color: #a16207; }
+    .chip.tag.active, .chip[data-tag].active, .chip[data-flash-tag].active, .chip[data-quiz-tag].active {
+      outline: 2px solid currentColor;
+      outline-offset: 1px;
+      font-weight: 700;
+    }
+    .results { display: flex; flex-direction: column; gap: .7rem; }
+    details.result {
+      border: 1px solid transparent;
+      border-radius: 16px;
+      background:
+        linear-gradient(#fff, #fff) padding-box,
+        linear-gradient(135deg, rgba(13,148,136,.4), rgba(2,132,199,.3), rgba(225,29,72,.25)) border-box;
+      overflow: hidden;
+    }
+    details.result[open] { box-shadow: 0 12px 30px rgba(2,132,199,.12); }
+    details.result > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 1.05rem 1.15rem;
+      display: grid;
+      gap: .35rem;
+    }
+    details.result > summary::-webkit-details-marker { display: none; }
+    .name {
+      font-family: var(--font-display);
+      font-size: 1.28rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+    .cat {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--teal-deep);
+    }
+    .badge {
+      display: inline-block;
+      margin-left: .35rem;
+      padding: .08rem .4rem;
+      border-radius: 999px;
+      background: #ffedd5;
+      color: #c2410c;
+      font-size: .65rem;
+      font-weight: 700;
+    }
+    .snippet-text {
+      font-family: var(--font-read);
+      color: #334155;
+      font-size: 1.02rem;
+      line-height: 1.5;
+    }
+    .body {
+      padding: 0 1.15rem 1.2rem;
+      border-top: 1px solid rgba(2,132,199,.15);
+      display: grid;
+      gap: .9rem;
+    }
+    .label {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: .25rem;
+      color: var(--orange);
+    }
+    .body p, .body li {
+      margin: 0;
+      font-family: var(--font-read);
+      line-height: 1.55;
+      font-size: 1.02rem;
+      color: #1e293b;
+    }
+    .body ul { margin: 0; padding-left: 1.15rem; }
+    pre, code { font-family: var(--font-mono); font-size: .82rem; }
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      color: #e0f2fe;
+      padding: .85rem 1rem;
+      border-radius: 12px;
+      background: linear-gradient(145deg, #0f172a 0%, #134e4a 55%, #1e3a8a 100%);
+    }
+    .related { display: flex; flex-wrap: wrap; gap: .35rem; }
+    .related button, .mark-btn {
+      border: 1.5px solid #67e8f9;
+      background: #ecfeff;
+      border-radius: 999px;
+      padding: .3rem .65rem;
+      font: inherit;
+      font-size: .76rem;
+      cursor: pointer;
+      color: #0e7490;
+      font-weight: 600;
+    }
+    .mark-btn { border-color: #86efac; background: #f0fdf4; color: #15803d; }
+    .mark-btn.learned { background: #16a34a; border-color: #15803d; color: #fff; }
+    .empty {
+      text-align: center;
+      padding: 2.75rem 1rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    mark { background: linear-gradient(120deg, #fde68a, #fda4af); border-radius: 3px; padding: 0 .1em; }
+    .must-intro {
+      margin-bottom: 1rem;
+      color: var(--muted);
+      font-size: .95rem;
+      line-height: 1.55;
+      padding: .9rem 1rem;
+      border-radius: 14px;
+      background: linear-gradient(90deg, #fff7ed, #ecfeff);
+      border: 1px solid rgba(2,132,199,.15);
+    }
+    .must-intro strong { color: var(--coral); }
+    .flash-card, .quiz-card, .scenario-card {
+      min-height: 220px;
+      border: 2px solid transparent;
+      border-radius: 20px;
+      padding: 1.4rem;
+      display: grid;
+      gap: .85rem;
+      box-shadow: 0 16px 36px rgba(2,132,199,.1);
+    }
+    .flash-card {
+      cursor: pointer;
+      user-select: none;
+      background:
+        linear-gradient(#f0fdfa, #fff) padding-box,
+        linear-gradient(135deg, #0d9488, #0284c7) border-box;
+    }
+    .flash-card.flipped {
+      background:
+        linear-gradient(#ecfdf5, #eff6ff) padding-box,
+        linear-gradient(135deg, #65a30d, #0d9488, #0284c7) border-box;
+    }
+    .quiz-card {
+      background:
+        linear-gradient(#faf5ff, #fff) padding-box,
+        linear-gradient(135deg, #7c3aed, #e11d48) border-box;
+    }
+    .scenario-card {
+      background:
+        linear-gradient(#fff1f2, #fff) padding-box,
+        linear-gradient(135deg, #e11d48, #ea580c, #ca8a04) border-box;
+    }
+    .flash-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      font-size: .78rem;
+      color: var(--teal-deep);
+      font-weight: 700;
+    }
+    .flash-name, .quiz-q, .scenario-card h3 {
+      font-family: var(--font-display);
+      font-size: clamp(1.4rem, 3.5vw, 1.85rem);
+      font-weight: 700;
+      margin: .15rem 0 0;
+      letter-spacing: -0.02em;
+    }
+    .flash-name { color: var(--teal-deep); }
+    .scenario-card h3 { color: var(--coral); font-size: 1.25rem; }
+    .flash-prompt, .hint { color: var(--muted); }
+    .flash-answer { display: none; }
+    .flash-card.flipped .flash-answer { display: grid; gap: .75rem; }
+    .flash-card.flipped .flash-prompt { display: none; }
+    .actions { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .75rem; }
+    .actions button {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 999px;
+      padding: .55rem .9rem;
+      font: inherit;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .actions .know, .actions .primary {
+      background: linear-gradient(120deg, #0d9488, #0284c7);
+      border-color: transparent;
+      color: #fff;
+    }
+    .actions .again {
+      background: linear-gradient(120deg, #fb923c, #e11d48);
+      border-color: transparent;
+      color: #fff;
+    }
+    .choices { display: grid; gap: .5rem; }
+    .choice {
+      text-align: left;
+      border: 1.5px solid #c4b5fd;
+      background: #faf5ff;
+      border-radius: 12px;
+      padding: .85rem 1rem;
+      font: inherit;
+      cursor: pointer;
+    }
+    .choice:hover { border-color: #7c3aed; background: #f3e8ff; }
+    .choice.correct { border-color: var(--good); background: #dcfce7; color: #166534; }
+    .choice.wrong { border-color: var(--bad); background: #fee2e2; color: #991b1b; }
+    .choice:disabled { cursor: default; }
+    .scoreline { color: var(--violet); font-size: .88rem; font-weight: 600; }
+    .scoreline strong { color: var(--coral); }
+    .scenario-list { display: grid; gap: .75rem; }
+    footer {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 2px solid transparent;
+      border-image: linear-gradient(90deg, #0d9488, #0284c7, #e11d48) 1;
+      color: var(--muted);
+      font-size: .84rem;
+    }
+    footer a { color: var(--sky); font-weight: 600; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    kbd {
+      font: .78em var(--font-mono);
+      border: 1px solid #67e8f9;
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      padding: .08em .35em;
+      background: #ecfeff;
+      color: #0e7490;
+    }
+    .quick-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      margin: 0 0 1.25rem;
+    }
+    .quick-links a {
+      display: inline-block;
+      padding: .45rem .85rem;
+      border-radius: 999px;
+      font-size: .82rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1.5px solid rgba(2,132,199,.25);
+      background: #fff;
+      color: var(--sky);
+    }
+    .quick-links a.primary {
+      background: linear-gradient(120deg, #0d9488, #0284c7);
+      border-color: transparent;
+      color: #fff;
+    }
+    .path-steps {
+      display: grid;
+      gap: .75rem;
+      margin: 1rem 0 1.5rem;
+    }
+    .path-step {
+      background: #fff;
+      border: 1px solid transparent;
+      border-radius: 16px;
+      padding: 1rem 1.1rem;
+      background:
+        linear-gradient(#fff, #fff) padding-box,
+        linear-gradient(120deg, rgba(13,148,136,.45), rgba(2,132,199,.35)) border-box;
+    }
+    .path-step .n {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--coral);
+      margin-bottom: .25rem;
+    }
+    .path-step h3 {
+      font-family: var(--font-display);
+      margin: 0 0 .35rem;
+      font-size: 1.15rem;
+    }
+    .path-step p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.5; }
+    .path-step button, .path-step a.btn {
+      margin-top: .7rem;
+      display: inline-block;
+      border: 0;
+      border-radius: 999px;
+      padding: .45rem .85rem;
+      font: inherit;
+      font-size: .8rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--sky);
+      color: #fff;
+      text-decoration: none;
+    }
+    .mini-table-wrap {
+      overflow: auto;
+      border-radius: 14px;
+      border: 1px solid rgba(2,132,199,.18);
+      background: #fff;
+      margin-top: .75rem;
+    }
+    .mini-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .84rem;
+    }
+    .mini-table th {
+      text-align: left;
+      padding: .65rem .7rem;
+      background: linear-gradient(90deg, #0d9488, #0284c7);
+      color: #fff;
+      font-size: .7rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      position: sticky;
+      top: 0;
+    }
+    .mini-table td {
+      padding: .65rem .7rem;
+      border-top: 1px solid #e2e8f0;
+      vertical-align: top;
+      line-height: 1.4;
+    }
+    .mini-table tr:nth-child(even) td { background: #f8fafc; }
+    .mini-table .kw { font-weight: 700; color: var(--teal-deep); white-space: nowrap; }
+    .mini-table .why { color: var(--muted); font-size: .8rem; }
+    .mini-table tr[data-jump] { cursor: pointer; }
+    .mini-table tr[data-jump]:hover td { background: #ecfeff; }
+    .playbook-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 1rem 1.1rem;
+      margin-bottom: .75rem;
+      background:
+        linear-gradient(#fff, #fff) padding-box,
+        linear-gradient(120deg, rgba(15,118,110,.5), rgba(2,132,199,.35)) border-box;
+      border: 1px solid transparent;
+    }
+    .playbook-card .see {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      margin: 0 0 .5rem;
+    }
+    .playbook-card .do { margin: 0 0 .55rem; color: var(--ink); line-height: 1.5; }
+    .playbook-card .habit {
+      margin: .65rem 0 0;
+      font-size: .85rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+    .playbook-card .concepts { display: flex; flex-wrap: wrap; gap: .35rem; }
+    .playbook-card .concepts button {
+      border: 1px solid rgba(13,148,136,.35);
+      background: #f0fdfa;
+      color: var(--teal-deep);
+      border-radius: 999px;
+      padding: .3rem .65rem;
+      font: inherit;
+      font-size: .78rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .five-q {
+      display: grid;
+      gap: .55rem;
+      margin: .85rem 0 1.25rem;
+    }
+    .five-q article {
+      background: #fff;
+      border-radius: 12px;
+      padding: .75rem .9rem;
+      border: 1px solid #e2e8f0;
+    }
+    .five-q strong { color: var(--teal-deep); }
+  </style>
+</head>
+<body>
+      <div id="app-fallback" style="background:#16a34a;color:#fff;padding:0.85rem 1rem;font:700 15px/1.4 system-ui,sans-serif">
+    Study app loaded. If the rest looks blank, use
+    <a href="table.html" style="color:#fff;text-decoration:underline">Summary table</a>
+    or <a href="index.html" style="color:#fff;text-decoration:underline">Home</a>.
+  </div>
+    <div id="top-links" style="position:sticky;top:0;z-index:9999;background:#0f766e;color:#fff;padding:.75rem 1rem;font:600 15px/1.4 system-ui,sans-serif;display:flex;flex-wrap:wrap;gap:.75rem;align-items:center">
+    <a href="index.html" style="color:#fff;text-decoration:underline">Home</a>
+    <a href="essentials.html" style="color:#fff;text-decoration:underline">Essentials</a>
+    <a href="prod.html" style="color:#fff;text-decoration:underline">Prod</a>
+    <a href="must.html" style="color:#fff;text-decoration:underline">Must 30</a>
+    <a href="api.html" style="color:#fff;text-decoration:underline">API</a>
+    <a href="table.html" style="color:#fff;background:#ea580c;padding:.35rem .7rem;border-radius:999px;text-decoration:none">Summary table</a>
+  </div>
+
+  <main class="wrap">
+    <h1 class="brand">Data Engineer<br /><span>Sheet</span></h1>
+    <p class="lede" id="mode-lede">A calm place to learn DE concepts — one idea at a time.</p>
+    <p id="mode-banner" style="margin:0 0 1rem;padding:.55rem .85rem;background:#0f766e;color:#fff;border-radius:10px;font:700 15px/1.4 system-ui,sans-serif">Viewing: Essentials</p>
+
+    <div class="quick-links">
+      <a class="primary" href="essentials.html">Essentials (static)</a>
+      <a href="prod.html">Prod (static)</a>
+      <a href="must.html">Must 30 (static)</a>
+      <a href="table.html">Summary table</a>
+    </div>
+
+    <aside class="wotd" id="wotd" title="Open this concept"></aside>
+
+    <div class="modes" role="tablist">
+      <button type="button" class="mode-btn active" data-mode="essentials">Essentials</button>
+      <button type="button" class="mode-btn" data-mode="prod">Prod</button>
+      <button type="button" class="mode-btn" data-mode="search">Browse all</button>
+      <button type="button" class="mode-btn" data-mode="must">Must 30</button>
+      <button type="button" class="mode-btn" data-mode="flash">Cards</button>
+      <button type="button" class="mode-btn" data-mode="quiz">Quiz</button>
+      <button type="button" class="mode-btn" data-mode="scenarios">Stories</button>
+      <div class="progress-pill">
+        <strong id="learned-count">0</strong>/<span id="must-total">10</span> essentials
+        · day <strong id="streak-count">0</strong>
+      </div>
+    </div>
+
+    <section id="panel-essentials" class="panel">
+      <div class="must-intro">
+        <strong>Only these 10 matter first.</strong> Ignore Browse until you can explain each in one sentence.
+        Then learn <button type="button" data-goto="prod" style="all:unset;color:var(--sky);font-weight:700;cursor:pointer;text-decoration:underline">when to use them in Prod</button>.
+        Need every keyword? Open the <a href="table.html" style="color:var(--sky);font-weight:700">summary table</a>.
+      </div>
+      <div class="mini-table-wrap" id="essentials-table">
+        <table class="mini-table"><thead><tr><th>#</th><th>Concept</th><th>Definition</th><th>The one thing to remember</th></tr></thead><tbody>
+        <tr><td>1</td><td class="kw">Grain</td><td>Exact meaning of one fact row (business level of detail).</td><td class="why">Know what one row means before you join or aggregate</td></tr>
+        <tr><td>2</td><td class="kw">Idempotency</td><td>Running the same operation multiple times yields the same result as running once.</td><td class="why">Safe to retry = no duplicate mess</td></tr>
+        <tr><td>3</td><td class="kw">Shuffle</td><td>Redistribute data across partitions by key (network + sort/hash).</td><td class="why">Moving data across the network is usually the expensive part</td></tr>
+        <tr><td>4</td><td class="kw">Partition Pruning</td><td>Skip reading partitions that cannot match the query filter.</td><td class="why">Date (or key) filters should skip whole folders of data</td></tr>
+        <tr><td>5</td><td class="kw">Predicate Pushdown</td><td>Move filters as close as possible to the data source so less data is read/shuffled.</td><td class="why">Filter early so you read less</td></tr>
+        <tr><td>6</td><td class="kw">Cardinality</td><td>Number of distinct values in a column (or relation size: number of rows).</td><td class="why">Distinct counts drive join and group-by cost</td></tr>
+        <tr><td>7</td><td class="kw">Lazy Evaluation</td><td>Transformations build a plan; work runs only on actions.</td><td class="why">Spark builds a plan; an action runs it</td></tr>
+        <tr><td>8</td><td class="kw">Job → Stage → Task</td><td>- **Job:** triggered by an action (`count`, `write`, `collect`) - **Stage:** set of tasks with narrow deps between shuffles - **Task:** unit of work on one partition</td><td class="why">How to read the Spark UI when something is slow</td></tr>
+        <tr><td>9</td><td class="kw">At Least Once</td><td>Every record processed ≥1 time; duplicates possible on retry.</td><td class="why">Failures often mean duplicates unless you dedupe</td></tr>
+        <tr><td>10</td><td class="kw">Freshness</td><td>How up-to-date the data is vs expectation (SLA/SLO).</td><td class="why">Green pipeline ≠ data is recent enough</td></tr>
+        </tbody></table>
+      </div>
+      <div class="results" id="essentials-results" style="margin-top:1rem"></div>
+    </section>
+
+    <section id="panel-prod" class="panel" hidden>
+      <div class="must-intro">
+        <strong>Don’t start from the topic list.</strong> Start from what you see in production, then click the concepts.
+        Practice with <button type="button" data-goto="scenarios" style="all:unset;color:var(--sky);font-weight:700;cursor:pointer;text-decoration:underline">Stories</button>.
+      </div>
+      <div class="must-intro" style="margin-top:.5rem"><strong>Ask these 5 first</strong></div>
+      <div class="five-q">
+        <article><strong>Numbers don’t match?</strong> → What does one row mean? → Grain</article>
+        <article><strong>Reran a job / backfill?</strong> → Is it safe to retry? → Idempotency</article>
+        <article><strong>Slow / expensive?</strong> → Moving or scanning too much data? → Shuffle · Pruning · Pushdown</article>
+        <article><strong>Green job, wrong dash?</strong> → Is data fresh enough? → Freshness</article>
+        <article><strong>Duplicates after failure?</strong> → At-least-once without dedupe? → At Least Once</article>
+      </div>
+      <div class="search-shell" style="margin-bottom:.75rem">
+        <label class="search-box" for="prod-q">
+          <input id="prod-q" type="search" placeholder="Filter: slow, duplicate, cost, stale…" autocomplete="off" />
+        </label>
+      </div>
+      <div id="playbook-list"></div>
+    </section>
+
+    <section id="panel-search" class="panel" hidden>
+      <div class="search-shell">
+        <label class="search-box" for="q">
+          <input id="q" type="search" placeholder="What do you want to understand?" autocomplete="off" />
+          <button type="button" class="clear-btn" id="clear">Clear</button>
+        </label>
+      </div>
+      <div class="meta-row">
+        <div><strong id="shown">0</strong> concepts</div>
+        <details class="filters">
+          <summary>Filter by topic</summary>
+          <div class="filter-inner">
+            <div>
+              <div class="filter-label">Popular tags</div>
+              <div class="chips" id="tag-chips"></div>
+            </div>
+            <div>
+              <div class="filter-label">Section</div>
+              <div class="chips" id="chips"></div>
+            </div>
+          </div>
+        </details>
+      </div>
+      <div class="results" id="results"></div>
+    </section>
+
+    <section id="panel-must" class="panel" hidden>
+      <div class="must-intro">
+        <strong>Next layer: Must-know 30.</strong> Do this after Essentials.
+        · <button type="button" data-goto="essentials" style="all:unset;color:var(--sky);font-weight:700;cursor:pointer;text-decoration:underline">Back to Essentials</button>
+        · <a href="table.html" style="color:var(--sky);font-weight:600">Full summary table</a>
+      </div>
+      <div class="mini-table-wrap" id="must-summary-table" style="margin-bottom:1rem"></div>
+      <div class="results" id="must-results"></div>
+    </section>
+
+    <section id="panel-flash" class="panel" hidden>
+      <div class="must-intro">Tap a card to reveal. <kbd>Space</kbd> flip · <kbd>1</kbd> know · <kbd>2</kbd> again.</div>
+      <div class="filter-block" style="margin-bottom:.75rem">
+        <div class="filter-label">Deck</div>
+        <div class="chips" id="flash-tag-chips"></div>
+      </div>
+      <div id="flash-card" class="flash-card" tabindex="0"></div>
+      <div class="actions" style="margin-top:.75rem">
+        <button type="button" id="flip-btn">Flip</button>
+        <button type="button" class="know" id="know-btn">Know it</button>
+        <button type="button" class="again" id="again-btn">Again</button>
+        <button type="button" id="reset-btn">Reset progress</button>
+      </div>
+      <div class="hint" id="flash-hint"></div>
+    </section>
+
+    <section id="panel-quiz" class="panel" hidden>
+      <div class="must-intro"><strong>Quick quiz.</strong> Read the definition, pick the concept.</div>
+      <div class="filter-block" style="margin-bottom:.75rem">
+        <div class="filter-label">Quiz pool</div>
+        <div class="chips" id="quiz-tag-chips"></div>
+      </div>
+      <div class="scoreline">Score <strong id="quiz-score">0</strong> / <span id="quiz-asked">0</span></div>
+      <div id="quiz-card" class="quiz-card" style="margin-top:.75rem"></div>
+      <div class="actions" style="margin-top:.75rem">
+        <button type="button" class="primary" id="quiz-next">Next question</button>
+      </div>
+    </section>
+
+    <section id="panel-scenarios" class="panel" hidden>
+      <div class="must-intro"><strong>Practice being a good DE.</strong> Read the incident → pick the 3 concepts. Then check <button type="button" data-goto="prod" style="all:unset;color:var(--sky);font-weight:700;cursor:pointer;text-decoration:underline">Prod</button>.</div>
+      <div class="scenario-list" id="scenario-list"></div>
+    </section>
+
+    <footer>
+      <kbd>/</kbd> search · progress + streak saved in this browser<br />
+      <a href="https://nasrineshraghi.github.io/data-engineer-sheet/">Live site</a> ·
+      <a href="table.html">Quick table</a> ·
+      <a href="https://github.com/nasrineshraghi/data-engineer-sheet">Source</a> ·
+      <a href="https://github.com/nasrineshraghi/data-engineer-sheet/blob/main/ESSENTIALS.md">Essentials</a> ·
+      <a href="https://github.com/nasrineshraghi/data-engineer-sheet/blob/main/PROD.md">Prod playbook</a>
+    </footer>
+  </main>
+
+    <script src="data.js"></script>
+    <script>
+    const $ = (id) => document.getElementById(id);
+    const LEARN_KEY = "de-sheet-learned-v1";
+    const STREAK_KEY = "de-sheet-streak-v1";
+    const TAG_ORDER = ["interview","api","parquet","file-format","clinical","medication","lab","spark","streaming","kafka","airflow","dbt","snowflake","cdc","sql","warehouse","lakehouse","distributed","pipeline","performance","cost","quality","cloud","devops","healthcare"];
+
+    let concepts = [], scenarios = [], playbook = [], byName = new Map();
+    let activeCategory = "All", activeTag = "All", flashTag = "essentials", quizTag = "essentials";
+    let mode = "essentials";
+    let learned = new Set();
+    let streak = { count: 0, last: null };
+    try { learned = new Set(JSON.parse(localStorage.getItem(LEARN_KEY) || "[]")); } catch (_) {}
+    try { streak = JSON.parse(localStorage.getItem(STREAK_KEY) || '{"count":0,"last":null}') || streak; } catch (_) {}
+    let deck = [], deckIndex = 0, flipped = false;
+    let quizPool = [], quizItem = null, quizScore = 0, quizAsked = 0, quizLocked = false;
+    let scenarioPicks = {};
+
+    const ESSENTIALS = [
+      ["Grain", "Know what one row means before you join or aggregate", "Exact meaning of one fact row (business level of detail)."],
+      ["Idempotency", "Safe to retry = no duplicate mess", "Running the same operation multiple times yields the same result as running once."],
+      ["Shuffle", "Moving data across the network is usually the expensive part", "Redistribute data across partitions by key (network + sort/hash)."],
+      ["Partition Pruning", "Date (or key) filters should skip whole folders of data", "Skip reading partitions that cannot match the query filter."],
+      ["Predicate Pushdown", "Filter early so you read less", "Move filters as close as possible to the data source so less data is read/shuffled."],
+      ["Cardinality", "Distinct counts drive join and group-by cost", "Number of distinct values in a column (or relation size: number of rows)."],
+      ["Lazy Evaluation", "Spark builds a plan; an action runs it", "Transformations build a plan; work runs only on actions."],
+      ["Job → Stage → Task", "How to read the Spark UI when something is slow", "- **Job:** triggered by an action (`count`, `write`, `collect`) - **Stage:** set of tasks with narrow deps between shuffles - **Task:** unit of work on one partition"],
+      ["At Least Once", "Failures often mean duplicates unless you dedupe", "Every record processed ≥1 time; duplicates possible on retry."],
+      ["Freshness", "Green pipeline ≠ data is recent enough", "How up-to-date the data is vs expectation (SLA/SLO)."]
+    ];
+
+    const escapeHtml = (s) => String(s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+    const highlight = (text, terms) => {
+      let out = escapeHtml(text || "");
+      for (const t of terms) {
+        if (t.length < 2) continue;
+      out = out.replace(new RegExp("(" + t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "ig"), "<mark>$1</mark>");
+      }
+      return out;
+    };
+
+    const tokens = (q) => q.toLowerCase().split(/[^a-z0-9+#.-]+/i).filter(Boolean);
+
+    const todayKey = () => new Date().toISOString().slice(0, 10);
+
+    const touchStreak = () => {
+      const today = todayKey();
+      if (streak.last === today) return;
+      const y = new Date(); y.setDate(y.getDate() - 1);
+      const yesterday = y.toISOString().slice(0, 10);
+      streak.count = streak.last === yesterday ? (streak.count || 0) + 1 : 1;
+      streak.last = today;
+      localStorage.setItem(STREAK_KEY, JSON.stringify(streak));
+      updateProgress();
+    };
+
+    const saveLearned = () => {
+      localStorage.setItem(LEARN_KEY, JSON.stringify([...learned]));
+      touchStreak();
+      updateProgress();
+    };
+
+    const updateProgress = () => {
+      const names = ESSENTIALS.map(([n]) => n);
+      $("learned-count").textContent = String(names.filter((n) => learned.has(n)).length);
+      $("must-total").textContent = String(names.length || 10);
+      $("streak-count").textContent = String(streak.count || 0);
+    };
+
+    const score = (c, terms) => {
+      if (!terms.length) return 1;
+      const hay = [c.name,c.category,c.definition,c.why,c.example,c.snippet,c.symptom,...(c.tags||[]),...(c.remember||[]),...(c.related||[])].join("\n").toLowerCase();
+      let s = 0;
+      for (const t of terms) {
+        if (c.name.toLowerCase().includes(t)) s += 8;
+        else if (hay.includes(t)) s += 1;
+        else return 0;
+      }
+      if (c.mustKnow) s += 1;
+      return s;
+    };
+
+    const dayIndex = () => Math.floor(Date.now() / 86400000);
+
+    const renderWotd = () => {
+      if (!concepts.length) return;
+      const c = concepts[dayIndex() % concepts.length];
+      $("wotd").innerHTML = `
+        <div class="eyebrow">Today’s concept</div>
+        <h2>${escapeHtml(c.name)}</h2>
+        <p>${escapeHtml(c.definition)}</p>
+        ${c.symptom ? `<p class="prod">In the wild: ${escapeHtml(c.symptom)}</p>` : ""}`;
+      $("wotd").onclick = () => jumpTo(c.name);
+    };
+
+    const renderSnippet = (snippet) => snippet ? `<div><div class="label">Snippet</div><pre>${escapeHtml(snippet)}</pre></div>` : "";
+    const renderRelated = (related) => {
+      if (!(related && related.length)) return "";
+      return `<div><div class="label">See also</div><div class="related">${related.map((r) =>
+        `<button type="button" data-jump="${escapeHtml(r)}">${escapeHtml(r)}</button>`).join("")}</div></div>`;
+    };
+
+    const cardHtml = (c, terms = [], open = false) => {
+      const badge = c.mustKnow ? `<span class="badge">#${c.mustKnow}</span>` : "";
+      const learnedBadge = learned.has(c.name) ? `<span class="badge">learned</span>` : "";
+      const remember = (c.remember || []).map((r) => `<li>${highlight(r, terms)}</li>`).join("");
+      return `
+        <details class="result"${open ? " open" : ""} data-name="${escapeHtml(c.name)}">
+          <summary>
+            <div class="cat">${highlight(c.category, terms)}${badge}${learnedBadge}</div>
+            <div class="name">${highlight(c.name, terms)}</div>
+            <div class="snippet-text">${highlight(c.definition, terms)}</div>
+          </summary>
+          <div class="body">
+            <div><div class="label">Why it matters</div><p>${highlight(c.why, terms)}</p></div>
+            <div><div class="label">Example</div><p>${highlight(c.example, terms)}</p></div>
+            ${renderSnippet(c.snippet)}
+            ${c.symptom ? `<div><div class="label">In prod</div><p>${highlight(c.symptom, terms)}</p></div>` : ""}
+            ${remember ? `<div><div class="label">Remember</div><ul>${remember}</ul></div>` : ""}
+            ${renderRelated(c.related)}
+            <div><button type="button" class="mark-btn${learned.has(c.name) ? " learned" : ""}" data-learn="${escapeHtml(c.name)}">${learned.has(c.name) ? "Learned ✓" : "Mark learned"}</button></div>
+          </div>
+        </details>`;
+    };
+
+    const allTags = () => {
+      const set = new Set();
+      concepts.forEach((c) => (c.tags || []).forEach((t) => set.add(t)));
+      return TAG_ORDER.filter((t) => set.has(t)).concat([...set].filter((t) => !TAG_ORDER.includes(t)).sort());
+    };
+
+    const renderTagChips = () => {
+      const tags = ["All", ...allTags()];
+      $("tag-chips").innerHTML = tags.map((tag) =>
+        `<button type="button" class="chip tag${tag === activeTag ? " active" : ""}" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`).join("");
+      const deckTags = ["essentials","interview","spark","streaming","kafka","airflow","dbt","cdc","must-know", ...allTags()];
+      const uniq = [...new Set(deckTags)];
+      $("flash-tag-chips").innerHTML = uniq.map((tag) =>
+        `<button type="button" class="chip tag${tag === flashTag ? " active" : ""}" data-flash-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`).join("");
+      $("quiz-tag-chips").innerHTML = uniq.filter((t) => t !== "must-know").concat(["must-know"]).map((tag) =>
+        `<button type="button" class="chip tag${tag === quizTag ? " active" : ""}" data-quiz-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`).join("");
+    };
+
+    const renderChips = () => {
+      const cats = ["All", ...new Set(concepts.map((c) => c.category))];
+      $("chips").innerHTML = cats.map((cat) => {
+        const label = cat === "All" ? "All" : cat.replace(/ Concepts| for Data/g, "");
+        return `<button type="button" class="chip${cat === activeCategory ? " active" : ""}" data-cat="${escapeHtml(cat)}">${escapeHtml(label)}</button>`;
+      }).join("");
+    };
+
+    const renderSearch = () => {
+      const terms = tokens($("q").value.trim());
+      $("clear").classList.toggle("show", $("q").value.length > 0);
+      let list = concepts.map((c) => ({ c, s: score(c, terms) })).filter((x) => x.s > 0);
+      if (activeCategory !== "All") list = list.filter((x) => x.c.category === activeCategory);
+      if (activeTag !== "All") list = list.filter((x) => (x.c.tags || []).includes(activeTag));
+      list.sort((a, b) => b.s - a.s || a.c.name.localeCompare(b.c.name));
+      $("shown").textContent = String(list.length);
+      if ($("total")) $("total").textContent = String(concepts.length);
+      if (!list.length) {
+        const bits = [];
+        if (activeTag !== "All") bits.push(`“${escapeHtml(activeTag)}”`);
+        if (activeCategory !== "All") bits.push(`“${escapeHtml(activeCategory)}”`);
+        const combo = bits.length ? ` for ${bits.join(" + ")}` : "";
+        $("results").innerHTML = `<div class="empty">Nothing here${combo}.<br/>Try one filter at a time — e.g. <em>snowflake</em>.<br/><button type="button" class="mark-btn" id="clear-filters" style="margin-top:.9rem">Clear filters</button></div>`;
+        return;
+      }
+      $("results").innerHTML = list.map(({ c }, i) => cardHtml(c, terms, terms.length > 0 && i === 0)).join("");
+    };
+
+    const miniTableHtml = (rows, cols) => {
+      const head = cols.map((c) => `<th>${escapeHtml(c)}</th>`).join("");
+      const body = rows.map((r) => {
+        const jump = r.jump ? ` data-jump="${escapeHtml(r.jump)}"` : "";
+        return `<tr${jump}>${r.cells.map((cell, i) =>
+          `<td class="${i === 1 ? "kw" : i === cols.length - 1 ? "why" : ""}">${cell}</td>`
+        ).join("")}</tr>`;
+      }).join("");
+      return `<table class="mini-table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+    };
+
+    const renderEssentials = () => {
+      const table = $("essentials-table");
+      if (table) {
+        const rows = ESSENTIALS.map(([name, point, defn], i) => {
+          const c = byName.get(name);
+          const def = escapeHtml((c && c.definition) || defn || "");
+          return {
+            jump: name,
+            cells: [String(i + 1), escapeHtml(name), def, escapeHtml(point)],
+          };
+        });
+        table.innerHTML = miniTableHtml(rows, ["#", "Concept", "Definition", "The one thing to remember"]);
+      }
+      const list = $("essentials-results");
+      if (list) {
+        list.innerHTML = ESSENTIALS.map(([name, point, defn]) => {
+          const c = byName.get(name) || {
+            name, definition: defn || point, why: point, example: "", category: "Essentials",
+            remember: [], snippet: "", symptom: "", related: [], tags: ["interview"]
+          };
+          return cardHtml(c);
+        }).join("");
+      }
+    };
+
+    const renderMustSummaryTable = () => {
+      const el = $("must-summary-table");
+      if (!el) return;
+      const list = concepts.filter((c) => c.mustKnow).sort((a, b) => a.mustKnow - b.mustKnow);
+      const rows = list.map((c) => ({
+        jump: c.name,
+        cells: [
+          String(c.mustKnow),
+          escapeHtml(c.name),
+          escapeHtml(c.definition),
+          escapeHtml((c.symptom || c.why || "").slice(0, 120)),
+        ],
+      }));
+      el.innerHTML = miniTableHtml(rows, ["#", "Keyword", "Definition", "In prod / why"]);
+    };
+
+    const renderMust = () => {
+      renderMustSummaryTable();
+      $("must-results").innerHTML = concepts.filter((c) => c.mustKnow).sort((a,b)=>a.mustKnow-b.mustKnow).map((c) => cardHtml(c)).join("");
+    };
+
+    const deckPool = () => {
+      if (flashTag === "essentials") return ESSENTIALS.map(([n]) => byName.get(n)).filter(Boolean);
+      if (flashTag === "must-know") return concepts.filter((c) => c.mustKnow).sort((a,b)=>a.mustKnow-b.mustKnow);
+      return concepts.filter((c) => (c.tags || []).includes(flashTag));
+    };
+
+    const buildDeck = () => {
+      const pool = deckPool();
+      const pending = pool.filter((c) => !learned.has(c.name));
+      deck = pending.length ? pending : [...pool].sort(() => Math.random() - 0.5);
+      deckIndex = 0; flipped = false;
+    };
+
+    const renderFlash = () => {
+      const c = deck[deckIndex];
+      const el = $("flash-card");
+      if (!c) { el.innerHTML = `<p class="flash-prompt">Empty deck for this tag.</p>`; return; }
+      el.classList.toggle("flipped", flipped);
+      el.innerHTML = `
+        <div class="flash-top"><span>${escapeHtml(c.category)}</span><span>${deckIndex+1}/${deck.length}</span></div>
+        <h2 class="flash-name">${escapeHtml(c.name)}</h2>
+        <p class="flash-prompt">What is it? Tap to reveal definition, snippet, and prod symptom.</p>
+        <div class="flash-answer">
+          <div><div class="label">Definition</div><p>${escapeHtml(c.definition)}</p></div>
+          <div><div class="label">Why</div><p>${escapeHtml(c.why)}</p></div>
+          ${c.snippet ? `<div><div class="label">Snippet</div><pre>${escapeHtml(c.snippet)}</pre></div>` : ""}
+          ${c.symptom ? `<div><div class="label">In prod</div><p>${escapeHtml(c.symptom)}</p></div>` : ""}
+        </div>`;
+      $("flash-hint").textContent = `Streak ${streak.count || 0} · ${learned.size} concepts marked learned`;
+    };
+
+    const shuffle = (arr) => [...arr].sort(() => Math.random() - 0.5);
+
+    const quizCandidates = () => {
+      if (quizTag === "essentials") return ESSENTIALS.map(([n]) => byName.get(n)).filter((c) => c && c.definition);
+      if (quizTag === "must-know") return concepts.filter((c) => c.mustKnow && c.definition);
+      return concepts.filter((c) => (c.tags || []).includes(quizTag) && c.definition);
+    };
+
+    const nextQuiz = () => {
+      const pool = quizCandidates();
+      if (pool.length < 4) {
+        $("quiz-card").innerHTML = `<p>Need at least 4 concepts in this pool.</p>`;
+        return;
+      }
+      const answer = pool[Math.floor(Math.random() * pool.length)];
+      const distractors = shuffle(pool.filter((c) => c.name !== answer.name)).slice(0, 3);
+      const choices = shuffle([answer, ...distractors]);
+      quizItem = { answer, choices };
+      quizLocked = false;
+      $("quiz-card").innerHTML = `
+        <div class="eyebrow" style="font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--amber)">Which concept is this?</div>
+        <p class="quiz-q" style="font-size:1.15rem">${escapeHtml(answer.definition)}</p>
+        <div class="choices" id="quiz-choices">
+          ${choices.map((c) => `<button type="button" class="choice" data-choice="${escapeHtml(c.name)}">${escapeHtml(c.name)}</button>`).join("")}
+        </div>
+        <div class="hint" id="quiz-feedback"></div>`;
+    };
+
+    const renderPlaybook = () => {
+      const _pqEl = $("prod-q");
+      const q = ((_pqEl && _pqEl.value) || "").trim().toLowerCase();
+      const list = playbook.filter((p) => {
+        if (!q) return true;
+        const hay = [p.see, p.do, p.habit, ...(p.concepts || [])].join(" ").toLowerCase();
+        return hay.includes(q);
+      });
+      $("playbook-list").innerHTML = list.length
+        ? list.map((p) => `
+          <article class="playbook-card">
+            <h3 class="see">You see: ${escapeHtml(p.see)}</h3>
+            <p class="do"><strong>Do this:</strong> ${escapeHtml(p.do)}</p>
+            <div class="concepts">
+              ${(p.concepts || []).map((n) =>
+                `<button type="button" data-jump="${escapeHtml(n)}">${escapeHtml(n)}</button>`
+              ).join("")}
+            </div>
+            <p class="habit">${escapeHtml(p.habit || "")}</p>
+          </article>`).join("")
+        : `<div class="empty">No matches. Try “slow”, “duplicate”, or “cost”.</div>`;
+    };
+
+    const renderScenarios = () => {
+      $("scenario-list").innerHTML = scenarios.map((s) => {
+        const picks = new Set(scenarioPicks[s.id] || []);
+        const opts = shuffle([
+          ...(s.answers || []),
+          ...shuffle(concepts.map((c) => c.name).filter((n) => !(s.answers || []).includes(n))).slice(0, 6)
+        ]).slice(0, 9);
+        const done = picks.size >= 3;
+        let result = "";
+        if (done) {
+          const exact = (s.answers || []).length === picks.size && (s.answers || []).every((a) => picks.has(a));
+          result = exact
+            ? `<p style="color:var(--good)"><strong>Nice.</strong> ${escapeHtml(s.explain)}</p>`
+            : `<p style="color:var(--bad)"><strong>Not quite.</strong> Aim for: ${(s.answers||[]).map(escapeHtml).join(", ")}. ${escapeHtml(s.explain)}</p>`;
+        }
+        return `
+          <article class="scenario-card" data-scenario="${escapeHtml(s.id)}">
+            <div class="eyebrow" style="font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--amber)">Challenge</div>
+            <h3>${escapeHtml(s.title)}</h3>
+            <p>${escapeHtml(s.prompt)}</p>
+            <div class="related" style="margin-top:.25rem">
+              ${opts.map((name) => `<button type="button" data-scenario-pick="${escapeHtml(s.id)}" data-concept="${escapeHtml(name)}" style="${picks.has(name) ? "background:var(--teal);color:#fff;border-color:var(--teal)" : ""}">${escapeHtml(name)}</button>`).join("")}
+            </div>
+            <p class="hint">Selected ${picks.size}/3</p>
+            ${result}
+            <div class="actions"><button type="button" data-scenario-reset="${escapeHtml(s.id)}">Reset</button></div>
+          </article>`;
+      }).join("");
+    };
+
+    const MODE_LABELS = {
+      essentials: ["Viewing: Essentials", "The 10 concepts to learn first."],
+      prod: ["Viewing: Prod playbook", "Start from a production symptom, then open the concepts."],
+      search: ["Viewing: Browse all", "Search the full glossary by name, tag, or section."],
+      must: ["Viewing: Must-know 30", "Next layer after Essentials."],
+      flash: ["Viewing: Flashcards", "Flip cards; mark Know / Again."],
+      quiz: ["Viewing: Quiz", "Self-check definitions."],
+      scenarios: ["Viewing: Stories", "Pick the right concepts for an incident."],
+    };
+
+    const setMode = (next) => {
+      if (next === "path" || next === "start") next = "essentials";
+      if (next === "table") {
+        location.href = "table.html";
+        return;
+      }
+      mode = next;
+      document.querySelectorAll(".mode-btn").forEach((btn) => {
+        const on = btn.dataset.mode === mode;
+        btn.classList.toggle("active", on);
+      });
+      ["essentials","prod","search","must","flash","quiz","scenarios"].forEach((m) => {
+        const panel = $(`panel-${m}`);
+        if (!panel) return;
+        const on = m === mode;
+        panel.classList.toggle("active", on);
+        panel.hidden = !on;
+      });
+      const labels = MODE_LABELS[mode] || ["Viewing: " + mode, ""];
+      const banner = $("mode-banner");
+      const lede = $("mode-lede");
+      if (banner) banner.textContent = labels[0];
+      if (lede) lede.textContent = labels[1];
+      if (mode === "essentials") renderEssentials();
+      if (mode === "prod") { renderPlaybook(); var _pq=$("prod-q"); if(_pq)_pq.focus(); }
+      if (mode === "must") renderMust();
+      if (mode === "flash") { buildDeck(); renderFlash(); $("flash-card").focus(); }
+      if (mode === "quiz") { $("quiz-score").textContent = quizScore; $("quiz-asked").textContent = quizAsked; nextQuiz(); }
+      if (mode === "scenarios") renderScenarios();
+      if (mode === "search") { renderSearch(); var _q=$("q"); if(_q)_q.focus(); }
+      try {
+        const url = new URL(location.href);
+        url.searchParams.set("mode", mode);
+        if (mode !== "search") url.searchParams.delete("tag");
+        history.replaceState(null, "", url);
+      } catch (_) {}
+      try {
+        const panel = $("panel-" + mode);
+        if (panel) panel.scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (_) {}
+    };
+
+    const jumpTo = (name) => {
+      setMode("search");
+      $("q").value = name;
+      activeCategory = "All"; activeTag = "All";
+      renderChips(); renderTagChips(); renderSearch();
+      const el = document.querySelector(`details[data-name="${CSS.escape(name)}"]`);
+      if (el) { el.open = true; el.scrollIntoView({ behavior: "smooth", block: "center" }); }
+    };
+
+    const toggleLearned = (name) => {
+      if (learned.has(name)) learned.delete(name); else learned.add(name);
+      saveLearned();
+      renderSearch(); renderMust(); renderEssentials();
+    };
+
+    document.querySelector(".modes").addEventListener("click", (e) => {
+      const btn = e.target.closest(".mode-btn");
+      if (btn) setMode(btn.dataset.mode);
+    });
+    $("chips").addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-cat]"); if (!btn) return;
+      activeCategory = btn.dataset.cat; renderChips(); renderSearch();
+    });
+    $("tag-chips").addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-tag]"); if (!btn) return;
+      activeTag = btn.dataset.tag; renderTagChips(); renderSearch();
+    });
+    $("flash-tag-chips").addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-flash-tag]"); if (!btn) return;
+      flashTag = btn.dataset.flashTag; renderTagChips(); buildDeck(); renderFlash();
+    });
+    $("quiz-tag-chips").addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-quiz-tag]"); if (!btn) return;
+      quizTag = btn.dataset.quizTag; renderTagChips(); nextQuiz();
+    });
+
+    document.body.addEventListener("click", (e) => {
+      const goto = e.target.closest("[data-goto]");
+      if (goto) { setMode(goto.dataset.goto); return; }
+      if (e.target.id === "clear-filters" || e.target.closest("#clear-filters")) {
+        activeCategory = "All";
+        activeTag = "All";
+        $("q").value = "";
+        renderChips();
+        renderTagChips();
+        renderSearch();
+        return;
+      }
+      const jump = e.target.closest("[data-jump]"); if (jump) jumpTo(jump.dataset.jump);
+      const learn = e.target.closest("[data-learn]"); if (learn) toggleLearned(learn.dataset.learn);
+      const choice = e.target.closest("[data-choice]");
+      if (choice && quizItem && !quizLocked) {
+        quizLocked = true;
+        quizAsked += 1;
+        const ok = choice.dataset.choice === quizItem.answer.name;
+        if (ok) { quizScore += 1; touchStreak(); if (!learned.has(quizItem.answer.name)) { learned.add(quizItem.answer.name); saveLearned(); } }
+        $("quiz-score").textContent = quizScore;
+        $("quiz-asked").textContent = quizAsked;
+        document.querySelectorAll("#quiz-choices .choice").forEach((btn) => {
+          btn.disabled = true;
+          if (btn.dataset.choice === quizItem.answer.name) btn.classList.add("correct");
+          else if (btn === choice && !ok) btn.classList.add("wrong");
+        });
+        $("quiz-feedback").textContent = ok
+          ? `Correct. In prod: ${quizItem.answer.symptom || ""}`
+          : `Answer: ${quizItem.answer.name}. ${quizItem.answer.symptom || ""}`;
+      }
+      const pick = e.target.closest("[data-scenario-pick]");
+      if (pick) {
+        const id = pick.dataset.scenarioPick;
+        const name = pick.dataset.concept;
+        const set = new Set(scenarioPicks[id] || []);
+        if (set.has(name)) set.delete(name);
+        else if (set.size < 3) set.add(name);
+        scenarioPicks[id] = [...set];
+        if (set.size === 3) {
+          const sc = scenarios.find((s) => s.id === id);
+          const exact = sc && sc.answers.length === 3 && sc.answers.every((a) => set.has(a));
+          if (exact) touchStreak();
+        }
+        renderScenarios();
+      }
+      const resetSc = e.target.closest("[data-scenario-reset]");
+      if (resetSc) { scenarioPicks[resetSc.dataset.scenarioReset] = []; renderScenarios(); }
+    });
+
+    $("q").addEventListener("input", renderSearch);
+    $("clear").addEventListener("click", () => { $("q").value = ""; $("q").focus(); renderSearch(); });
+    var _prodQ = $("prod-q"); if (_prodQ) _prodQ.addEventListener("input", renderPlaybook);
+
+    const flip = () => { flipped = !flipped; renderFlash(); };
+    const nextCard = (markKnown) => {
+      const c = deck[deckIndex]; if (!c) return;
+      if (markKnown) {
+        learned.add(c.name); saveLearned();
+        deck.splice(deckIndex, 1);
+        if (!deck.length) buildDeck();
+        deckIndex = Math.min(deckIndex, Math.max(deck.length - 1, 0));
+      } else {
+        deck.push(deck.splice(deckIndex, 1)[0]);
+        if (deckIndex >= deck.length) deckIndex = 0;
+      }
+      flipped = false; renderFlash();
+    };
+    $("flash-card").addEventListener("click", flip);
+    $("flip-btn").addEventListener("click", flip);
+    $("know-btn").addEventListener("click", () => nextCard(true));
+    $("again-btn").addEventListener("click", () => nextCard(false));
+    $("reset-btn").addEventListener("click", () => {
+      if (confirm("Reset learned progress and streak?")) {
+        learned = new Set(); streak = { count: 0, last: null };
+        localStorage.setItem(STREAK_KEY, JSON.stringify(streak));
+        saveLearned(); buildDeck(); renderFlash(); renderMust(); renderEssentials(); renderSearch(); updateProgress();
+      }
+    });
+    $("quiz-next").addEventListener("click", nextQuiz);
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "/" && document.activeElement !== $("q") && mode === "search") {
+        e.preventDefault(); $("q").focus(); $("q").select();
+      }
+      if (e.key === "Escape" && document.activeElement === $("q")) { $("q").value = ""; renderSearch(); }
+      if (mode !== "flash") return;
+      if (["INPUT","TEXTAREA"].includes(document.activeElement.tagName)) return;
+      if (e.key === " " || e.key === "Enter") { e.preventDefault(); flip(); }
+      if (e.key === "ArrowRight") { e.preventDefault(); nextCard(false); }
+      if (e.key === "1") { e.preventDefault(); nextCard(true); }
+      if (e.key === "2") { e.preventDefault(); nextCard(false); }
+    });
+
+    const showBootError = (msg) => {
+      let el = $("boot-error");
+      if (!el) {
+        el = document.createElement("div");
+        el.id = "boot-error";
+        el.style.cssText = "margin:0.75rem 0;padding:0.75rem 1rem;background:#fef2f2;color:#b91c1c;border-radius:12px;font:600 14px system-ui,sans-serif";
+        const host = $("essentials-table");
+        if (host && host.parentNode) host.parentNode.insertBefore(el, host);
+        else document.body.prepend(el);
+      }
+      el.textContent = msg;
+    };
+
+    const startApp = () => {
+      byName = new Map(concepts.map((c) => [c.name, c]));
+      const params = new URLSearchParams(location.search);
+      // Show a panel FIRST so a later render error cannot leave the UI blank
+      let initial = params.get("mode") || "essentials";
+      if (initial === "table") { location.href = "table.html"; return; }
+      if (params.get("tag") && !params.get("mode")) initial = "search";
+      try { setMode(initial); } catch (e) { console.error(e); setMode("essentials"); }
+
+      const run = (fn) => { try { fn(); } catch (e) { console.error(e); } };
+      run(renderWotd);
+      run(renderChips);
+      run(renderTagChips);
+      run(updateProgress);
+      run(renderSearch);
+      run(renderEssentials);
+      run(renderMustSummaryTable);
+      run(renderPlaybook);
+
+      if (params.get("tag")) {
+        activeTag = params.get("tag");
+        run(renderTagChips);
+        run(renderSearch);
+        if (!params.get("mode")) try { setMode("search"); } catch (_) {}
+      }
+      if (location.hash === "#path" || location.hash === "#essentials") setMode("essentials");
+      if (location.hash === "#prod") setMode("prod");
+      if (location.hash === "#flash") setMode("flash");
+      if (location.hash === "#quiz") setMode("quiz");
+      if (location.hash === "#scenarios") setMode("scenarios");
+    };
+
+    const asset = (name) => {
+      // Project Pages live under /data-engineer-sheet/
+      if (/github\.io$/i.test(location.hostname)) return "/data-engineer-sheet/" + name;
+      // local file or http.server from /docs
+      return new URL(name, location.href).href;
+    };
+
+    const loadJson = async (name) => {
+      const urls = [asset(name), name, "./" + name];
+      let lastErr;
+      for (const url of urls) {
+        try {
+          const res = await fetch(url + (url.includes("?") ? "&" : "?") + "v=278");
+          if (!res.ok) throw new Error(url + " -> " + res.status);
+          return await res.json();
+        } catch (e) { lastErr = e; }
+      }
+      throw lastErr || new Error("Could not load " + name);
+    };
+
+    const essentialsOnlyFallback = () => {
+      concepts = ESSENTIALS.map(([n, point, defn], i) => ({
+        name: n, definition: defn, why: point, example: "", category: "Essentials",
+        remember: [], snippet: "", symptom: "", related: [], tags: ["interview"], mustKnow: i + 1
+      }));
+      scenarios = [];
+      playbook = [];
+      byName = new Map(concepts.map((c) => [c.name, c]));
+      updateProgress();
+      renderEssentials();
+    };
+
+    const hideFallback = () => {
+      const fb = document.getElementById("app-fallback");
+      if (fb) fb.style.display = "none";
+    };
+
+    const applyCatalog = (c, s, p) => {
+      concepts = c;
+      scenarios = Array.isArray(s) ? s : [];
+      playbook = Array.isArray(p) ? p : [];
+      startApp();
+      hideFallback();
+    };
+
+    const boot = async () => {
+      try { updateProgress(); } catch (_) {}
+
+      try {
+        if (Array.isArray(window.DE_CONCEPTS) && window.DE_CONCEPTS.length) {
+          applyCatalog(window.DE_CONCEPTS, window.DE_SCENARIOS, window.DE_PLAYBOOK);
+          return;
+        }
+        const [c, s, p] = await Promise.all([
+          loadJson("concepts.json"),
+          loadJson("scenarios.json").catch(() => []),
+          loadJson("playbook.json").catch(() => []),
+        ]);
+        if (!Array.isArray(c) || !c.length) throw new Error("concepts.json empty");
+        applyCatalog(c, s, p);
+      } catch (err) {
+        console.error(err);
+        essentialsOnlyFallback();
+        const params = new URLSearchParams(location.search);
+        const want = params.get("mode") || "essentials";
+        try { setMode(want === "table" ? "essentials" : want); } catch (_) { setMode("essentials"); }
+        showBootError("Could not load full catalog (" + (err && err.message ? err.message : err) + "). Essentials + Summary table still work.");
+      }
+    };
+
+    window.addEventListener("error", (e) => {
+      console.error("app error", e.error || e.message);
+    });
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", () => setTimeout(boot, 0));
+    } else {
+      setTimeout(boot, 0);
+    }
+  </script>
+</body>
+</html>
