@@ -4,10 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Data Engineer Sheet — Study App</title>
+  <script>
+  (function () {
+    if (location.hostname.endsWith("github.io")) {
+      var b = document.createElement("base");
+      b.href = "/data-engineer-sheet/";
+      document.head.insertBefore(b, document.head.firstChild);
+    }
+  })();
+  </script>
   <meta name="description" content="Searchable DE glossary with flashcards, quiz, scenarios, and word of the day." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Sora:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
       --ink: #12202e;
@@ -24,10 +30,10 @@
       --orange: #ea580c;
       --good: #16a34a;
       --bad: #dc2626;
-      --font-display: "Fraunces", Georgia, serif;
-      --font-body: "Sora", sans-serif;
-      --font-read: "Source Serif 4", Georgia, serif;
-      --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+      --font-display: Georgia, "Times New Roman", serif;
+      --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      --font-read: Georgia, "Times New Roman", serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
     }
     * { box-sizing: border-box; }
     body {
@@ -54,23 +60,11 @@
       line-height: 1.02;
       letter-spacing: -0.03em;
       margin: 0 0 .6rem;
-      color: var(--teal-deep);
-      background: linear-gradient(120deg, #0f766e 0%, #0284c7 45%, #e11d48 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-    }
-    @supports ((-webkit-background-clip: text) or (background-clip: text)) {
-      .brand { color: transparent; }
+      color: #0f766e;
     }
     .brand span {
       display: block;
-      color: var(--orange);
-      background: linear-gradient(100deg, #ea580c, #ca8a04 55%, #65a30d);
-      -webkit-background-clip: text;
-      background-clip: text;
-    }
-    @supports ((-webkit-background-clip: text) or (background-clip: text)) {
-      .brand span { color: transparent; }
+      color: #ea580c;
     }
     .lede {
       margin: 0 0 1.35rem;
@@ -621,6 +615,12 @@
     .five-q strong { color: var(--teal-deep); }
 </head>
 <body>
+    <div id="top-links" style="position:sticky;top:0;z-index:9999;background:#0f766e;color:#fff;padding:.75rem 1rem;font:600 15px/1.4 system-ui,sans-serif;display:flex;flex-wrap:wrap;gap:.75rem;align-items:center">
+    <a href="table.html" style="color:#fff;text-decoration:underline">Summary table</a>
+    <a href="index.html?mode=essentials" style="color:#fff;text-decoration:underline">Essentials</a>
+    <a href="index.html?mode=prod" style="color:#fff;text-decoration:underline">Prod playbook</a>
+    <span style="opacity:.85;font-weight:500">If the page looks empty, use these links.</span>
+  </div>
   <main class="wrap">
     <h1 class="brand">Data Engineer<br /><span>Sheet</span></h1>
     <p class="lede">A calm place to learn DE concepts — one idea at a time.</p>
@@ -760,7 +760,6 @@
     </footer>
   </main>
 
-  <script src="data.js"></script>
   <script>
     const $ = (id) => document.getElementById(id);
     const LEARN_KEY = "de-sheet-learned-v1";
@@ -1276,20 +1275,41 @@
       if (location.hash === "#scenarios") setMode("scenarios");
     };
 
-    const boot = async () => {
-      if (Array.isArray(window.DE_CONCEPTS) && window.DE_CONCEPTS.length) {
-        concepts = window.DE_CONCEPTS;
-        scenarios = Array.isArray(window.DE_SCENARIOS) ? window.DE_SCENARIOS : [];
-        playbook = Array.isArray(window.DE_PLAYBOOK) ? window.DE_PLAYBOOK : [];
-        startApp();
-        return;
-      }
+    const dataUrl = (name) => {
       try {
-        const base = new URL(".", location.href);
+        const scripts = document.getElementsByTagName("script");
+        // Prefer same directory as this page
+        return new URL(name, document.baseURI).href;
+      } catch (_) {
+        return name;
+      }
+    };
+
+    const loadScript = (src) => new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = src;
+      s.async = true;
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error("Failed to load " + src));
+      document.head.appendChild(s);
+    });
+
+    const boot = async () => {
+      try {
+        if (!(Array.isArray(window.DE_CONCEPTS) && window.DE_CONCEPTS.length)) {
+          await loadScript(dataUrl("data.js"));
+        }
+        if (Array.isArray(window.DE_CONCEPTS) && window.DE_CONCEPTS.length) {
+          concepts = window.DE_CONCEPTS;
+          scenarios = Array.isArray(window.DE_SCENARIOS) ? window.DE_SCENARIOS : [];
+          playbook = Array.isArray(window.DE_PLAYBOOK) ? window.DE_PLAYBOOK : [];
+          startApp();
+          return;
+        }
         const [cRes, sRes, pRes] = await Promise.all([
-          fetch(new URL("concepts.json", base)),
-          fetch(new URL("scenarios.json", base)),
-          fetch(new URL("playbook.json", base)),
+          fetch(dataUrl("concepts.json")),
+          fetch(dataUrl("scenarios.json")),
+          fetch(dataUrl("playbook.json")),
         ]);
         if (!cRes.ok) throw new Error("Could not load concepts.json (" + cRes.status + ")");
         concepts = await cRes.json();
@@ -1298,11 +1318,16 @@
         startApp();
       } catch (err) {
         console.error(err);
-        showBootError("Could not load data. Open docs/index.html next to data.js, or use http://127.0.0.1:8777/");
+        showBootError("Could not load data.js. Try the Summary table link above, or hard-refresh.");
       }
     };
 
-    boot();
+    // Paint chrome first, then load data (avoids blank page while data.js parses)
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", () => setTimeout(boot, 0));
+    } else {
+      setTimeout(boot, 0);
+    }
   </script>
 </body>
 </html>
