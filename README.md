@@ -69,6 +69,7 @@ Also: deep links `?mode=essentials` · `?mode=prod` · `?mode=must`
 | 15 | [Airflow](15-airflow/concepts.md) | DAGs, sensors, backfill, datasets |
 | 16 | [Cost Optimization](16-cost-optimization/concepts.md) | Pruning, tiering, right-sizing |
 | 17 | [Snowflake](17-snowflake/concepts.md) | Warehouses, micro-partitions, Snowpipe, streams |
+| 18 | [Clinical Data — Meds & Labs](18-clinical-data/concepts.md) | Orders, RxNorm/NDC, LOINC, labs, MAR |
 
 ## All keywords
 ### Database & SQL Concepts

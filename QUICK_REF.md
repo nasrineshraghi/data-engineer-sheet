@@ -4,7 +4,7 @@ One-page cheat sheet: keyword · section · definition · example.
 
 **Prefer the interactive HTML table:** https://nasrineshraghi.github.io/data-engineer-sheet/table.html
 
-**217 concepts** · [Study app](https://nasrineshraghi.github.io/data-engineer-sheet/) · [Local HTML](docs/table.html)
+**236 concepts** · [Study app](https://nasrineshraghi.github.io/data-engineer-sheet/) · [Local HTML](docs/table.html)
 
 | Keyword | Section | Definition | Example |
 |---|---|---|---|
@@ -31,6 +31,25 @@ One-page cheat sheet: keyword · section · definition · example.
 | **SCD Type 3** | CDC & SCD | Store limited history in extra columns (e.g., current + previous). | `region` and `prior_region` columns on `dim_customer`. |
 | **Soft Delete vs Hard Delete** | CDC & SCD | Soft delete marks a row inactive (`is_deleted=true`); hard delete removes the row. | Source hard-delete → CDC tombstone → target marks deleted or removes row. |
 | **Surrogate Key** | CDC & SCD | Warehouse-generated key (usually integer/UUID) independent of source natural keys. | `customer_sk` changes on type-2 version; `customer_id` natural key stays. |
+| **Abnormal / Critical Flags** | Clinical Data — Meds & Labs | Lab- or EHR-assigned markers that a result is abnormal, high/low, or critically out of range. | Flag `HH` (critically high) on potassium triggers rapid notification workflows. |
+| **Active Medication List** | Clinical Data — Meds & Labs | Medications believed current for the patient (home meds + active inpatient orders), not the full history. | Active: metformin, lisinopril. Historical: finished amoxicillin course last month. |
+| **Clinical Event Time vs System Time** | Clinical Data — Meds & Labs | Event time = when it happened clinically (collected, administered); system time = when the EHR recorded/updated the row. | Dose given at 08:00, documented at 11:30 — administration event time is 08:00. |
+| **Encounter / Visit Context** | Clinical Data — Meds & Labs | The visit (inpatient encounter, ED visit, outpatient appointment) tying meds and labs to a care episode. | Join `lab_result.encounter_id` to inpatient stay for length-of-stay cohorts. |
+| **Lab Order vs Lab Result** | Clinical Data — Meds & Labs | Order = request for a test; result = the reported value(s) for analyte(s). | Order CBC → results for WBC, RBC, hemoglobin, platelets (multiple result rows). |
+| **LOINC** | Clinical Data — Meds & Labs | Universal codes for lab observations and clinical measures (what was measured). | Serum creatinine assays from Lab A and Lab B → same LOINC `2160-0`. |
+| **Medication Administration (MAR)** | Clinical Data — Meds & Labs | Record that a dose was given (or intentionally not given) to the patient — Medication Administration Record. | Nurse documents ceftriaxone 1 g IV given at 2024-01-02 08:12. |
+| **Medication Dispense** | Clinical Data — Meds & Labs | Pharmacy fills/gives out a supply of medication (quantity, NDC, days supply). | One order for 30 tablets → one dispense of 30; a refill is another dispense. |
+| **Medication Order** | Clinical Data — Meds & Labs | A clinician’s request for a drug (what should be given) — often before dispense or administration. | Order: “Amoxicillin 500 mg PO TID × 7 days.” May never be dispensed if patient leaves AMA. |
+| **NDC (National Drug Code)** | Clinical Data — Meds & Labs | FDA product identifier for how a drug is packaged (labeler + product + package). | Two manufacturers’ bottles of sertraline 50 mg → different NDCs, same RxNorm ingredient/strength. |
+| **Order → Dispense → Administration Chain** | Clinical Data — Meds & Labs | The typical inpatient med pipeline: ordered → dispensed → administered (ambulatory often stops at dispense). | “Antibiotics within 1h of sepsis” needs **administration** time, not order time. |
+| **Panel vs Analyte** | Clinical Data — Meds & Labs | Panel = ordered battery (CMP, CBC); analyte = individual measurable component. | CMP order → separate rows for sodium, potassium, creatinine, glucose, … |
+| **PHI in Meds & Labs** | Clinical Data — Meds & Labs | Medication and lab rows are Protected Health Information when identifiable (patient id + clinical facts). | A table of patient_id + HIV viral load is highly sensitive PHI. |
+| **Quantitative vs Qualitative Results** | Clinical Data — Meds & Labs | Quantitative = numeric value; qualitative = categorical (Positive/Negative, Detected, …). | Troponin `0.04 ng/mL` (quant) vs COVID PCR `Detected` (qual). |
+| **Reference Range** | Clinical Data — Meds & Labs | Lab’s expected normal low/high (or qualitative normal set) for a result, often age/sex/method specific. | K+ result `5.8` with range `3.5–5.1` → high; same number might be normal for a different assay. |
+| **RxNorm** | Clinical Data — Meds & Labs | NIH normalized naming system for clinical drugs (ingredients, strength, dose form). | Map “Amox 500mg Cap” and “amoxicillin 500 mg capsule” → same RxNorm CUI/SCD. |
+| **Sig / Dose / Route / Frequency** | Clinical Data — Meds & Labs | Structured (or semi-structured) instructions: how much (dose), how given (route), how often (frequency), plus free-text sig. | Dose `500`, unit `mg`, route `PO`, frequency `TID` vs sig `"one capsule by mouth three times daily"`. |
+| **Specimen & Collection Time** | Clinical Data — Meds & Labs | What was collected (blood, urine, …) and **when** it was collected — distinct from result-reported time. | Blood drawn 06:00, resulted 09:40 — sepsis bundle timing uses 06:00. |
+| **Units of Measure (UCUM)** | Clinical Data — Meds & Labs | Standard representation of units (e.g. `mg/dL`, `mmol/L`) so values are comparable. | Glucose `100 mg/dL` ≈ `5.6 mmol/L` — not the same number. |
 | **Block Storage** | Cloud & Storage | Disk volumes attached to VMs (like SAN/local disks). | EBS/Azure Disks for Postgres data directory. |
 | **Encryption at Rest** | Cloud & Storage | Data encrypted on disk/storage media. | S3 default encryption; encrypted EBS volumes. |
 | **Encryption in Transit** | Cloud & Storage | Data encrypted on the network (TLS/HTTPS). | TLS to warehouses, HTTPS to APIs, SSL to Postgres. |

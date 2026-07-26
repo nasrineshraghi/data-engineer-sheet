@@ -1959,5 +1959,235 @@
       "Data Governance"
     ],
     "symptom": "Everyone uses ACCOUNTADMIN for daily queries."
+  },
+  "Medication Order": {
+    "snippet": "-- grain: 1 row per medication order\nSELECT patient_id, order_id, drug_name, status, ordered_at\nFROM med_order WHERE status IN ('active','completed');",
+    "related": [
+      "Medication Dispense",
+      "Medication Administration (MAR)",
+      "Order \u2192 Dispense \u2192 Administration Chain"
+    ],
+    "symptom": "Sepsis antibiotic metric uses order time; nursing says dose was hours later.",
+    "tags": [
+      "clinical",
+      "medication"
+    ]
+  },
+  "Medication Dispense": {
+    "snippet": "SELECT patient_id, ndc, quantity, days_supply, dispensed_at\nFROM med_dispense WHERE dispensed_at >= DATE '2024-01-01';",
+    "related": [
+      "NDC (National Drug Code)",
+      "RxNorm",
+      "Medication Order"
+    ],
+    "symptom": "Refill counts explode because each package NDC is treated as a new drug.",
+    "tags": [
+      "clinical",
+      "medication"
+    ]
+  },
+  "Medication Administration (MAR)": {
+    "snippet": "-- grain: 1 row per dose event\nSELECT encounter_id, rxnorm, dose_value, dose_unit, route, administered_at, given_flag\nFROM med_admin;",
+    "related": [
+      "Order \u2192 Dispense \u2192 Administration Chain",
+      "Sig / Dose / Route / Frequency",
+      "Clinical Event Time vs System Time"
+    ],
+    "symptom": "Inpatient adherence looks perfect because cancelled/not-given rows were dropped.",
+    "tags": [
+      "clinical",
+      "medication"
+    ]
+  },
+  "Order \u2192 Dispense \u2192 Administration Chain": {
+    "snippet": "-- pick the stage that matches the question\n-- time-to-antibiotic \u2192 administered_at\n-- refill behavior \u2192 dispensed_at\n-- intent to treat \u2192 ordered_at",
+    "related": [
+      "Medication Order",
+      "Medication Dispense",
+      "Medication Administration (MAR)"
+    ],
+    "symptom": "Joining order to admin without keys fans out to 5\u00d7 dose rows.",
+    "tags": [
+      "clinical",
+      "medication"
+    ]
+  },
+  "Active Medication List": {
+    "snippet": "SELECT patient_id, rxnorm, start_date, end_date\nFROM med_list WHERE end_date IS NULL OR end_date > CURRENT_DATE;",
+    "related": [
+      "Medication Order",
+      "RxNorm"
+    ],
+    "symptom": "Patient marked on warfarin years after it was stopped.",
+    "tags": [
+      "clinical",
+      "medication"
+    ]
+  },
+  "RxNorm": {
+    "snippet": "-- map local name \u2192 RxNorm for rollups\nSELECT local_drug_name, rxnorm_cui, tty\nFROM drug_map WHERE tty IN ('SCD','SBD','IN');",
+    "related": [
+      "NDC (National Drug Code)",
+      "Medication Order"
+    ],
+    "symptom": "Drug utilization splits one antibiotic across 40 string spellings.",
+    "tags": [
+      "clinical",
+      "medication"
+    ]
+  },
+  "NDC (National Drug Code)": {
+    "snippet": "-- NDC is package-level; map to RxNorm for clinical sameness\nSELECT ndc, rxnorm_cui FROM ndc_to_rxnorm WHERE ndc = '00093-3107-01';",
+    "related": [
+      "RxNorm",
+      "Medication Dispense"
+    ],
+    "symptom": "Switching suppliers doubles 'distinct drugs' overnight.",
+    "tags": [
+      "clinical",
+      "medication"
+    ]
+  },
+  "Sig / Dose / Route / Frequency": {
+    "snippet": "SELECT dose_value, dose_unit, route, frequency, sig_text\nFROM med_order\nWHERE dose_unit IS NULL;  -- quality: unstructured only",
+    "related": [
+      "Medication Administration (MAR)",
+      "Units of Measure (UCUM)"
+    ],
+    "symptom": "Average dose is nonsense because mg and mcg were mixed.",
+    "tags": [
+      "clinical",
+      "medication"
+    ]
+  },
+  "Lab Order vs Lab Result": {
+    "snippet": "-- 1 order \u2192 many result rows (panel)\nSELECT o.order_id, r.loinc, r.value_num, r.value_text, r.result_status\nFROM lab_order o\nJOIN lab_result r ON r.order_id = o.order_id\nWHERE r.result_status = 'final';",
+    "related": [
+      "Panel vs Analyte",
+      "LOINC"
+    ],
+    "symptom": "Lab volume metrics count orders once and results 12\u00d7 for the same CBC.",
+    "tags": [
+      "clinical",
+      "lab"
+    ]
+  },
+  "LOINC": {
+    "snippet": "SELECT loinc, component, system, property\nFROM loinc WHERE loinc = '2160-0';  -- creatinine",
+    "related": [
+      "Lab Order vs Lab Result",
+      "Specimen & Collection Time"
+    ],
+    "symptom": "Creatinine trends break across hospitals because names differ and LOINC wasn't mapped.",
+    "tags": [
+      "clinical",
+      "lab"
+    ]
+  },
+  "Reference Range": {
+    "snippet": "SELECT value_num, ref_low, ref_high, abnormal_flag\nFROM lab_result\nWHERE loinc = '2823-3';  -- potassium",
+    "related": [
+      "Abnormal / Critical Flags",
+      "Units of Measure (UCUM)"
+    ],
+    "symptom": "Historical labs look newly abnormal after a method/range change.",
+    "tags": [
+      "clinical",
+      "lab"
+    ]
+  },
+  "Units of Measure (UCUM)": {
+    "snippet": "-- never mix units in one chart series\nSELECT loinc, value_num, unit_ucum\nFROM lab_result\nWHERE loinc = '2345-7' AND unit_ucum IN ('mg/dL','mmol/L');",
+    "related": [
+      "Quantitative vs Qualitative Results",
+      "Reference Range"
+    ],
+    "symptom": "Glucose trend line jumps because mmol/L rows were plotted as mg/dL.",
+    "tags": [
+      "clinical",
+      "lab"
+    ]
+  },
+  "Specimen & Collection Time": {
+    "snippet": "SELECT specimen_type, collected_at, resulted_at, value_num\nFROM lab_result\nWHERE collected_at IS NOT NULL;",
+    "related": [
+      "Clinical Event Time vs System Time",
+      "LOINC"
+    ],
+    "symptom": "Bundle compliance fails clocks using resulted_at instead of draw time.",
+    "tags": [
+      "clinical",
+      "lab"
+    ]
+  },
+  "Quantitative vs Qualitative Results": {
+    "snippet": "SELECT\n  loinc,\n  value_num,\n  value_text,\n  CASE WHEN value_num IS NOT NULL THEN 'quant' ELSE 'qual' END AS kind\nFROM lab_result;",
+    "related": [
+      "Lab Order vs Lab Result",
+      "Units of Measure (UCUM)"
+    ],
+    "symptom": "ETL crash: cannot cast 'Detected' to decimal for all lab values.",
+    "tags": [
+      "clinical",
+      "lab"
+    ]
+  },
+  "Abnormal / Critical Flags": {
+    "snippet": "SELECT loinc, value_num, abnormal_flag\nFROM lab_result\nWHERE abnormal_flag IN ('H','HH','L','LL','AA');",
+    "related": [
+      "Reference Range",
+      "PHI in Meds & Labs"
+    ],
+    "symptom": "Critical-lab dashboard empty because vendor uses 'critical' not 'HH'.",
+    "tags": [
+      "clinical",
+      "lab"
+    ]
+  },
+  "Panel vs Analyte": {
+    "snippet": "-- store analyte results; keep panel code as lineage\nSELECT panel_code, loinc AS analyte, value_num\nFROM lab_result WHERE panel_code = 'CBC';",
+    "related": [
+      "Lab Order vs Lab Result",
+      "LOINC"
+    ],
+    "symptom": "Fact table at panel grain cannot answer 'what was the hemoglobin?'.",
+    "tags": [
+      "clinical",
+      "lab"
+    ]
+  },
+  "Encounter / Visit Context": {
+    "snippet": "SELECT e.encounter_id, e.encounter_type, r.loinc, r.collected_at\nFROM encounter e\nJOIN lab_result r ON r.encounter_id = e.encounter_id\nWHERE e.encounter_type = 'inpatient';",
+    "related": [
+      "Medication Administration (MAR)",
+      "Lab Order vs Lab Result"
+    ],
+    "symptom": "Admission lab cohort drops half the draws with null encounter_id.",
+    "tags": [
+      "clinical"
+    ]
+  },
+  "Clinical Event Time vs System Time": {
+    "snippet": "SELECT administered_at AS event_time, charted_at AS system_time,\n       TIMESTAMPDIFF(MINUTE, administered_at, charted_at) AS chart_lag_min\nFROM med_admin;",
+    "related": [
+      "Specimen & Collection Time",
+      "Medication Administration (MAR)"
+    ],
+    "symptom": "Care looks delayed 3 hours; nurses charted after the rush.",
+    "tags": [
+      "clinical"
+    ]
+  },
+  "PHI in Meds & Labs": {
+    "snippet": "-- minimize identifiable columns in lower envs\n-- hash patient_id; drop free-text notes; gate HIV/genetic LOINCs",
+    "related": [
+      "Lab Order vs Lab Result",
+      "Active Medication List"
+    ],
+    "symptom": "Full lab extract with names landed in an unrestricted S3 bucket.",
+    "tags": [
+      "clinical",
+      "quality"
+    ]
   }
 }

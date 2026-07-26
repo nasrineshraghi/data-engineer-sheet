@@ -31,6 +31,7 @@ CATEGORIES = [
     ("15-airflow", "Airflow"),
     ("16-cost-optimization", "Cost Optimization"),
     ("17-snowflake", "Snowflake"),
+    ("18-clinical-data", "Clinical Data — Meds & Labs"),
 ]
 
 

@@ -5391,6 +5391,483 @@ window.DE_CONCEPTS = [
       "snowflake",
       "warehouse"
     ]
+  },
+  {
+    "name": "Medication Order",
+    "category": "Clinical Data \u2014 Meds & Labs",
+    "categorySlug": "18-clinical-data",
+    "file": "18-clinical-data/concepts.md",
+    "definition": "A clinician\u2019s request for a drug (what should be given) \u2014 often before dispense or administration.",
+    "why": "Orders \u2260 what the patient actually received; joining order\u2192admin without care doubles or misses doses.",
+    "example": "Order: \u201cAmoxicillin 500 mg PO TID \u00d7 7 days.\u201d May never be dispensed if patient leaves AMA.",
+    "remember": [
+      "Grain is usually one row per order (or order line)",
+      "Status matters: draft / active / completed / cancelled"
+    ],
+    "mustKnow": null,
+    "snippet": "-- grain: 1 row per medication order\nSELECT patient_id, order_id, drug_name, status, ordered_at\nFROM med_order WHERE status IN ('active','completed');",
+    "related": [
+      "Medication Dispense",
+      "Medication Administration (MAR)",
+      "Order \u2192 Dispense \u2192 Administration Chain"
+    ],
+    "symptom": "Sepsis antibiotic metric uses order time; nursing says dose was hours later.",
+    "tags": [
+      "clinical",
+      "healthcare",
+      "medication"
+    ]
+  },
+  {
+    "name": "Medication Dispense",
+    "category": "Clinical Data \u2014 Meds & Labs",
+    "categorySlug": "18-clinical-data",
+    "file": "18-clinical-data/concepts.md",
+    "definition": "Pharmacy fills/gives out a supply of medication (quantity, NDC, days supply).",
+    "why": "Claims and refill analytics often live at dispense grain, not administration.",
+    "example": "One order for 30 tablets \u2192 one dispense of 30; a refill is another dispense.",
+    "remember": [
+      "Dispense has quantity + days_supply",
+      "Same drug can appear as different NDCs over time"
+    ],
+    "mustKnow": null,
+    "snippet": "SELECT patient_id, ndc, quantity, days_supply, dispensed_at\nFROM med_dispense WHERE dispensed_at >= DATE '2024-01-01';",
+    "related": [
+      "NDC (National Drug Code)",
+      "RxNorm",
+      "Medication Order"
+    ],
+    "symptom": "Refill counts explode because each package NDC is treated as a new drug.",
+    "tags": [
+      "clinical",
+      "healthcare",
+      "medication"
+    ]
+  },
+  {
+    "name": "Medication Administration (MAR)",
+    "category": "Clinical Data \u2014 Meds & Labs",
+    "categorySlug": "18-clinical-data",
+    "file": "18-clinical-data/concepts.md",
+    "definition": "Record that a dose was given (or intentionally not given) to the patient \u2014 Medication Administration Record.",
+    "why": "Inpatient adherence, dosing safety, and \u201cdid they get the antibiotic?\u201d live here.",
+    "example": "Nurse documents ceftriaxone 1 g IV given at 2024-01-02 08:12.",
+    "remember": [
+      "Grain: usually one row per dose event",
+      "\u201cNot given\u201d reasons are first-class data"
+    ],
+    "mustKnow": null,
+    "snippet": "-- grain: 1 row per dose event\nSELECT encounter_id, rxnorm, dose_value, dose_unit, route, administered_at, given_flag\nFROM med_admin;",
+    "related": [
+      "Order \u2192 Dispense \u2192 Administration Chain",
+      "Sig / Dose / Route / Frequency",
+      "Clinical Event Time vs System Time"
+    ],
+    "symptom": "Inpatient adherence looks perfect because cancelled/not-given rows were dropped.",
+    "tags": [
+      "clinical",
+      "healthcare",
+      "medication"
+    ]
+  },
+  {
+    "name": "Order \u2192 Dispense \u2192 Administration Chain",
+    "category": "Clinical Data \u2014 Meds & Labs",
+    "categorySlug": "18-clinical-data",
+    "file": "18-clinical-data/concepts.md",
+    "definition": "The typical inpatient med pipeline: ordered \u2192 dispensed \u2192 administered (ambulatory often stops at dispense).",
+    "why": "Analytics fail when you pick the wrong stage for the question.",
+    "example": "\u201cAntibiotics within 1h of sepsis\u201d needs **administration** time, not order time.",
+    "remember": [
+      "State which stage your metric uses",
+      "Left joins across stages create fan-out"
+    ],
+    "mustKnow": null,
+    "snippet": "-- pick the stage that matches the question\n-- time-to-antibiotic \u2192 administered_at\n-- refill behavior \u2192 dispensed_at\n-- intent to treat \u2192 ordered_at",
+    "related": [
+      "Medication Order",
+      "Medication Dispense",
+      "Medication Administration (MAR)"
+    ],
+    "symptom": "Joining order to admin without keys fans out to 5\u00d7 dose rows.",
+    "tags": [
+      "clinical",
+      "healthcare",
+      "medication"
+    ]
+  },
+  {
+    "name": "Active Medication List",
+    "category": "Clinical Data \u2014 Meds & Labs",
+    "categorySlug": "18-clinical-data",
+    "file": "18-clinical-data/concepts.md",
+    "definition": "Medications believed current for the patient (home meds + active inpatient orders), not the full history.",
+    "why": "Reconciliation and \u201con blood thinner?\u201d checks use the active list, not every past order.",
+    "example": "Active: metformin, lisinopril. Historical: finished amoxicillin course last month.",
+    "remember": [
+      "Needs start/stop (or end) logic",
+      "Stale \u201cactive\u201d flags are a common EHR quality issue"
+    ],
+    "mustKnow": null,
+    "snippet": "SELECT patient_id, rxnorm, start_date, end_date\nFROM med_list WHERE end_date IS NULL OR end_date > CURRENT_DATE;",
+    "related": [
+      "Medication Order",
+      "RxNorm"
+    ],
+    "symptom": "Patient marked on warfarin years after it was stopped.",
+    "tags": [
+      "clinical",
+      "healthcare",
+      "medication"
+    ]
+  },
+  {
+    "name": "RxNorm",
+    "category": "Clinical Data \u2014 Meds & Labs",
+    "categorySlug": "18-clinical-data",
+    "file": "18-clinical-data/concepts.md",
+    "definition": "NIH normalized naming system for clinical drugs (ingredients, strength, dose form).",
+    "why": "Maps messy local drug names to a shared code for analytics and interoperability.",
+    "example": "Map \u201cAmox 500mg Cap\u201d and \u201camoxicillin 500 mg capsule\u201d \u2192 same RxNorm CUI/SCD.",
+    "remember": [
+      "Prefer RxNorm over free-text drug names for joins",
+      "Strength + form are part of the concept"
+    ],
+    "mustKnow": null,
+    "snippet": "-- map local name \u2192 RxNorm for rollups\nSELECT local_drug_name, rxnorm_cui, tty\nFROM drug_map WHERE tty IN ('SCD','SBD','IN');",
+    "related": [
+      "NDC (National Drug Code)",
+      "Medication Order"
+    ],
+    "symptom": "Drug utilization splits one antibiotic across 40 string spellings.",
+    "tags": [
+      "clinical",
+      "healthcare",
+      "medication"
+    ]
+  },
+  {
+    "name": "NDC (National Drug Code)",
+    "category": "Clinical Data \u2014 Meds & Labs",
+    "categorySlug": "18-clinical-data",
+    "file": "18-clinical-data/concepts.md",
+    "definition": "FDA product identifier for how a drug is packaged (labeler + product + package).",
+    "why": "Billing, inventory, and dispense feeds key off NDC; same clinical drug has many NDCs.",
+    "example": "Two manufacturers\u2019 bottles of sertraline 50 mg \u2192 different NDCs, same RxNorm ingredient/strength.",
+    "remember": [
+      "NDC changes with package/manufacturer",
+      "Map NDC \u2192 RxNorm for clinical rollups"
+    ],
+    "mustKnow": null,
+    "snippet": "-- NDC is package-level; map to RxNorm for clinical sameness\nSELECT ndc, rxnorm_cui FROM ndc_to_rxnorm WHERE ndc = '00093-3107-01';",
+    "related": [
+      "RxNorm",
+      "Medication Dispense"
+    ],
+    "symptom": "Switching suppliers doubles 'distinct drugs' overnight.",
+    "tags": [
+      "clinical",
+      "healthcare",
+      "medication"
+    ]
+  },
+  {
+    "name": "Sig / Dose / Route / Frequency",
+    "category": "Clinical Data \u2014 Meds & Labs",
+    "categorySlug": "18-clinical-data",
+    "file": "18-clinical-data/concepts.md",
+    "definition": "Structured (or semi-structured) instructions: how much (dose), how given (route), how often (frequency), plus free-text sig.",
+    "why": "Free-text sig breaks analytics; structured fields enable dose and adherence measures.",
+    "example": "Dose `500`, unit `mg`, route `PO`, frequency `TID` vs sig `\"one capsule by mouth three times daily\"`.",
+    "remember": [
+      "Prefer structured columns; treat sig as secondary",
+      "Unit mismatches cause 10\u00d7 dosing errors in data"
+    ],
+    "mustKnow": null,
+    "snippet": "SELECT dose_value, dose_unit, route, frequency, sig_text\nFROM med_order\nWHERE dose_unit IS NULL;  -- quality: unstructured only",
+    "related": [
+      "Medication Administration (MAR)",
+      "Units of Measure (UCUM)"
+    ],
+    "symptom": "Average dose is nonsense because mg and mcg were mixed.",
+    "tags": [
+      "clinical",
+      "healthcare",
+      "medication"
+    ]
+  },
+  {
+    "name": "Lab Order vs Lab Result",
+    "category": "Clinical Data \u2014 Meds & Labs",
+    "categorySlug": "18-clinical-data",
+    "file": "18-clinical-data/concepts.md",
+    "definition": "Order = request for a test; result = the reported value(s) for analyte(s).",
+    "why": "Pending orders aren\u2019t results; cancelled orders still clutter feeds.",
+    "example": "Order CBC \u2192 results for WBC, RBC, hemoglobin, platelets (multiple result rows).",
+    "remember": [
+      "One order can fan out to many result rows (panel)",
+      "Always filter on result status (final vs preliminary)"
+    ],
+    "mustKnow": null,
+    "snippet": "-- 1 order \u2192 many result rows (panel)\nSELECT o.order_id, r.loinc, r.value_num, r.value_text, r.result_status\nFROM lab_order o\nJOIN lab_result r ON r.order_id = o.order_id\nWHERE r.result_status = 'final';",
+    "related": [
+      "Panel vs Analyte",
+      "LOINC"
+    ],
+    "symptom": "Lab volume metrics count orders once and results 12\u00d7 for the same CBC.",
+    "tags": [
+      "clinical",
+      "healthcare",
+      "lab"
+    ]
+  },
+  {
+    "name": "LOINC",
+    "category": "Clinical Data \u2014 Meds & Labs",
+    "categorySlug": "18-clinical-data",
+    "file": "18-clinical-data/concepts.md",
+    "definition": "Universal codes for lab observations and clinical measures (what was measured).",
+    "why": "Local test names differ by lab; LOINC lets you compare \u201cthe same test\u201d across sites.",
+    "example": "Serum creatinine assays from Lab A and Lab B \u2192 same LOINC `2160-0`.",
+    "remember": [
+      "Join/analytics on LOINC, not display name",
+      "Same analyte can have multiple LOINCs (method/specimen)"
+    ],
+    "mustKnow": null,
+    "snippet": "SELECT loinc, component, system, property\nFROM loinc WHERE loinc = '2160-0';  -- creatinine",
+    "related": [
+      "Lab Order vs Lab Result",
+      "Specimen & Collection Time"
+    ],
+    "symptom": "Creatinine trends break across hospitals because names differ and LOINC wasn't mapped.",
+    "tags": [
+      "clinical",
+      "healthcare",
+      "lab"
+    ]
+  },
+  {
+    "name": "Reference Range",
+    "category": "Clinical Data \u2014 Meds & Labs",
+    "categorySlug": "18-clinical-data",
+    "file": "18-clinical-data/concepts.md",
+    "definition": "Lab\u2019s expected normal low/high (or qualitative normal set) for a result, often age/sex/method specific.",
+    "why": "\u201cAbnormal\u201d flags and clinical decision support depend on the range in force at result time.",
+    "example": "K+ result `5.8` with range `3.5\u20135.1` \u2192 high; same number might be normal for a different assay.",
+    "remember": [
+      "Store range with the result (don\u2019t assume today\u2019s range)",
+      "Ranges differ by specimen and method"
+    ],
+    "mustKnow": null,
+    "snippet": "SELECT value_num, ref_low, ref_high, abnormal_flag\nFROM lab_result\nWHERE loinc = '2823-3';  -- potassium",
+    "related": [
+      "Abnormal / Critical Flags",
+      "Units of Measure (UCUM)"
+    ],
+    "symptom": "Historical labs look newly abnormal after a method/range change.",
+    "tags": [
+      "clinical",
+      "healthcare",
+      "lab"
+    ]
+  },
+  {
+    "name": "Units of Measure (UCUM)",
+    "category": "Clinical Data \u2014 Meds & Labs",
+    "categorySlug": "18-clinical-data",
+    "file": "18-clinical-data/concepts.md",
+    "definition": "Standard representation of units (e.g. `mg/dL`, `mmol/L`) so values are comparable.",
+    "why": "Mixing `mg/dL` and `mmol/L` without conversion silently corrupts trends.",
+    "example": "Glucose `100 mg/dL` \u2248 `5.6 mmol/L` \u2014 not the same number.",
+    "remember": [
+      "Never chart mixed units without conversion",
+      "Prefer UCUM codes alongside display units"
+    ],
+    "mustKnow": null,
+    "snippet": "-- never mix units in one chart series\nSELECT loinc, value_num, unit_ucum\nFROM lab_result\nWHERE loinc = '2345-7' AND unit_ucum IN ('mg/dL','mmol/L');",
+    "related": [
+      "Quantitative vs Qualitative Results",
+      "Reference Range"
+    ],
+    "symptom": "Glucose trend line jumps because mmol/L rows were plotted as mg/dL.",
+    "tags": [
+      "clinical",
+      "healthcare",
+      "lab"
+    ]
+  },
+  {
+    "name": "Specimen & Collection Time",
+    "category": "Clinical Data \u2014 Meds & Labs",
+    "categorySlug": "18-clinical-data",
+    "file": "18-clinical-data/concepts.md",
+    "definition": "What was collected (blood, urine, \u2026) and **when** it was collected \u2014 distinct from result-reported time.",
+    "why": "Clinical timelines use collection time; pipelines often only get result timestamp.",
+    "example": "Blood drawn 06:00, resulted 09:40 \u2014 sepsis bundle timing uses 06:00.",
+    "remember": [
+      "Prefer `collected_at` over `resulted_at` for physiology",
+      "Wrong specimen type \u2192 wrong LOINC interpretation"
+    ],
+    "mustKnow": null,
+    "snippet": "SELECT specimen_type, collected_at, resulted_at, value_num\nFROM lab_result\nWHERE collected_at IS NOT NULL;",
+    "related": [
+      "Clinical Event Time vs System Time",
+      "LOINC"
+    ],
+    "symptom": "Bundle compliance fails clocks using resulted_at instead of draw time.",
+    "tags": [
+      "clinical",
+      "healthcare",
+      "lab"
+    ]
+  },
+  {
+    "name": "Quantitative vs Qualitative Results",
+    "category": "Clinical Data \u2014 Meds & Labs",
+    "categorySlug": "18-clinical-data",
+    "file": "18-clinical-data/concepts.md",
+    "definition": "Quantitative = numeric value; qualitative = categorical (Positive/Negative, Detected, \u2026).",
+    "why": "Averaging \u201cPositive\u201d or casting text to float fails; schemas must allow both.",
+    "example": "Troponin `0.04 ng/mL` (quant) vs COVID PCR `Detected` (qual).",
+    "remember": [
+      "Keep `value_num` and `value_text` (or typed columns)",
+      "Don\u2019t force all labs into one numeric column"
+    ],
+    "mustKnow": null,
+    "snippet": "SELECT\n  loinc,\n  value_num,\n  value_text,\n  CASE WHEN value_num IS NOT NULL THEN 'quant' ELSE 'qual' END AS kind\nFROM lab_result;",
+    "related": [
+      "Lab Order vs Lab Result",
+      "Units of Measure (UCUM)"
+    ],
+    "symptom": "ETL crash: cannot cast 'Detected' to decimal for all lab values.",
+    "tags": [
+      "clinical",
+      "healthcare",
+      "lab"
+    ]
+  },
+  {
+    "name": "Abnormal / Critical Flags",
+    "category": "Clinical Data \u2014 Meds & Labs",
+    "categorySlug": "18-clinical-data",
+    "file": "18-clinical-data/concepts.md",
+    "definition": "Lab- or EHR-assigned markers that a result is abnormal, high/low, or critically out of range.",
+    "why": "Alerts and quality metrics often key off flags, not only raw values.",
+    "example": "Flag `HH` (critically high) on potassium triggers rapid notification workflows.",
+    "remember": [
+      "Flags are not a substitute for storing the value + range",
+      "Flag vocabularies differ by vendor"
+    ],
+    "mustKnow": null,
+    "snippet": "SELECT loinc, value_num, abnormal_flag\nFROM lab_result\nWHERE abnormal_flag IN ('H','HH','L','LL','AA');",
+    "related": [
+      "Reference Range",
+      "PHI in Meds & Labs"
+    ],
+    "symptom": "Critical-lab dashboard empty because vendor uses 'critical' not 'HH'.",
+    "tags": [
+      "clinical",
+      "healthcare",
+      "lab"
+    ]
+  },
+  {
+    "name": "Panel vs Analyte",
+    "category": "Clinical Data \u2014 Meds & Labs",
+    "categorySlug": "18-clinical-data",
+    "file": "18-clinical-data/concepts.md",
+    "definition": "Panel = ordered battery (CMP, CBC); analyte = individual measurable component.",
+    "why": "Facts are usually at analyte-result grain; panel codes alone don\u2019t give the numbers.",
+    "example": "CMP order \u2192 separate rows for sodium, potassium, creatinine, glucose, \u2026",
+    "remember": [
+      "Model results at analyte grain",
+      "Panel code is useful lineage, not the measure"
+    ],
+    "mustKnow": null,
+    "snippet": "-- store analyte results; keep panel code as lineage\nSELECT panel_code, loinc AS analyte, value_num\nFROM lab_result WHERE panel_code = 'CBC';",
+    "related": [
+      "Lab Order vs Lab Result",
+      "LOINC"
+    ],
+    "symptom": "Fact table at panel grain cannot answer 'what was the hemoglobin?'.",
+    "tags": [
+      "clinical",
+      "healthcare",
+      "lab"
+    ]
+  },
+  {
+    "name": "Encounter / Visit Context",
+    "category": "Clinical Data \u2014 Meds & Labs",
+    "categorySlug": "18-clinical-data",
+    "file": "18-clinical-data/concepts.md",
+    "definition": "The visit (inpatient encounter, ED visit, outpatient appointment) tying meds and labs to a care episode.",
+    "why": "\u201cLabs during admission\u201d and \u201cmeds given this encounter\u201d need encounter keys.",
+    "example": "Join `lab_result.encounter_id` to inpatient stay for length-of-stay cohorts.",
+    "remember": [
+      "Some labs are outpatient with weak encounter links",
+      "Declare whether grain is patient-day, encounter, or event"
+    ],
+    "mustKnow": null,
+    "snippet": "SELECT e.encounter_id, e.encounter_type, r.loinc, r.collected_at\nFROM encounter e\nJOIN lab_result r ON r.encounter_id = e.encounter_id\nWHERE e.encounter_type = 'inpatient';",
+    "related": [
+      "Medication Administration (MAR)",
+      "Lab Order vs Lab Result"
+    ],
+    "symptom": "Admission lab cohort drops half the draws with null encounter_id.",
+    "tags": [
+      "clinical",
+      "healthcare"
+    ]
+  },
+  {
+    "name": "Clinical Event Time vs System Time",
+    "category": "Clinical Data \u2014 Meds & Labs",
+    "categorySlug": "18-clinical-data",
+    "file": "18-clinical-data/concepts.md",
+    "definition": "Event time = when it happened clinically (collected, administered); system time = when the EHR recorded/updated the row.",
+    "why": "Late charting makes \u201csystem time\u201d look like delayed care.",
+    "example": "Dose given at 08:00, documented at 11:30 \u2014 administration event time is 08:00.",
+    "remember": [
+      "Prefer clinical event timestamps for outcomes",
+      "Keep both; use system time for pipeline freshness"
+    ],
+    "mustKnow": null,
+    "snippet": "SELECT administered_at AS event_time, charted_at AS system_time,\n       TIMESTAMPDIFF(MINUTE, administered_at, charted_at) AS chart_lag_min\nFROM med_admin;",
+    "related": [
+      "Specimen & Collection Time",
+      "Medication Administration (MAR)"
+    ],
+    "symptom": "Care looks delayed 3 hours; nurses charted after the rush.",
+    "tags": [
+      "clinical",
+      "healthcare"
+    ]
+  },
+  {
+    "name": "PHI in Meds & Labs",
+    "category": "Clinical Data \u2014 Meds & Labs",
+    "categorySlug": "18-clinical-data",
+    "file": "18-clinical-data/concepts.md",
+    "definition": "Medication and lab rows are Protected Health Information when identifiable (patient id + clinical facts).",
+    "why": "Exports, logs, and lower environments need de-identification and access controls.",
+    "example": "A table of patient_id + HIV viral load is highly sensitive PHI.",
+    "remember": [
+      "Minimize columns in analytic extracts",
+      "Audit access; never log full result payloads casually"
+    ],
+    "mustKnow": null,
+    "snippet": "-- minimize identifiable columns in lower envs\n-- hash patient_id; drop free-text notes; gate HIV/genetic LOINCs",
+    "related": [
+      "Lab Order vs Lab Result",
+      "Active Medication List"
+    ],
+    "symptom": "Full lab extract with names landed in an unrestricted S3 bucket.",
+    "tags": [
+      "clinical",
+      "healthcare",
+      "quality"
+    ]
   }
 ];
 window.DE_SCENARIOS = [
@@ -5637,5 +6114,27 @@ window.DE_PLAYBOOK = [
       "Catalyst Optimizer"
     ],
     "habit": "Read the plan; don\u2019t wait for the surprise."
+  },
+  {
+    "id": "med-stage-wrong",
+    "see": "Antibiotic timing / adherence metrics look wrong vs nursing charts",
+    "do": "Confirm whether the metric should use order, dispense, or administration time. Prefer MAR administered_at for inpatient dosing.",
+    "concepts": [
+      "Order \u2192 Dispense \u2192 Administration Chain",
+      "Medication Administration (MAR)",
+      "Clinical Event Time vs System Time"
+    ],
+    "habit": "Name the medication stage before you write the SQL."
+  },
+  {
+    "id": "lab-units-mix",
+    "see": "Lab trends jump or ETL fails casting result values",
+    "do": "Split numeric vs text results; group by LOINC + unit (UCUM); convert before charting. Use collection time for physiology.",
+    "concepts": [
+      "Units of Measure (UCUM)",
+      "Quantitative vs Qualitative Results",
+      "LOINC"
+    ],
+    "habit": "Same LOINC with mixed units is not one series."
   }
 ];

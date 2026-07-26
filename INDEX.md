@@ -4,10 +4,12 @@ Jump to the category file for definition + example.
 
 | Keyword | Category |
 |---------|----------|
+| Abnormal / Critical Flags | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Accumulating Snapshot | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
 | Accumulators | [Spark Internals](02-spark-internals/concepts.md) |
 | Accuracy | [Data Quality & Governance](09-data-quality-governance/concepts.md) |
 | ACID Tables | [Data Lake & Lakehouse](04-data-lake-lakehouse/concepts.md) |
+| Active Medication List | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Adaptive Query Execution (AQE) | [Spark Internals](02-spark-internals/concepts.md) |
 | Additive Facts | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
 | Apache Hudi | [Data Lake & Lakehouse](04-data-lake-lakehouse/concepts.md) |
@@ -34,6 +36,7 @@ Jump to the category file for definition + example.
 | Checkpointing | [Pipeline Design](07-pipeline-design/concepts.md) |
 | CI/CD | [DevOps for Data](11-devops/concepts.md) |
 | Circuit Breaker | [Pipeline Design](07-pipeline-design/concepts.md) |
+| Clinical Event Time vs System Time | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Closure | [Spark Internals](02-spark-internals/concepts.md) |
 | Cluster Manager | [Spark Internals](02-spark-internals/concepts.md) |
 | Clustered vs Non-Clustered Index | [Database & SQL Concepts](01-database-sql/concepts.md) |
@@ -76,6 +79,7 @@ Jump to the category file for definition + example.
 | Driver | [Spark Internals](02-spark-internals/concepts.md) |
 | Dynamic Partition Pruning | [Spark Internals](02-spark-internals/concepts.md) |
 | Effective Dating | [CDC & SCD](12-cdc-scd/concepts.md) |
+| Encounter / Visit Context | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Encryption at Rest | [Cloud & Storage](10-cloud-storage/concepts.md) |
 | Encryption in Transit | [Cloud & Storage](10-cloud-storage/concepts.md) |
 | Event Sourcing | [Streaming](06-streaming/concepts.md) |
@@ -113,6 +117,7 @@ Jump to the category file for definition + example.
 | Junk Dimension | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
 | KMS | [Cloud & Storage](10-cloud-storage/concepts.md) |
 | Kubernetes | [DevOps for Data](11-devops/concepts.md) |
+| Lab Order vs Lab Result | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Late Data | [Streaming](06-streaming/concepts.md) |
 | Late-Arriving Dimension | [CDC & SCD](12-cdc-scd/concepts.md) |
 | Late-Arriving Fact | [CDC & SCD](12-cdc-scd/concepts.md) |
@@ -121,19 +126,26 @@ Jump to the category file for definition + example.
 | Lifecycle Policies | [Cloud & Storage](10-cloud-storage/concepts.md) |
 | Lineage | [Spark Internals](02-spark-internals/concepts.md) |
 | Log-Based CDC | [CDC & SCD](12-cdc-scd/concepts.md) |
+| LOINC | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Master Data Management (MDM) | [Data Quality & Governance](09-data-quality-governance/concepts.md) |
 | Materialization | [dbt](13-dbt/concepts.md) |
+| Medication Administration (MAR) | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
+| Medication Dispense | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
+| Medication Order | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Memory Management | [Spark Internals](02-spark-internals/concepts.md) |
 | Metadata | [Data Quality & Governance](09-data-quality-governance/concepts.md) |
 | Metadata-Driven Pipelines | [Pipeline Design](07-pipeline-design/concepts.md) |
 | Micro-partitions | [Snowflake](17-snowflake/concepts.md) |
 | Mini Dimension | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
 | Natural Key | [CDC & SCD](12-cdc-scd/concepts.md) |
+| NDC (National Drug Code) | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Non-Additive Facts | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
 | Object Storage | [Cloud & Storage](10-cloud-storage/concepts.md) |
 | Observability | [Data Quality & Governance](09-data-quality-governance/concepts.md) |
 | Offset | [Kafka](14-kafka/concepts.md) |
 | Optimize | [Data Lake & Lakehouse](04-data-lake-lakehouse/concepts.md) |
+| Order → Dispense → Administration Chain | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
+| Panel vs Analyte | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Parallelism | [Performance Tuning](08-performance-tuning/concepts.md) |
 | Partition | [Kafka](14-kafka/concepts.md) |
 | Partition Pruning | [Database & SQL Concepts](01-database-sql/concepts.md) |
@@ -141,16 +153,19 @@ Jump to the category file for definition + example.
 | Paxos | [Distributed Systems](05-distributed-systems/concepts.md) |
 | Periodic Snapshot | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
 | Persistence Levels | [Performance Tuning](08-performance-tuning/concepts.md) |
+| PHI in Meds & Labs | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Pipeline Orchestration | [Pipeline Design](07-pipeline-design/concepts.md) |
 | Pool / Slot | [Airflow](15-airflow/concepts.md) |
 | Predicate Pushdown | [Database & SQL Concepts](01-database-sql/concepts.md) |
 | Private Endpoints | [Cloud & Storage](10-cloud-storage/concepts.md) |
 | Processing Time | [Streaming](06-streaming/concepts.md) |
 | Producer / Consumer | [Kafka](14-kafka/concepts.md) |
+| Quantitative vs Qualitative Results | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Query Profile | [Snowflake](17-snowflake/concepts.md) |
 | Query-Based CDC | [CDC & SCD](12-cdc-scd/concepts.md) |
 | Raft | [Distributed Systems](05-distributed-systems/concepts.md) |
 | ref() | [dbt](13-dbt/concepts.md) |
+| Reference Range | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Replication | [Distributed Systems](05-distributed-systems/concepts.md) |
 | Replication Factor | [Kafka](14-kafka/concepts.md) |
 | Result Cache | [Snowflake](17-snowflake/concepts.md) |
@@ -160,6 +175,7 @@ Jump to the category file for definition + example.
 | Role-Playing Dimension | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
 | Roles & RBAC | [Snowflake](17-snowflake/concepts.md) |
 | Rule-Based Optimizer (RBO) | [Database & SQL Concepts](01-database-sql/concepts.md) |
+| RxNorm | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Salting | [Performance Tuning](08-performance-tuning/concepts.md) |
 | Scan Pruning / Partitioning | [Cost Optimization](16-cost-optimization/concepts.md) |
 | SCD Type 1 | [CDC & SCD](12-cdc-scd/concepts.md) |
@@ -180,6 +196,7 @@ Jump to the category file for definition + example.
 | Serialization (Java/Kryo) | [Spark Internals](02-spark-internals/concepts.md) |
 | Shuffle | [Spark Internals](02-spark-internals/concepts.md) |
 | Shuffle Join | [Performance Tuning](08-performance-tuning/concepts.md) |
+| Sig / Dose / Route / Frequency | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Skew Join Optimization | [Spark Internals](02-spark-internals/concepts.md) |
 | SLA / Callback | [Airflow](15-airflow/concepts.md) |
 | Slim CI / State Defer | [dbt](13-dbt/concepts.md) |
@@ -189,6 +206,7 @@ Jump to the category file for definition + example.
 | Soft Delete vs Hard Delete | [CDC & SCD](12-cdc-scd/concepts.md) |
 | Sort Merge Join | [Performance Tuning](08-performance-tuning/concepts.md) |
 | Sources | [dbt](13-dbt/concepts.md) |
+| Specimen & Collection Time | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Spill to Disk | [Spark Internals](02-spark-internals/concepts.md) |
 | Spot / Preemptible Workers | [Cost Optimization](16-cost-optimization/concepts.md) |
 | Stage | [Snowflake](17-snowflake/concepts.md) |
@@ -209,6 +227,7 @@ Jump to the category file for definition + example.
 | Time Travel (Snowflake) | [Snowflake](17-snowflake/concepts.md) |
 | Topic | [Kafka](14-kafka/concepts.md) |
 | Tungsten Engine | [Spark Internals](02-spark-internals/concepts.md) |
+| Units of Measure (UCUM) | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Vacuum | [Data Lake & Lakehouse](04-data-lake-lakehouse/concepts.md) |
 | VARIANT | [Snowflake](17-snowflake/concepts.md) |
 | Vertical Scaling | [Distributed Systems](05-distributed-systems/concepts.md) |

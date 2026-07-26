@@ -19,6 +19,7 @@ CATEGORY_TAGS = {
     "15-airflow": ["airflow", "pipeline", "interview"],
     "16-cost-optimization": ["cost", "performance", "interview"],
     "17-snowflake": ["snowflake", "warehouse", "interview"],
+    "18-clinical-data": ["clinical", "healthcare"],
 }
 
 # Extra tags layered on top of category defaults (by concept name)
