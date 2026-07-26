@@ -140,8 +140,8 @@
       box-shadow: 0 8px 16px rgba(13,148,136,.22);
     }
     .progress-pill strong { color: #fef08a; }
-    .panel { display: none; }
-    .panel.active { display: block; }
+    .panel { display: none !important; }
+    .panel.active { display: block !important; }
     .search-shell { margin-bottom: 1rem; }
     .search-box {
       display: flex;
@@ -615,11 +615,16 @@
     .five-q strong { color: var(--teal-deep); }
 </head>
 <body>
+      <div id="app-fallback" style="background:#16a34a;color:#fff;padding:0.85rem 1rem;font:700 15px/1.4 system-ui,sans-serif">
+    Study app loaded. If the rest looks blank, use
+    <a href="table.html" style="color:#fff;text-decoration:underline">Summary table</a>
+    or <a href="index.html" style="color:#fff;text-decoration:underline">Home</a>.
+  </div>
     <div id="top-links" style="position:sticky;top:0;z-index:9999;background:#0f766e;color:#fff;padding:.75rem 1rem;font:600 15px/1.4 system-ui,sans-serif;display:flex;flex-wrap:wrap;gap:.75rem;align-items:center">
     <a href="index.html" style="color:#fff;text-decoration:underline">Home</a>
     <a href="table.html" style="color:#fff;background:#ea580c;padding:.35rem .7rem;border-radius:999px;text-decoration:none">Summary table</a>
-    <a href="app.html?mode=essentials" style="color:#fff;text-decoration:underline">Essentials</a>
-    <a href="app.html?mode=prod" style="color:#fff;text-decoration:underline">Prod</a>
+    <a href="?mode=essentials" style="color:#fff;text-decoration:underline">Essentials</a>
+    <a href="?mode=prod" style="color:#fff;text-decoration:underline">Prod</a>
     <a href="app.html?tag=api" style="color:#fff;text-decoration:underline">API</a>
   </div>
   <main class="wrap">
@@ -650,7 +655,7 @@
       </div>
     </div>
 
-    <section id="panel-essentials" class="panel active">
+    <section id="panel-essentials" class="panel active" style="display:block">
       <div class="must-intro">
         <strong>Only these 10 matter first.</strong> Ignore Browse until you can explain each in one sentence.
         Then learn <button type="button" data-goto="prod" style="all:unset;color:var(--sky);font-weight:700;cursor:pointer;text-decoration:underline">when to use them in Prod</button>.
@@ -1304,21 +1309,24 @@
     };
 
     const asset = (name) => {
+      // Project Pages live under /data-engineer-sheet/
       if (/github\.io$/i.test(location.hostname)) return "/data-engineer-sheet/" + name;
-      return name;
+      // local file or http.server from /docs
+      return new URL(name, location.href).href;
     };
 
-    const loadDataScript = () => new Promise((resolve, reject) => {
-      if (Array.isArray(window.DE_CONCEPTS) && window.DE_CONCEPTS.length) { resolve(); return; }
-      const trySrc = (src, next) => {
-        const s = document.createElement("script");
-        s.src = src;
-        s.onload = () => resolve();
-        s.onerror = () => next ? next() : reject(new Error("data.js failed"));
-        document.head.appendChild(s);
-      };
-      trySrc(asset("data.js") + "?v=257", () => trySrc("data.js?v=257"));
-    });
+    const loadJson = async (name) => {
+      const urls = [asset(name), name, "./" + name];
+      let lastErr;
+      for (const url of urls) {
+        try {
+          const res = await fetch(url + (url.includes("?") ? "&" : "?") + "v=278");
+          if (!res.ok) throw new Error(url + " -> " + res.status);
+          return await res.json();
+        } catch (e) { lastErr = e; }
+      }
+      throw lastErr || new Error("Could not load " + name);
+    };
 
     const essentialsOnlyFallback = () => {
       concepts = ESSENTIALS.map(([n, point, defn], i) => ({
@@ -1330,28 +1338,38 @@
       byName = new Map(concepts.map((c) => [c.name, c]));
       updateProgress();
       renderEssentials();
-      setMode("essentials");
+      try { setMode("essentials"); } catch (_) {}
     };
 
     const boot = async () => {
-      updateProgress();
+      try { updateProgress(); } catch (_) {}
+      // Always paint essentials immediately from inline data
+      try { essentialsOnlyFallback(); } catch (e) { console.error(e); }
+
       try {
-        await loadDataScript();
-        if (!(Array.isArray(window.DE_CONCEPTS) && window.DE_CONCEPTS.length)) {
-          throw new Error("DE_CONCEPTS empty after load");
-        }
-        concepts = window.DE_CONCEPTS;
-        scenarios = Array.isArray(window.DE_SCENARIOS) ? window.DE_SCENARIOS : [];
-        playbook = Array.isArray(window.DE_PLAYBOOK) ? window.DE_PLAYBOOK : [];
+        const [c, s, p] = await Promise.all([
+          loadJson("concepts.json"),
+          loadJson("scenarios.json").catch(() => []),
+          loadJson("playbook.json").catch(() => []),
+        ]);
+        if (!Array.isArray(c) || !c.length) throw new Error("concepts.json empty");
+        concepts = c;
+        scenarios = Array.isArray(s) ? s : [];
+        playbook = Array.isArray(p) ? p : [];
         startApp();
+        const fb = document.getElementById("app-fallback");
+        if (fb) fb.style.display = "none";
       } catch (err) {
         console.error(err);
         essentialsOnlyFallback();
-        showBootError("Full catalog did not load — Essentials table above still works. Use Summary table in the green bar.");
+        showBootError("Could not load full catalog (" + (err && err.message ? err.message : err) + "). Essentials + Summary table still work.");
       }
     };
 
-    // Sync script tags also in HTML below as primary path for Pages
+    window.addEventListener("error", (e) => {
+      console.error("app error", e.error || e.message);
+    });
+
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", () => setTimeout(boot, 0));
     } else {
