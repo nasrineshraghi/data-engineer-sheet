@@ -158,11 +158,13 @@ def main() -> None:
 
     ordered = sorted(all_concepts, key=lambda c: (c["category"], c["name"].lower()))
     md_lines = [
-        "# Quick reference",
+        "# Quick reference (summary table)",
         "",
         "One-page cheat sheet: keyword · section · definition · example.",
         "",
-        f"**{len(ordered)} concepts** · [Study app](docs/index.html) · [HTML table](docs/table.html)",
+        "**Prefer the interactive HTML table:** https://nasrineshraghi.github.io/data-engineer-sheet/table.html",
+        "",
+        f"**{len(ordered)} concepts** · [Study app](https://nasrineshraghi.github.io/data-engineer-sheet/) · [Local HTML](docs/table.html)",
         "",
         "| Keyword | Section | Definition | Example |",
         "|---|---|---|---|",

@@ -2,15 +2,25 @@
 
 A practical glossary of techniques, keywords, and concepts every data engineer should know — with short definitions and examples. Not deep dives; enough to recall, interview, and apply.
 
+## Live on GitHub Pages
+
+| Open this | Link |
+|-----------|------|
+| **Summary table (all keywords)** | https://nasrineshraghi.github.io/data-engineer-sheet/table.html |
+| **Study app (Essentials / Prod)** | https://nasrineshraghi.github.io/data-engineer-sheet/ |
+| **Markdown summary table** (in the repo) | [QUICK_REF.md](QUICK_REF.md) |
+
+If the Pages links 404: repo **Settings → Pages → Deploy from a branch → `gh-pages` / `(root)` → Save**.
+
 ## New here? Start with this
 
-1. Open **[Essentials — most important 10](docs/index.html?mode=essentials)** ([ESSENTIALS.md](ESSENTIALS.md))
-2. Learn **when to use them** in **[Prod](docs/index.html?mode=prod)** ([PROD.md](PROD.md))
-3. Practice with **Stories**, then Must 30 / summary table for lookup
+1. Open **[Essentials — most important 10](https://nasrineshraghi.github.io/data-engineer-sheet/?mode=essentials)** ([ESSENTIALS.md](ESSENTIALS.md))
+2. Learn **when to use them** in **[Prod](https://nasrineshraghi.github.io/data-engineer-sheet/?mode=prod)** ([PROD.md](PROD.md))
+3. Lookup anything in the **[summary table](https://nasrineshraghi.github.io/data-engineer-sheet/table.html)**
 
 ## Study app
 
-**[Essentials (10) →](docs/index.html?mode=essentials)** · **[Prod playbook →](docs/index.html?mode=prod)** · **[Summary table →](docs/table.html)**
+**[Live summary table →](https://nasrineshraghi.github.io/data-engineer-sheet/table.html)** · **[Live study app →](https://nasrineshraghi.github.io/data-engineer-sheet/)** · **[Markdown table →](QUICK_REF.md)**
 
 | Mode | What you get |
 |------|----------------|
@@ -19,16 +29,17 @@ A practical glossary of techniques, keywords, and concepts every data engineer s
 | **Browse all** | Full glossary when you need a lookup |
 | **Must 30** | Next layer after Essentials |
 | **Cards / Quiz / Stories** | Practice applying concepts |
+| **Summary table** | All keywords · definition · example ([live](https://nasrineshraghi.github.io/data-engineer-sheet/table.html) · [QUICK_REF.md](QUICK_REF.md)) |
 
 Also: deep links `?mode=essentials` · `?mode=prod` · `?mode=must`
 
-### GitHub Pages (one bookmark)
+### GitHub Pages setup (if links 404)
 
-1. After the **Deploy study app** Action turns green (creates `gh-pages` branch)…
+1. After the **Deploy study app** Action turns green…
 2. Open https://github.com/nasrineshraghi/data-engineer-sheet/settings/pages
 3. Source: **Deploy from a branch**
 4. Branch: **`gh-pages`** · Folder: **`/ (root)`** → **Save**
-5. Wait 1–2 minutes → https://nasrineshraghi.github.io/data-engineer-sheet/
+5. Wait 1–2 minutes → https://nasrineshraghi.github.io/data-engineer-sheet/table.html
 
 ## How to use
 

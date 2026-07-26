@@ -1,8 +1,10 @@
-# Quick reference
+# Quick reference (summary table)
 
 One-page cheat sheet: keyword · section · definition · example.
 
-**217 concepts** · [Study app](docs/index.html) · [HTML table](docs/table.html)
+**Prefer the interactive HTML table:** https://nasrineshraghi.github.io/data-engineer-sheet/table.html
+
+**217 concepts** · [Study app](https://nasrineshraghi.github.io/data-engineer-sheet/) · [Local HTML](docs/table.html)
 
 | Keyword | Section | Definition | Example |
 |---|---|---|---|
