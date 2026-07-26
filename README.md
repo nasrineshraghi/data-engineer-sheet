@@ -4,9 +4,8 @@ A practical glossary of techniques, keywords, and concepts every data engineer s
 
 ## How to use
 
-- Browse by category below
-- Full A–Z list: [INDEX.md](INDEX.md)
-- Each concept has: **Definition** · **Why it matters** · **Example** · **Remember**
+- Browse keywords below → open the category file for **Definition · Why it matters · Example · Remember**
+- A–Z lookup: [INDEX.md](INDEX.md)
 - Search the repo (`Ctrl/Cmd + Shift + F`) by keyword
 
 ## Categories
@@ -25,9 +24,197 @@ A practical glossary of techniques, keywords, and concepts every data engineer s
 | 10 | [Cloud & Storage](10-cloud-storage/concepts.md) | Object storage, IAM, encryption |
 | 11 | [DevOps for Data](11-devops/concepts.md) | Docker, K8s, IaC, CI/CD |
 
-## Quick keyword index
+## All keywords
 
-`Cardinality` · `Grain` · `Selectivity` · `CBO` · `Explain Plan` · `Predicate Pushdown` · `Partition Pruning` · `DAG` · `Shuffle` · `AQE` · `Catalyst` · `Tungsten` · `Degenerate Dimension` · `Bridge Table` · `Delta Lake` · `Iceberg` · `Z-Ordering` · `CAP` · `Raft` · `Watermark` · `Exactly Once` · `Idempotency` · `DLQ` · `Data Skew` · `Broadcast Join` · `Data Lineage` · `IAM` · `Terraform`
+### Database & SQL Concepts
+[concepts.md](01-database-sql/concepts.md)
+
+- Cardinality
+- Granularity (Grain)
+- Selectivity
+- Data Distribution
+- Histograms
+- Cost-Based Optimizer (CBO)
+- Rule-Based Optimizer (RBO)
+- Execution Plan
+- Explain Plan
+- Composite Index
+- Covering Index
+- Clustered vs Non-Clustered Index
+- Bitmap Index
+- B-Tree Index
+- Predicate Pushdown
+- Partition Pruning
+- Statistics
+- Table Scan vs Index Scan
+- Seek vs Scan
+
+### Spark Internals
+[concepts.md](02-spark-internals/concepts.md)
+
+- DAG Scheduler
+- Task Scheduler
+- Driver
+- Executor
+- Worker
+- Cluster Manager
+- Job → Stage → Task
+- Lineage
+- Lazy Evaluation
+- Shuffle
+- Spill to Disk
+- Memory Management
+- Serialization (Java/Kryo)
+- Broadcast Variables
+- Accumulators
+- Closure
+- Wide vs Narrow Transformations
+- Adaptive Query Execution (AQE)
+- Catalyst Optimizer
+- Tungsten Engine
+- Dynamic Partition Pruning
+- Skew Join Optimization
+
+### Data Warehouse Concepts
+[concepts.md](03-data-warehouse/concepts.md)
+
+- Grain
+- Granularity
+- Additive Facts
+- Semi-Additive Facts
+- Non-Additive Facts
+- Degenerate Dimension
+- Junk Dimension
+- Role-Playing Dimension
+- Conformed Dimension
+- Mini Dimension
+- Bridge Table
+- Factless Fact Table
+- Snapshot Fact
+- Accumulating Snapshot
+- Periodic Snapshot
+
+### Data Lake & Lakehouse
+[concepts.md](04-data-lake-lakehouse/concepts.md)
+
+- Data Lake
+- Data Lakehouse
+- Delta Lake
+- Apache Iceberg
+- Apache Hudi
+- Time Travel
+- Schema Evolution
+- Schema Enforcement
+- ACID Tables
+- Compaction
+- Vacuum
+- Optimize
+- Z-Ordering
+
+### Distributed Systems
+[concepts.md](05-distributed-systems/concepts.md)
+
+- CAP Theorem
+- BASE
+- Eventual Consistency
+- Strong Consistency
+- Replication
+- Leader Election
+- Consensus
+- Raft
+- Paxos
+- Fault Tolerance
+- High Availability (HA)
+- Horizontal Scaling
+- Vertical Scaling
+
+### Streaming
+[concepts.md](06-streaming/concepts.md)
+
+- Event Time
+- Processing Time
+- Ingestion Time
+- Watermarks
+- Windowing
+- Late Data
+- Stateful Processing
+- Stateless Processing
+- Exactly Once
+- At Least Once
+- At Most Once
+- Event Sourcing
+- CQRS
+
+### Pipeline Design
+[concepts.md](07-pipeline-design/concepts.md)
+
+- Idempotency
+- Checkpointing
+- Retry Strategy
+- Backoff Strategy
+- Circuit Breaker
+- Dead Letter Queue (DLQ)
+- Data Contracts
+- Pipeline Orchestration
+- Metadata-Driven Pipelines
+
+### Performance Tuning
+[concepts.md](08-performance-tuning/concepts.md)
+
+- Data Skew
+- Broadcast Join
+- Shuffle Join
+- Sort Merge Join
+- Hash Join
+- Bucket Join
+- Salting
+- Caching
+- Persistence Levels
+- Parallelism
+- Partition Sizing
+- Small File Problem
+
+### Data Quality & Governance
+[concepts.md](09-data-quality-governance/concepts.md)
+
+- Data Profiling
+- Data Validation
+- Data Lineage
+- Metadata
+- Data Catalog
+- Master Data Management (MDM)
+- Data Governance
+- Data Stewardship
+- Observability
+- Freshness
+- Completeness
+- Accuracy
+- Consistency
+
+### Cloud & Storage
+[concepts.md](10-cloud-storage/concepts.md)
+
+- Object Storage
+- Block Storage
+- Lifecycle Policies
+- IAM
+- Secrets Management
+- KMS
+- Encryption at Rest
+- Encryption in Transit
+- VPC
+- Private Endpoints
+
+### DevOps for Data
+[concepts.md](11-devops/concepts.md)
+
+- Docker
+- Kubernetes
+- CI/CD
+- GitOps
+- Terraform
+- Helm
+- Infrastructure as Code (IaC)
 
 ## Contributing
 
