@@ -129,6 +129,57 @@ def main() -> None:
         must_md.append("")
     (ROOT / "MUST_KNOW_30.md").write_text("\n".join(must_md))
 
+    # Quick reference markdown + HTML table
+    from html import escape as html_escape
+
+    ordered = sorted(all_concepts, key=lambda c: (c["category"], c["name"].lower()))
+    md_lines = [
+        "# Quick reference",
+        "",
+        "One-page cheat sheet: keyword · section · definition · example.",
+        "",
+        f"**{len(ordered)} concepts** · [Study app](docs/index.html) · [HTML table](docs/table.html)",
+        "",
+        "| Keyword | Section | Definition | Example |",
+        "|---|---|---|---|",
+    ]
+    for c in ordered:
+        name = c["name"].replace("|", "\\|")
+        cat = c["category"].replace("|", "\\|")
+        definition = " ".join((c.get("definition") or "").split()).replace("|", "\\|")
+        example = " ".join((c.get("example") or "").split()).replace("|", "\\|")
+        if len(definition) > 160:
+            definition = definition[:157] + "…"
+        if len(example) > 180:
+            example = example[:177] + "…"
+        md_lines.append(f"| **{name}** | {cat} | {definition} | {example} |")
+    (ROOT / "QUICK_REF.md").write_text("\n".join(md_lines) + "\n")
+
+    rows_html = []
+    for c in ordered:
+        rows_html.append(
+            "<tr>"
+            f'<td class="kw">{html_escape(c["name"])}</td>'
+            f'<td class="sec"><span class="pill">{html_escape(c["category"])}</span></td>'
+            f"<td>{html_escape(c.get('definition') or '')}</td>"
+            f'<td class="ex">{html_escape(" ".join((c.get("example") or "").split()))}</td>'
+            "</tr>"
+        )
+    cats = sorted({c["category"] for c in ordered})
+    cat_opts = "\n".join(
+        f'<option value="{html_escape(c)}">{html_escape(c)}</option>' for c in cats
+    )
+    table_template = DOCS / "table.template.html"
+    table_path = DOCS / "table.html"
+    if table_template.exists():
+        table_html = (
+            table_template.read_text()
+            .replace("__COUNT__", str(len(ordered)))
+            .replace("__CAT_OPTS__", cat_opts)
+            .replace("__ROWS__", "\n".join(rows_html))
+        )
+        table_path.write_text(table_html)
+
     template_path = DOCS / "index.template.html"
     html_path = DOCS / "index.html"
     if template_path.exists():

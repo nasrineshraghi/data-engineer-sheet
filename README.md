@@ -4,7 +4,7 @@ A practical glossary of techniques, keywords, and concepts every data engineer s
 
 ## Study app
 
-**[Open the study app →](docs/index.html)**
+**[Open the study app →](docs/index.html)** · **[Quick reference table →](docs/table.html)** · **[Markdown table →](QUICK_REF.md)**
 
 | Mode | What you get |
 |------|----------------|

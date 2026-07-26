@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DE Sheet — Quick table</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Sora:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --ink:#0f1c2e; --muted:#3d5368; --sky:#0284c7; --teal:#0d9488; --coral:#e11d48; --gold:#ca8a04;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; color:var(--ink); font-family:"Sora",sans-serif;
+  background:
+    radial-gradient(800px 400px at 0% 0%, rgba(2,132,199,.22), transparent 55%),
+    radial-gradient(700px 380px at 100% 0%, rgba(225,29,72,.14), transparent 50%),
+    linear-gradient(160deg,#e0f2fe,#fdf2f8 45%,#ecfdf5);
+}
+.wrap { width:min(1200px, calc(100% - 1.5rem)); margin:0 auto; padding:1.5rem 0 3rem; }
+h1 {
+  font-family:"Fraunces",Georgia,serif; font-size:clamp(1.8rem,4vw,2.6rem); margin:0 0 .35rem;
+  background:linear-gradient(120deg,#0f766e,#0284c7,#e11d48); -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.sub { color:var(--muted); margin:0 0 1rem; }
+.sub a { color:var(--sky); font-weight:600; }
+.toolbar {
+  display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; margin-bottom:1rem;
+  position:sticky; top:.4rem; z-index:5; padding:.65rem .8rem; border-radius:16px;
+  background:rgba(255,255,255,.88); backdrop-filter:blur(10px);
+  border:2px solid transparent;
+  background-image:linear-gradient(#fff,#fff), linear-gradient(90deg,#0d9488,#0284c7,#e11d48);
+  background-origin:border-box; background-clip:padding-box,border-box;
+  box-shadow:0 10px 30px rgba(2,132,199,.12);
+}
+#q {
+  flex:1; min-width:180px; border:0; outline:0; font:inherit; font-size:.95rem; background:transparent;
+}
+select {
+  border:1.5px solid #67e8f9; border-radius:999px; padding:.4rem .7rem; font:inherit; background:#ecfeff; color:#0e7490; font-weight:600;
+}
+.count { font-size:.82rem; color:var(--muted); font-weight:600; }
+.count strong { color:var(--coral); }
+.table-wrap {
+  overflow:auto; border-radius:18px; background:#fff;
+  box-shadow:0 16px 40px rgba(15,28,46,.08);
+  border:1px solid rgba(2,132,199,.15);
+}
+table { width:100%; border-collapse:collapse; font-size:.84rem; }
+th {
+  position:sticky; top:0; text-align:left; padding:.75rem .7rem; font-size:.72rem; letter-spacing:.05em;
+  text-transform:uppercase; color:#fff;
+  background:linear-gradient(90deg,#0d9488,#0284c7,#7c3aed);
+}
+td { padding:.65rem .7rem; vertical-align:top; border-top:1px solid #e2e8f0; line-height:1.4; }
+tr:nth-child(even) td { background:#f8fafc; }
+tr:hover td { background:#ecfeff; }
+.kw { font-weight:700; color:#0f766e; white-space:nowrap; min-width:10rem; }
+.sec { min-width:9rem; }
+.pill {
+  display:inline-block; padding:.15rem .45rem; border-radius:999px; font-size:.68rem; font-weight:700;
+  background:#e0f2fe; color:#0369a1; white-space:normal;
+}
+.ex { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.76rem; color:#334155; max-width:28rem; }
+@media print {
+  body { background:#fff; }
+  .toolbar { position:static; box-shadow:none; }
+  th { background:#0d9488 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>Quick reference table</h1>
+  <p class="sub">200 keywords · definition · example · section · <a href="index.html">Study app</a> · <a href="../QUICK_REF.md">Markdown</a></p>
+  <div class="toolbar">
+    <input id="q" type="search" placeholder="Filter keywords, definitions, examples…" />
+    <select id="sec"><option value="">All sections</option><option value="Airflow">Airflow</option>
+<option value="CDC &amp; SCD">CDC &amp; SCD</option>
+<option value="Cloud &amp; Storage">Cloud &amp; Storage</option>
+<option value="Cost Optimization">Cost Optimization</option>
+<option value="Data Lake &amp; Lakehouse">Data Lake &amp; Lakehouse</option>
+<option value="Data Quality &amp; Governance">Data Quality &amp; Governance</option>
+<option value="Data Warehouse Concepts">Data Warehouse Concepts</option>
+<option value="Database &amp; SQL Concepts">Database &amp; SQL Concepts</option>
+<option value="DevOps for Data">DevOps for Data</option>
+<option value="Distributed Systems">Distributed Systems</option>
+<option value="Kafka">Kafka</option>
+<option value="Performance Tuning">Performance Tuning</option>
+<option value="Pipeline Design">Pipeline Design</option>
+<option value="Spark Internals">Spark Internals</option>
+<option value="Streaming">Streaming</option>
+<option value="dbt">dbt</option></select>
+    <div class="count"><strong id="shown">200</strong> / 200</div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Keyword</th><th>Section</th><th>Definition</th><th>Example</th></tr>
+      </thead>
+      <tbody id="tbody">
+<tr><td class="kw">Backfill</td><td class="sec"><span class="pill">Airflow</span></td><td>Intentionally run a DAG for past logical dates.</td><td class="ex">Backfill last 30 days after fixing a currency join.</td></tr>
+<tr><td class="kw">Catchup</td><td class="sec"><span class="pill">Airflow</span></td><td>Airflow auto-schedules missed past runs between start_date and now.</td><td class="ex">Deploy DAG with old `start_date` and `catchup=True` → hundreds of runs.</td></tr>
+<tr><td class="kw">DAG</td><td class="sec"><span class="pill">Airflow</span></td><td>Directed Acyclic Graph of tasks with dependencies — Airflow’s unit of workflow.</td><td class="ex">`extract &gt;&gt; transform &gt;&gt; test &gt;&gt; publish`.</td></tr>
+<tr><td class="kw">Dataset Scheduling</td><td class="sec"><span class="pill">Airflow</span></td><td>Trigger downstream DAGs when upstream datasets update (Airflow 2.4+).</td><td class="ex">`publish_orders` updates dataset → `marts_orders` DAG runs.</td></tr>
+<tr><td class="kw">Execution Date / Data Interval</td><td class="sec"><span class="pill">Airflow</span></td><td>Logical time range a run represents (Airflow 2: data interval), not “when it ran”.</td><td class="ex">Daily DAG for `2024-01-01` processes that day’s partition even if it runs on Jan 2.</td></tr>
+<tr><td class="kw">Pool / Slot</td><td class="sec"><span class="pill">Airflow</span></td><td>Concurrency limits for tasks (pools) and worker parallelism (slots).</td><td class="ex">Pool `snowflake_heavy` with 4 slots for large transforms.</td></tr>
+<tr><td class="kw">Schedule / Timetable</td><td class="sec"><span class="pill">Airflow</span></td><td>When DAG runs are created (cron, timetable, dataset-triggered).</td><td class="ex">`@daily` with `data_interval` ending at midnight UTC.</td></tr>
+<tr><td class="kw">Sensor</td><td class="sec"><span class="pill">Airflow</span></td><td>Task that waits for a condition (file arrives, partition ready, external DAG success).</td><td class="ex">`S3KeySensor` waits for `dt={{ ds }}/_SUCCESS`.</td></tr>
+<tr><td class="kw">SLA / Callback</td><td class="sec"><span class="pill">Airflow</span></td><td>Time expectations and hooks on success/failure/retry (email, Slack, PagerDuty).</td><td class="ex">SLA miss callback posts to #data-alerts.</td></tr>
+<tr><td class="kw">Task / Operator</td><td class="sec"><span class="pill">Airflow</span></td><td>A unit of work in a DAG; operators are task templates (Bash, Python, SparkSubmit, etc.).</td><td class="ex">`BashOperator` runs `dbt run --select fct_orders`.</td></tr>
+<tr><td class="kw">XCom</td><td class="sec"><span class="pill">Airflow</span></td><td>Cross-communication — small metadata passed between tasks.</td><td class="ex">Task A pushes `row_count`; Task B branches if zero.</td></tr>
+<tr><td class="kw">Change Data Capture (CDC)</td><td class="sec"><span class="pill">CDC &amp; SCD</span></td><td>Continuously capture inserts/updates/deletes from a source system (often via logs) instead of full reloads.</td><td class="ex">Debezium reads Postgres WAL → Kafka topics → Spark/Flink applies to Delta.</td></tr>
+<tr><td class="kw">Effective Dating</td><td class="sec"><span class="pill">CDC &amp; SCD</span></td><td>`effective_start` / `effective_end` (or `is_current`) defines when a dim version is valid.</td><td class="ex">Join fact `order_date` to dim where `start &lt;= order_date &lt; end`.</td></tr>
+<tr><td class="kw">Late-Arriving Dimension</td><td class="sec"><span class="pill">CDC &amp; SCD</span></td><td>Fact arrives before its dimension row exists.</td><td class="ex">Order for new customer lands before `dim_customer` CDC catches up.</td></tr>
+<tr><td class="kw">Late-Arriving Fact</td><td class="sec"><span class="pill">CDC &amp; SCD</span></td><td>Fact event arrives after its business date / reporting window closed.</td><td class="ex">Store posts yesterday’s sale two days late → merge into prior partition.</td></tr>
+<tr><td class="kw">Log-Based CDC</td><td class="sec"><span class="pill">CDC &amp; SCD</span></td><td>Read the database transaction log (WAL/binlog/redo) to emit change events.</td><td class="ex">MySQL binlog → Debezium → `orders` topic with before/after images.</td></tr>
+<tr><td class="kw">Natural Key</td><td class="sec"><span class="pill">CDC &amp; SCD</span></td><td>Business identifier from the source system (`customer_id`, `sku`).</td><td class="ex">Same person has different natural keys in CRM and billing → MDM/matching.</td></tr>
+<tr><td class="kw">Query-Based CDC</td><td class="sec"><span class="pill">CDC &amp; SCD</span></td><td>Poll source tables using timestamps or version columns to find changes.</td><td class="ex">`SELECT * FROM orders WHERE updated_at &gt; :last_watermark`.</td></tr>
+<tr><td class="kw">SCD Type 1</td><td class="sec"><span class="pill">CDC &amp; SCD</span></td><td>Overwrite attributes in place; no history kept.</td><td class="ex">Customer address updated → old address gone forever in the dim.</td></tr>
+<tr><td class="kw">SCD Type 2</td><td class="sec"><span class="pill">CDC &amp; SCD</span></td><td>Keep history by inserting a new dimension row with effective dates / current flag.</td><td class="ex">Segment changes → close old row (`end_date`), insert new row with new surrogate key.</td></tr>
+<tr><td class="kw">SCD Type 3</td><td class="sec"><span class="pill">CDC &amp; SCD</span></td><td>Store limited history in extra columns (e.g., current + previous).</td><td class="ex">`region` and `prior_region` columns on `dim_customer`.</td></tr>
+<tr><td class="kw">Soft Delete vs Hard Delete</td><td class="sec"><span class="pill">CDC &amp; SCD</span></td><td>Soft delete marks a row inactive (`is_deleted=true`); hard delete removes the row.</td><td class="ex">Source hard-delete → CDC tombstone → target marks deleted or removes row.</td></tr>
+<tr><td class="kw">Surrogate Key</td><td class="sec"><span class="pill">CDC &amp; SCD</span></td><td>Warehouse-generated key (usually integer/UUID) independent of source natural keys.</td><td class="ex">`customer_sk` changes on type-2 version; `customer_id` natural key stays.</td></tr>
+<tr><td class="kw">Block Storage</td><td class="sec"><span class="pill">Cloud &amp; Storage</span></td><td>Disk volumes attached to VMs (like SAN/local disks).</td><td class="ex">EBS/Azure Disks for Postgres data directory.</td></tr>
+<tr><td class="kw">Encryption at Rest</td><td class="sec"><span class="pill">Cloud &amp; Storage</span></td><td>Data encrypted on disk/storage media.</td><td class="ex">S3 default encryption; encrypted EBS volumes.</td></tr>
+<tr><td class="kw">Encryption in Transit</td><td class="sec"><span class="pill">Cloud &amp; Storage</span></td><td>Data encrypted on the network (TLS/HTTPS).</td><td class="ex">TLS to warehouses, HTTPS to APIs, SSL to Postgres.</td></tr>
+<tr><td class="kw">IAM</td><td class="sec"><span class="pill">Cloud &amp; Storage</span></td><td>Identity and Access Management — who can do what on which resources.</td><td class="ex">Role for Spark job: read `s3://lake/bronze/*`, write `s3://lake/silver/*` only.</td></tr>
+<tr><td class="kw">KMS</td><td class="sec"><span class="pill">Cloud &amp; Storage</span></td><td>Key Management Service — create and control encryption keys.</td><td class="ex">S3 SSE-KMS; revoke key usage to lock data access.</td></tr>
+<tr><td class="kw">Lifecycle Policies</td><td class="sec"><span class="pill">Cloud &amp; Storage</span></td><td>Automatic transition/expire of objects by age/prefix (hot → cool → archive → delete).</td><td class="ex">Raw logs to Glacier after 90 days; delete after 365.</td></tr>
+<tr><td class="kw">Object Storage</td><td class="sec"><span class="pill">Cloud &amp; Storage</span></td><td>Store immutable objects (files) addressed by key in buckets; virtually infinite scale.</td><td class="ex">S3, ADLS Gen2, GCS holding parquet/Delta tables.</td></tr>
+<tr><td class="kw">Private Endpoints</td><td class="sec"><span class="pill">Cloud &amp; Storage</span></td><td>Private network interfaces to cloud services without public internet.</td><td class="ex">S3/GCP Private Service Connect / Azure Private Link to storage and warehouses.</td></tr>
+<tr><td class="kw">Secrets Management</td><td class="sec"><span class="pill">Cloud &amp; Storage</span></td><td>Store/rotate credentials and API keys outside code.</td><td class="ex">AWS Secrets Manager / Azure Key Vault / HashiCorp Vault for DB passwords.</td></tr>
+<tr><td class="kw">VPC</td><td class="sec"><span class="pill">Cloud &amp; Storage</span></td><td>Virtual Private Cloud — isolated network for your cloud resources.</td><td class="ex">Data platform subnets with no public IPs; NAT for egress.</td></tr>
+<tr><td class="kw">Autoscaling / Autosuspend</td><td class="sec"><span class="pill">Cost Optimization</span></td><td>Scale clusters/warehouses to zero or down when idle; up under load.</td><td class="ex">Snowflake auto-suspend 60s; Spark dynamic allocation.</td></tr>
+<tr><td class="kw">Column Pruning</td><td class="sec"><span class="pill">Cost Optimization</span></td><td>Read only selected columns from columnar formats (Parquet/ORC).</td><td class="ex">`SELECT user_id, amount FROM events` reads two columns, not fifty.</td></tr>
+<tr><td class="kw">Cost Observability</td><td class="sec"><span class="pill">Cost Optimization</span></td><td>Attribute spend to teams, jobs, tables, and queries.</td><td class="ex">Chargeback tags on Spark jobs; query cost views in Snowflake.</td></tr>
+<tr><td class="kw">File Size Tuning</td><td class="sec"><span class="pill">Cost Optimization</span></td><td>Target healthy output file sizes (often ~128–512MB) via coalesce/optimize.</td><td class="ex">`coalesce(200)` before write; schedule compaction.</td></tr>
+<tr><td class="kw">Incremental vs Full Refresh</td><td class="sec"><span class="pill">Cost Optimization</span></td><td>Prefer incremental processing; full refresh only when necessary.</td><td class="ex">Daily MERGE of changed keys vs rebuild entire history.</td></tr>
+<tr><td class="kw">Result Caching</td><td class="sec"><span class="pill">Cost Optimization</span></td><td>Reuse recent query results when identical SQL hits warm cache.</td><td class="ex">BI extracts cached in warehouse result cache for minutes.</td></tr>
+<tr><td class="kw">Right-Sizing Warehouses</td><td class="sec"><span class="pill">Cost Optimization</span></td><td>Match warehouse/cluster size to workload shape, not peak folklore.</td><td class="ex">Drop from 2XL to L after partitioning fixed scan volume.</td></tr>
+<tr><td class="kw">Scan Pruning / Partitioning</td><td class="sec"><span class="pill">Cost Optimization</span></td><td>Design tables so queries read only needed files/partitions.</td><td class="ex">Partition by `dt`; filter `WHERE dt = CURRENT_DATE` before joining.</td></tr>
+<tr><td class="kw">Spot / Preemptible Workers</td><td class="sec"><span class="pill">Cost Optimization</span></td><td>Use discounted interruptible VMs for fault-tolerant batch compute.</td><td class="ex">Spark executors on spot; driver on on-demand.</td></tr>
+<tr><td class="kw">Storage Tiering</td><td class="sec"><span class="pill">Cost Optimization</span></td><td>Move cold data to cheaper classes via lifecycle policies.</td><td class="ex">Raw logs → infrequent access after 30d → archive after 180d.</td></tr>
+<tr><td class="kw">ACID Tables</td><td class="sec"><span class="pill">Data Lake &amp; Lakehouse</span></td><td>Atomicity, Consistency, Isolation, Durability for table operations on the lake.</td><td class="ex">A failed job leaves no half-visible partition after transactional commit.</td></tr>
+<tr><td class="kw">Apache Hudi</td><td class="sec"><span class="pill">Data Lake &amp; Lakehouse</span></td><td>Open table format focused on incremental processing, upserts, and streaming ingestion.</td><td class="ex">Upsert CDC into a Hudi MOR table; readers see compacted view.</td></tr>
+<tr><td class="kw">Apache Iceberg</td><td class="sec"><span class="pill">Data Lake &amp; Lakehouse</span></td><td>Open table format with snapshot metadata, hidden partitioning, strong engine interoperability.</td><td class="ex">Partition evolution without rewriting all data paths visible to users.</td></tr>
+<tr><td class="kw">Compaction</td><td class="sec"><span class="pill">Data Lake &amp; Lakehouse</span></td><td>Rewrite many small files into larger optimized files.</td><td class="ex">Iceberg rewrite / Hudi compact / Delta OPTIMIZE.</td></tr>
+<tr><td class="kw">Data Lake</td><td class="sec"><span class="pill">Data Lake &amp; Lakehouse</span></td><td>Central storage of raw and processed data in files (often object storage), schema-on-read.</td><td class="ex">S3/ADLS/GCS buckets with landing, bronze, silver zones as folders.</td></tr>
+<tr><td class="kw">Data Lakehouse</td><td class="sec"><span class="pill">Data Lake &amp; Lakehouse</span></td><td>Lake storage + warehouse capabilities: ACID tables, governance, BI-friendly SQL.</td><td class="ex">Delta/Iceberg tables on S3 queried by Spark, Trino, and BI tools.</td></tr>
+<tr><td class="kw">Delta Lake</td><td class="sec"><span class="pill">Data Lake &amp; Lakehouse</span></td><td>Open table format (Databricks-origin) with transaction log (`_delta_log`) for ACID on files.</td><td class="ex">`MERGE INTO target USING source ON ... WHEN MATCHED THEN UPDATE ...`</td></tr>
+<tr><td class="kw">Optimize</td><td class="sec"><span class="pill">Data Lake &amp; Lakehouse</span></td><td>Maintenance command to compact/layout data for faster reads (Delta `OPTIMIZE`).</td><td class="ex">`OPTIMIZE sales ZORDER BY (customer_id, event_date);`</td></tr>
+<tr><td class="kw">Schema Enforcement</td><td class="sec"><span class="pill">Data Lake &amp; Lakehouse</span></td><td>Reject writes that don&#x27;t match the table schema (or strict evolution rules).</td><td class="ex">Write with extra unexpected type fails instead of silently creating junk files.</td></tr>
+<tr><td class="kw">Schema Evolution</td><td class="sec"><span class="pill">Data Lake &amp; Lakehouse</span></td><td>Safely change table schema (add/rename/drop columns) without full reload when supported.</td><td class="ex">Adding `discount_code` column to a Delta/Iceberg table.</td></tr>
+<tr><td class="kw">Time Travel</td><td class="sec"><span class="pill">Data Lake &amp; Lakehouse</span></td><td>Query table as of a past version/timestamp via snapshots/logs.</td><td class="ex">```sql SELECT * FROM orders VERSION AS OF 120; -- or TIMESTAMP AS OF &#x27;2024-06-01&#x27; ```</td></tr>
+<tr><td class="kw">Vacuum</td><td class="sec"><span class="pill">Data Lake &amp; Lakehouse</span></td><td>Delete obsolete data files no longer referenced by the table (past retention).</td><td class="ex">`VACUUM table_name RETAIN 168 HOURS;` (Delta).</td></tr>
+<tr><td class="kw">Z-Ordering</td><td class="sec"><span class="pill">Data Lake &amp; Lakehouse</span></td><td>Multi-dimensional clustering of data files so related values co-locate (minmax skipping improves).</td><td class="ex">Z-Order by `user_id` so point lookups skip most files.</td></tr>
+<tr><td class="kw">Accuracy</td><td class="sec"><span class="pill">Data Quality &amp; Governance</span></td><td>Data correctly represents real-world values.</td><td class="ex">Currency conversion rates match source system within tolerance.</td></tr>
+<tr><td class="kw">Completeness</td><td class="sec"><span class="pill">Data Quality &amp; Governance</span></td><td>Required data is present (rows and fields).</td><td class="ex">All 24 hourly partitions arrived; `customer_id` null rate &lt; 0.1%.</td></tr>
+<tr><td class="kw">Consistency</td><td class="sec"><span class="pill">Data Quality &amp; Governance</span></td><td>Same facts agree across systems/tables within defined rules.</td><td class="ex">Sum of order lines equals order header total; warehouse matches finance extract.</td></tr>
+<tr><td class="kw">Data Catalog</td><td class="sec"><span class="pill">Data Quality &amp; Governance</span></td><td>Searchable inventory of datasets with metadata, ownership, and often lineage.</td><td class="ex">DataHub, Collibra, Unity Catalog, Glue Data Catalog, OpenMetadata.</td></tr>
+<tr><td class="kw">Data Governance</td><td class="sec"><span class="pill">Data Quality &amp; Governance</span></td><td>Policies, roles, and controls for data quality, security, privacy, and usage.</td><td class="ex">PII classification, access reviews, approved metric definitions.</td></tr>
+<tr><td class="kw">Data Lineage</td><td class="sec"><span class="pill">Data Quality &amp; Governance</span></td><td>Trace where data came from and where it flows (table/column/job level).</td><td class="ex">`raw.orders` → `stg_orders` → `fct_orders` → dashboard KPI.</td></tr>
+<tr><td class="kw">Data Profiling</td><td class="sec"><span class="pill">Data Quality &amp; Governance</span></td><td>Statistical survey of a dataset: nulls, distincts, distributions, patterns.</td><td class="ex">12% null `email`; `amount` min/max/p99; top values of `status`.</td></tr>
+<tr><td class="kw">Data Stewardship</td><td class="sec"><span class="pill">Data Quality &amp; Governance</span></td><td>Human ownership of domain data quality and definitions.</td><td class="ex">Finance steward owns `revenue` definition and approves changes.</td></tr>
+<tr><td class="kw">Data Validation</td><td class="sec"><span class="pill">Data Quality &amp; Governance</span></td><td>Automated checks that data meets rules (schema, ranges, uniqueness, referential).</td><td class="ex">Great Expectations / dbt tests: `order_id` unique, `amount &gt;= 0`, FK to customers.</td></tr>
+<tr><td class="kw">Freshness</td><td class="sec"><span class="pill">Data Quality &amp; Governance</span></td><td>How up-to-date the data is vs expectation (SLA/SLO).</td><td class="ex">&quot;Orders table max `updated_at` &lt; 1 hour ago&quot;.</td></tr>
+<tr><td class="kw">Master Data Management (MDM)</td><td class="sec"><span class="pill">Data Quality &amp; Governance</span></td><td>Processes/systems to create a single trusted master for core entities (customer, product).</td><td class="ex">Merge CRM + billing customers into golden `customer_id` with survivorship rules.</td></tr>
+<tr><td class="kw">Metadata</td><td class="sec"><span class="pill">Data Quality &amp; Governance</span></td><td>Data about data: schema, owners, freshness, partitions, descriptions.</td><td class="ex">Table description, column glossary, last update time, PII tags.</td></tr>
+<tr><td class="kw">Observability</td><td class="sec"><span class="pill">Data Quality &amp; Governance</span></td><td>Ability to understand pipeline health via metrics, logs, traces, and data checks.</td><td class="ex">Freshness, row-count anomalies, schema drift alerts, job duration SLOs.</td></tr>
+<tr><td class="kw">Accumulating Snapshot</td><td class="sec"><span class="pill">Data Warehouse Concepts</span></td><td>One row per process instance; columns updated as milestones complete (pipeline pipeline).</td><td class="ex">Order fulfillment: `ordered_at`, `packed_at`, `shipped_at`, `delivered_at` on one row, updated in place.</td></tr>
+<tr><td class="kw">Additive Facts</td><td class="sec"><span class="pill">Data Warehouse Concepts</span></td><td>Measures that can be summed across any dimension.</td><td class="ex">`sales_amount`, `quantity_sold` — sum by day, store, product all valid.</td></tr>
+<tr><td class="kw">Bridge Table</td><td class="sec"><span class="pill">Data Warehouse Concepts</span></td><td>Helper table resolving many-to-many between fact and dimension (or between dims).</td><td class="ex">Order with multiple sales reps → `bridge_order_rep` with allocation weights.</td></tr>
+<tr><td class="kw">Conformed Dimension</td><td class="sec"><span class="pill">Data Warehouse Concepts</span></td><td>Shared dimension with consistent keys and attributes across facts/marts.</td><td class="ex">Same `customer_key` and customer attributes in sales and support marts.</td></tr>
+<tr><td class="kw">Degenerate Dimension</td><td class="sec"><span class="pill">Data Warehouse Concepts</span></td><td>Dimension-like identifier stored in the fact table with no separate dimension table.</td><td class="ex">`order_id`, `invoice_number` living on the fact row.</td></tr>
+<tr><td class="kw">Factless Fact Table</td><td class="sec"><span class="pill">Data Warehouse Concepts</span></td><td>Fact table with keys only (no numeric measures) — records events or coverage.</td><td class="ex">Student attendance: `student_key`, `class_key`, `date_key` — count rows = attendance events.</td></tr>
+<tr><td class="kw">Grain</td><td class="sec"><span class="pill">Data Warehouse Concepts</span></td><td>Exact meaning of one fact row (business level of detail).</td><td class="ex">&quot;One row per order line per day&quot; vs &quot;one row per order&quot;.</td></tr>
+<tr><td class="kw">Granularity</td><td class="sec"><span class="pill">Data Warehouse Concepts</span></td><td>Same idea as grain — how fine or coarse the data is. Often used interchangeably with grain in DW.</td><td class="ex">Daily grain vs monthly rollup tables.</td></tr>
+<tr><td class="kw">Junk Dimension</td><td class="sec"><span class="pill">Data Warehouse Concepts</span></td><td>Single dimension table combining low-cardinality flags/indicators.</td><td class="ex">`is_gift`, `payment_type`, `channel` packed into `dim_order_flags`.</td></tr>
+<tr><td class="kw">Mini Dimension</td><td class="sec"><span class="pill">Data Warehouse Concepts</span></td><td>Split frequently changing attributes into a smaller dimension to limit type-2 explosion on the main dim.</td><td class="ex">`dim_customer` stable attrs + `dim_customer_profile` for segment/score that changes monthly.</td></tr>
+<tr><td class="kw">Non-Additive Facts</td><td class="sec"><span class="pill">Data Warehouse Concepts</span></td><td>Cannot be summed meaningfully; ratios, percentages, temperatures.</td><td class="ex">`profit_margin` — store `profit` and `revenue`, compute margin at query time.</td></tr>
+<tr><td class="kw">Periodic Snapshot</td><td class="sec"><span class="pill">Data Warehouse Concepts</span></td><td>New fact rows taken at regular intervals for all entities (day/week/month).</td><td class="ex">End-of-day account balance for every account every day.</td></tr>
+<tr><td class="kw">Role-Playing Dimension</td><td class="sec"><span class="pill">Data Warehouse Concepts</span></td><td>Same dimension reused for multiple roles via different foreign keys.</td><td class="ex">`order_date_key`, `ship_date_key` both point to `dim_date`.</td></tr>
+<tr><td class="kw">Semi-Additive Facts</td><td class="sec"><span class="pill">Data Warehouse Concepts</span></td><td>Summable across some dimensions, not others (often not across time).</td><td class="ex">Account balance — sum across customers OK; sum across days wrong (use last/average).</td></tr>
+<tr><td class="kw">Snapshot Fact</td><td class="sec"><span class="pill">Data Warehouse Concepts</span></td><td>Fact capturing state at a point in time (generic term; often periodic).</td><td class="ex">Daily inventory on-hand per SKU per warehouse.</td></tr>
+<tr><td class="kw">B-Tree Index</td><td class="sec"><span class="pill">Database &amp; SQL Concepts</span></td><td>Balanced tree index supporting equality and range lookups; default in most RDBMS.</td><td class="ex">B-tree on `email` → fast `WHERE email = &#x27;a@b.com&#x27;`.</td></tr>
+<tr><td class="kw">Bitmap Index</td><td class="sec"><span class="pill">Database &amp; SQL Concepts</span></td><td>Index storing bitmaps per distinct value; good for low-cardinality columns and AND/OR of predicates.</td><td class="ex">Bitmap on `gender`, `region`, `status` for warehouse filters.</td></tr>
+<tr><td class="kw">Cardinality</td><td class="sec"><span class="pill">Database &amp; SQL Concepts</span></td><td>Number of distinct values in a column (or relation size: number of rows).</td><td class="ex">`country` has ~200 distinct values (low cardinality). `user_id` may have millions (high cardinality).</td></tr>
+<tr><td class="kw">Clustered vs Non-Clustered Index</td><td class="sec"><span class="pill">Database &amp; SQL Concepts</span></td><td>- **Clustered:** table rows stored in index key order (often primary key); typically one per table. - **Non-clustered:** separate structure pointing to rows; many allowed.</td><td class="ex">Clustered on `order_date` makes date-range queries fast; random UUIDs as clustered keys can fragment inserts.</td></tr>
+<tr><td class="kw">Composite Index</td><td class="sec"><span class="pill">Database &amp; SQL Concepts</span></td><td>Index on multiple columns in a defined order.</td><td class="ex">Index `(customer_id, order_date)` helps `WHERE customer_id = ?` and `WHERE customer_id = ? AND order_date &gt; ?`, not `WHERE order_date &gt; ?` alone (usually).</td></tr>
+<tr><td class="kw">Cost-Based Optimizer (CBO)</td><td class="sec"><span class="pill">Database &amp; SQL Concepts</span></td><td>Chooses execution plan by estimating cost using table/column statistics.</td><td class="ex">With stats, CBO picks broadcast hash join for a small dimension; without stats, may shuffle both sides.</td></tr>
+<tr><td class="kw">Covering Index</td><td class="sec"><span class="pill">Database &amp; SQL Concepts</span></td><td>Index that contains all columns a query needs, so the table heap/base isn&#x27;t touched.</td><td class="ex">Query selects `id, email` with index on `(id) INCLUDE (email)` → covering.</td></tr>
+<tr><td class="kw">Data Distribution</td><td class="sec"><span class="pill">Database &amp; SQL Concepts</span></td><td>How values are spread across a column (uniform, skewed, sparse).</td><td class="ex">80% of orders from one country → that partition/key dominates shuffle.</td></tr>
+<tr><td class="kw">Execution Plan</td><td class="sec"><span class="pill">Database &amp; SQL Concepts</span></td><td>The concrete operators the engine will run (scans, joins, aggregates, sorts).</td><td class="ex">Plan shows `SortMergeJoin` + large `Exchange` (shuffle) → expensive.</td></tr>
+<tr><td class="kw">Explain Plan</td><td class="sec"><span class="pill">Database &amp; SQL Concepts</span></td><td>Command/API that prints the logical and/or physical plan without always running the full query.</td><td class="ex">```sql EXPLAIN ANALYZE SELECT * FROM orders WHERE order_date = &#x27;2024-01-01&#x27;; -- Spark: df.explain(True) or EXPLAIN EXTENDED / COST ```</td></tr>
+<tr><td class="kw">Granularity (Grain)</td><td class="sec"><span class="pill">Database &amp; SQL Concepts</span></td><td>The level of detail one row represents (what one row means).</td><td class="ex">Orders table grain = one row per `order_id`. Order-items grain = one row per `order_id + product_id`.</td></tr>
+<tr><td class="kw">Histograms</td><td class="sec"><span class="pill">Database &amp; SQL Concepts</span></td><td>Statistics summarizing value frequency distribution in a column.</td><td class="ex">Optimizer sees `status=&#x27;cancelled&#x27;` is 2% of rows via histogram, not assuming uniform 25%.</td></tr>
+<tr><td class="kw">Partition Pruning</td><td class="sec"><span class="pill">Database &amp; SQL Concepts</span></td><td>Skip reading partitions that cannot match the query filter.</td><td class="ex">Table partitioned by `dt`; `WHERE dt=&#x27;2024-06-01&#x27;` reads only that partition.</td></tr>
+<tr><td class="kw">Predicate Pushdown</td><td class="sec"><span class="pill">Database &amp; SQL Concepts</span></td><td>Move filters as close as possible to the data source so less data is read/shuffled.</td><td class="ex">`spark.read.parquet(...).filter(&quot;year=2024&quot;)` pushes year filter into file/footer reading when partitioned.</td></tr>
+<tr><td class="kw">Rule-Based Optimizer (RBO)</td><td class="sec"><span class="pill">Database &amp; SQL Concepts</span></td><td>Rewrites queries using fixed heuristic rules (e.g., push filters early), not cost estimates.</td><td class="ex">Always push `WHERE` before `JOIN` regardless of table size.</td></tr>
+<tr><td class="kw">Seek vs Scan</td><td class="sec"><span class="pill">Database &amp; SQL Concepts</span></td><td>- **Seek:** jump to a specific key/range in the index. - **Scan:** read a contiguous slice (or all) of index/table.</td><td class="ex">`WHERE id = 10` → seek. `WHERE id BETWEEN 1 AND 1000000` → range scan.</td></tr>
+<tr><td class="kw">Selectivity</td><td class="sec"><span class="pill">Database &amp; SQL Concepts</span></td><td>Fraction of rows a predicate returns. High selectivity = few rows (selective filter).</td><td class="ex">`WHERE user_id = 42` is highly selective. `WHERE status = &#x27;active&#x27;` on 90% active rows is not.</td></tr>
+<tr><td class="kw">Statistics</td><td class="sec"><span class="pill">Database &amp; SQL Concepts</span></td><td>Metadata about tables/columns: row counts, NDV, min/max, histograms, size.</td><td class="ex">```sql ANALYZE TABLE orders COMPUTE STATISTICS FOR COLUMNS customer_id, amount; ```</td></tr>
+<tr><td class="kw">Table Scan vs Index Scan</td><td class="sec"><span class="pill">Database &amp; SQL Concepts</span></td><td>- **Table (full) scan:** read all rows/pages. - **Index scan:** walk an index (may still touch many rows).</td><td class="ex">Selecting 2% of rows by PK → index. Selecting 70% → full scan often better.</td></tr>
+<tr><td class="kw">CI/CD</td><td class="sec"><span class="pill">DevOps for Data</span></td><td>Continuous Integration / Continuous Delivery — automate test and deploy of code/config.</td><td class="ex">PR runs unit tests + SQL lint → merge deploys DAG to Airflow.</td></tr>
+<tr><td class="kw">Docker</td><td class="sec"><span class="pill">DevOps for Data</span></td><td>Package app + dependencies into portable container images.</td><td class="ex">Image with `spark-submit` entrypoint and pinned library versions.</td></tr>
+<tr><td class="kw">GitOps</td><td class="sec"><span class="pill">DevOps for Data</span></td><td>Desired system state lives in Git; controllers sync cluster to match.</td><td class="ex">Argo CD applies Helm charts from `infra` repo on merge to main.</td></tr>
+<tr><td class="kw">Helm</td><td class="sec"><span class="pill">DevOps for Data</span></td><td>Package manager for Kubernetes — charts template K8s manifests.</td><td class="ex">`helm upgrade --install airflow bitnami/airflow -f values.yaml`.</td></tr>
+<tr><td class="kw">Infrastructure as Code (IaC)</td><td class="sec"><span class="pill">DevOps for Data</span></td><td>Define and version infrastructure in code (Terraform, CloudFormation, Pulumi, Bicep).</td><td class="ex">Dev/stage/prod lakes created from the same modules with different variables.</td></tr>
+<tr><td class="kw">Kubernetes</td><td class="sec"><span class="pill">DevOps for Data</span></td><td>Orchestrates containers: scheduling, scaling, restarts, service discovery.</td><td class="ex">SparkApplication CRD submits driver/executors as pods.</td></tr>
+<tr><td class="kw">Terraform</td><td class="sec"><span class="pill">DevOps for Data</span></td><td>Declarative Infrastructure as Code tool (HCL) for cloud resources.</td><td class="ex">Terraform creates S3 lake buckets, Glue catalog DB, IAM roles.</td></tr>
+<tr><td class="kw">BASE</td><td class="sec"><span class="pill">Distributed Systems</span></td><td>Basically Available, Soft state, Eventually consistent — alternative mindset to strict ACID across distributed services.</td><td class="ex">Shopping cart eventually syncs across regions; brief stale reads OK.</td></tr>
+<tr><td class="kw">CAP Theorem</td><td class="sec"><span class="pill">Distributed Systems</span></td><td>In a network partition, a system can provide Consistency or Availability, not both (Partition tolerance assumed in distributed DBs).</td><td class="ex">During partition, CP system rejects writes; AP system accepts writes that may conflict.</td></tr>
+<tr><td class="kw">Consensus</td><td class="sec"><span class="pill">Distributed Systems</span></td><td>Nodes agree on a value/order of operations despite failures.</td><td class="ex">Agreeing on the next committed Kafka controller epoch or Raft log entry.</td></tr>
+<tr><td class="kw">Eventual Consistency</td><td class="sec"><span class="pill">Distributed Systems</span></td><td>If no new updates, all replicas converge to the same value eventually.</td><td class="ex">Read-after-write may fail briefly across regions; later reads agree.</td></tr>
+<tr><td class="kw">Fault Tolerance</td><td class="sec"><span class="pill">Distributed Systems</span></td><td>System continues correctly despite component failures.</td><td class="ex">Spark recomputes lost partitions; Kafka replicates partitions.</td></tr>
+<tr><td class="kw">High Availability (HA)</td><td class="sec"><span class="pill">Distributed Systems</span></td><td>Minimize downtime via redundancy and fast failover.</td><td class="ex">Multi-AZ brokers; standby scheduler; health checks + auto restart.</td></tr>
+<tr><td class="kw">Horizontal Scaling</td><td class="sec"><span class="pill">Distributed Systems</span></td><td>Add more nodes to increase capacity.</td><td class="ex">Add Spark executors or Kafka brokers.</td></tr>
+<tr><td class="kw">Leader Election</td><td class="sec"><span class="pill">Distributed Systems</span></td><td>Cluster chooses a primary coordinator for writes or decisions.</td><td class="ex">ZooKeeper/etcd/Raft elect Kafka controller or DB primary.</td></tr>
+<tr><td class="kw">Paxos</td><td class="sec"><span class="pill">Distributed Systems</span></td><td>Classic family of consensus protocols (Multi-Paxos, etc.).</td><td class="ex">Google Chubby historically influenced by Paxos.</td></tr>
+<tr><td class="kw">Raft</td><td class="sec"><span class="pill">Distributed Systems</span></td><td>Consensus algorithm emphasizing understandability: leader, log replication, terms.</td><td class="ex">etcd stores K8s state via Raft.</td></tr>
+<tr><td class="kw">Replication</td><td class="sec"><span class="pill">Distributed Systems</span></td><td>Keep multiple copies of data for durability and/or read scale.</td><td class="ex">Kafka topic RF=3; Postgres primary + replicas; S3 cross-region copy.</td></tr>
+<tr><td class="kw">Strong Consistency</td><td class="sec"><span class="pill">Distributed Systems</span></td><td>After a write commits, all subsequent reads see it (linearizability / similar guarantees vary by system).</td><td class="ex">Financial ledger balance must be strongly consistent.</td></tr>
+<tr><td class="kw">Vertical Scaling</td><td class="sec"><span class="pill">Distributed Systems</span></td><td>Give one machine more CPU/RAM/disk.</td><td class="ex">Upsize a warehouse warehouse node or driver machine.</td></tr>
+<tr><td class="kw">Compaction (Kafka)</td><td class="sec"><span class="pill">Kafka</span></td><td>Log compaction keeps the latest value per key; older keys garbage-collected.</td><td class="ex">`customer_profile` compacted topic always has latest profile per `customer_id`.</td></tr>
+<tr><td class="kw">Consumer Group</td><td class="sec"><span class="pill">Kafka</span></td><td>Set of consumers sharing work on a topic; each partition goes to one member.</td><td class="ex">6 partitions, 3 consumers in group `billing` → ~2 partitions each.</td></tr>
+<tr><td class="kw">Dead Letter Topic</td><td class="sec"><span class="pill">Kafka</span></td><td>Topic receiving poison / failed records after retries.</td><td class="ex">Deserialization failures → `orders.dlq` with headers explaining error.</td></tr>
+<tr><td class="kw">Exactly-Once Semantics (EOS)</td><td class="sec"><span class="pill">Kafka</span></td><td>Kafka transactions / idempotent produce so a read-process-write cycle doesn’t dup effects (within Kafka).</td><td class="ex">Kafka Streams transactional write to output topic.</td></tr>
+<tr><td class="kw">ISR (In-Sync Replicas)</td><td class="sec"><span class="pill">Kafka</span></td><td>Replicas fully caught up with the leader; eligible for failover.</td><td class="ex">Leader waits for ISR acks before acknowledging the produce.</td></tr>
+<tr><td class="kw">Offset</td><td class="sec"><span class="pill">Kafka</span></td><td>Position of a consumer within a partition log.</td><td class="ex">Commit offset 1050 after processing; restart resumes at 1051 (depending on config).</td></tr>
+<tr><td class="kw">Partition</td><td class="sec"><span class="pill">Kafka</span></td><td>Ordered, append-only log slice of a topic; unit of parallelism.</td><td class="ex">Key by `customer_id` so one customer’s events stay ordered in one partition.</td></tr>
+<tr><td class="kw">Producer / Consumer</td><td class="sec"><span class="pill">Kafka</span></td><td>Writer vs reader clients of Kafka topics.</td><td class="ex">Producer `acks=all`; consumer `enable.auto.commit=false` with manual commits.</td></tr>
+<tr><td class="kw">Replication Factor</td><td class="sec"><span class="pill">Kafka</span></td><td>How many broker copies of each partition exist.</td><td class="ex">RF=3, min ISR=2 for production topics.</td></tr>
+<tr><td class="kw">Schema Registry</td><td class="sec"><span class="pill">Kafka</span></td><td>Service storing Avro/Protobuf/JSON schemas for topic payloads with compatibility rules.</td><td class="ex">BACKWARD compatibility for `orders-value` subject.</td></tr>
+<tr><td class="kw">Topic</td><td class="sec"><span class="pill">Kafka</span></td><td>Named stream of records; publishers write, consumers read.</td><td class="ex">Producers write to `payments.completed`; three services consume independently.</td></tr>
+<tr><td class="kw">Broadcast Join</td><td class="sec"><span class="pill">Performance Tuning</span></td><td>Replicate the small side to all executors; join locally (map-side).</td><td class="ex">Fact × small dimension (`broadcast(dim)`).</td></tr>
+<tr><td class="kw">Bucket Join</td><td class="sec"><span class="pill">Performance Tuning</span></td><td>Tables pre-bucketed (and often sorted) on the same key so joins avoid full shuffle.</td><td class="ex">Both tables bucketed by `user_id` into 200 buckets → bucket join.</td></tr>
+<tr><td class="kw">Caching</td><td class="sec"><span class="pill">Performance Tuning</span></td><td>Keep a dataset in memory/disk across actions to avoid recomputation.</td><td class="ex">`df.cache()` before multiple joins/aggregations on same base.</td></tr>
+<tr><td class="kw">Data Skew</td><td class="sec"><span class="pill">Performance Tuning</span></td><td>Uneven key/partition sizes so a few tasks do most of the work.</td><td class="ex">`null` or popular `country_code` holds 50% of join keys.</td></tr>
+<tr><td class="kw">Hash Join</td><td class="sec"><span class="pill">Performance Tuning</span></td><td>Build hash table on one side, probe with the other (in-memory or spilled).</td><td class="ex">Broadcast hash join = hash join with replicated build side.</td></tr>
+<tr><td class="kw">Parallelism</td><td class="sec"><span class="pill">Performance Tuning</span></td><td>Degree of concurrent tasks (related to partitions and cores).</td><td class="ex">`repartition(200)` to use ~200 cores effectively for a stage.</td></tr>
+<tr><td class="kw">Partition Sizing</td><td class="sec"><span class="pill">Performance Tuning</span></td><td>Choosing number/size of partitions (and output files) for balanced work.</td><td class="ex">Target ~128–256 MB per partition file for many lake workloads (rule of thumb, not law).</td></tr>
+<tr><td class="kw">Persistence Levels</td><td class="sec"><span class="pill">Performance Tuning</span></td><td>Storage level for cached data: memory only, memory+disk, disk only, serialized, replicated.</td><td class="ex">`MEMORY_AND_DISK` safer than `MEMORY_ONLY` for large frames.</td></tr>
+<tr><td class="kw">Salting</td><td class="sec"><span class="pill">Performance Tuning</span></td><td>Add a random salt to hot keys to spread them across partitions, then remove/aggregate.</td><td class="ex">Hot `customer_id` → `customer_id + salt_0..N` on both sides for join, then drop salt.</td></tr>
+<tr><td class="kw">Shuffle Join</td><td class="sec"><span class="pill">Performance Tuning</span></td><td>Generic term for joins that redistribute both sides by join key (often sort-merge or shuffle-hash).</td><td class="ex">Large `orders` ⋈ large `payments` on `order_id`.</td></tr>
+<tr><td class="kw">Small File Problem</td><td class="sec"><span class="pill">Performance Tuning</span></td><td>Too many tiny files → heavy listing, task overhead, slow queries.</td><td class="ex">100k files of 1 MB instead of 400 files of 256 MB.</td></tr>
+<tr><td class="kw">Sort Merge Join</td><td class="sec"><span class="pill">Performance Tuning</span></td><td>Shuffle both sides by key, sort, then merge — Spark&#x27;s common large-large join.</td><td class="ex">Default for two big DataFrames when broadcast isn&#x27;t chosen.</td></tr>
+<tr><td class="kw">Backoff Strategy</td><td class="sec"><span class="pill">Pipeline Design</span></td><td>Increase wait between retries (often exponential + jitter).</td><td class="ex">Wait 1s, 2s, 4s, 8s with random jitter.</td></tr>
+<tr><td class="kw">Checkpointing</td><td class="sec"><span class="pill">Pipeline Design</span></td><td>Persist progress (offsets/state) so recovery resumes cleanly.</td><td class="ex">Spark Structured Streaming checkpoint location stores offsets + state.</td></tr>
+<tr><td class="kw">Circuit Breaker</td><td class="sec"><span class="pill">Pipeline Design</span></td><td>Stop calling a failing dependency temporarily after error threshold; probe later.</td><td class="ex">After 50 warehouse connection failures, open circuit for 60s, then half-open trial.</td></tr>
+<tr><td class="kw">Data Contracts</td><td class="sec"><span class="pill">Pipeline Design</span></td><td>Explicit agreement on schema, semantics, SLAs, and ownership between producers and consumers.</td><td class="ex">Producer guarantees `orders.v2` fields + daily freshness &lt; 2h; CI validates schema.</td></tr>
+<tr><td class="kw">Dead Letter Queue (DLQ)</td><td class="sec"><span class="pill">Pipeline Design</span></td><td>Side channel for records that fail processing after retries.</td><td class="ex">Malformed JSON → DLQ topic/table with error reason; alert and fix.</td></tr>
+<tr><td class="kw">Idempotency</td><td class="sec"><span class="pill">Pipeline Design</span></td><td>Running the same operation multiple times yields the same result as running once.</td><td class="ex">Upsert by primary key; overwrite partition `dt=2024-01-01` instead of append-only blindly.</td></tr>
+<tr><td class="kw">Metadata-Driven Pipelines</td><td class="sec"><span class="pill">Pipeline Design</span></td><td>Behavior configured by metadata (tables, mappings, rules) rather than hard-coded per table jobs.</td><td class="ex">Config table lists source, target, PK, SCD type → one generic loader.</td></tr>
+<tr><td class="kw">Pipeline Orchestration</td><td class="sec"><span class="pill">Pipeline Design</span></td><td>Schedule, dependency management, retries, and observability of multi-step data jobs.</td><td class="ex">Airflow/Dagster/Prefect/Azure DF: extract → transform → test → publish.</td></tr>
+<tr><td class="kw">Retry Strategy</td><td class="sec"><span class="pill">Pipeline Design</span></td><td>Policy for re-attempting failed work (how many, when, which errors).</td><td class="ex">Retry S3/API 429/5xx up to 5 times; fail fast on 400 auth errors.</td></tr>
+<tr><td class="kw">Accumulators</td><td class="sec"><span class="pill">Spark Internals</span></td><td>Write-only aggregate variables (counters) updated by executors, read on driver.</td><td class="ex">Count malformed records while mapping.</td></tr>
+<tr><td class="kw">Adaptive Query Execution (AQE)</td><td class="sec"><span class="pill">Spark Internals</span></td><td>Spark SQL re-optimizes the plan at runtime using size stats after shuffles (Spark 3+).</td><td class="ex">AQE converts sort-merge to broadcast when post-shuffle side is small.</td></tr>
+<tr><td class="kw">Broadcast Variables</td><td class="sec"><span class="pill">Spark Internals</span></td><td>Read-only copy of data sent once to each executor.</td><td class="ex">Broadcast a small dimension for map-side join / `broadcast(df)`.</td></tr>
+<tr><td class="kw">Catalyst Optimizer</td><td class="sec"><span class="pill">Spark Internals</span></td><td>Spark SQL&#x27;s rule + cost optimizer: analysis → logical optimization → physical planning.</td><td class="ex">Constant folding, predicate pushdown, column pruning done automatically.</td></tr>
+<tr><td class="kw">Closure</td><td class="sec"><span class="pill">Spark Internals</span></td><td>Function + captured outer variables sent to executors.</td><td class="ex">Capturing a large Python list in a UDF serializes it to every task.</td></tr>
+<tr><td class="kw">Cluster Manager</td><td class="sec"><span class="pill">Spark Internals</span></td><td>Allocates resources: Standalone, YARN, Kubernetes, Mesos (legacy).</td><td class="ex">`spark.master=yarn` or `k8s://...` with dynamic allocation.</td></tr>
+<tr><td class="kw">DAG Scheduler</td><td class="sec"><span class="pill">Spark Internals</span></td><td>Builds a DAG of stages from the RDD/DataFrame lineage and submits stage tasks when parents finish.</td><td class="ex">`map → filter → reduceByKey` → narrow stage then shuffle stage.</td></tr>
+<tr><td class="kw">Driver</td><td class="sec"><span class="pill">Spark Internals</span></td><td>The process that runs your main program, builds the DAG, and coordinates executors.</td><td class="ex">Collecting a huge DataFrame to the driver (`collect()`) crashes the driver.</td></tr>
+<tr><td class="kw">Dynamic Partition Pruning</td><td class="sec"><span class="pill">Spark Internals</span></td><td>At runtime, prune partitions of a large fact using values from a filtered dimension join.</td><td class="ex">Join `sales` (partitioned by `date`) to `dim_date` filtered to one month → only those fact partitions scanned.</td></tr>
+<tr><td class="kw">Executor</td><td class="sec"><span class="pill">Spark Internals</span></td><td>JVM worker process that runs tasks and stores shuffle/cache data.</td><td class="ex">10 executors × 4 cores → up to 40 concurrent tasks.</td></tr>
+<tr><td class="kw">Job → Stage → Task</td><td class="sec"><span class="pill">Spark Internals</span></td><td>- **Job:** triggered by an action (`count`, `write`, `collect`) - **Stage:** set of tasks with narrow deps between shuffles - **Task:** unit of work on one partition</td><td class="ex">One `write` action → 1 job → 3 stages → N tasks per stage.</td></tr>
+<tr><td class="kw">Lazy Evaluation</td><td class="sec"><span class="pill">Spark Internals</span></td><td>Transformations build a plan; work runs only on actions.</td><td class="ex">Many `filter`/`select` calls do nothing until `show()` or `write`.</td></tr>
+<tr><td class="kw">Lineage</td><td class="sec"><span class="pill">Spark Internals</span></td><td>Graph of transformations needed to recompute an RDD/DataFrame partition.</td><td class="ex">Lose executor → recompute lost partitions from source + lineage.</td></tr>
+<tr><td class="kw">Memory Management</td><td class="sec"><span class="pill">Spark Internals</span></td><td>Spark splits executor memory among execution (shuffles/joins), storage (cache), and user/overhead.</td><td class="ex">Unified memory region shared by execution and storage (post Spark 1.6).</td></tr>
+<tr><td class="kw">Serialization (Java/Kryo)</td><td class="sec"><span class="pill">Spark Internals</span></td><td>Convert objects to bytes for shuffle/cache/network. Kryo is faster/smaller than Java serializer when registered.</td><td class="ex">`spark.serializer=org.apache.spark.serializer.KryoSerializer` + register classes.</td></tr>
+<tr><td class="kw">Shuffle</td><td class="sec"><span class="pill">Spark Internals</span></td><td>Redistribute data across partitions by key (network + sort/hash).</td><td class="ex">`groupBy`, `join`, `repartition`, `distinct` often shuffle.</td></tr>
+<tr><td class="kw">Skew Join Optimization</td><td class="sec"><span class="pill">Spark Internals</span></td><td>Detect hot keys and split/handle them separately (AQE skew join, salting).</td><td class="ex">One `customer_id` with 40% of rows → AQE splits that partition.</td></tr>
+<tr><td class="kw">Spill to Disk</td><td class="sec"><span class="pill">Spark Internals</span></td><td>When memory is insufficient, intermediate data is written to local disk.</td><td class="ex">Large sort-merge join spills during sort.</td></tr>
+<tr><td class="kw">Task Scheduler</td><td class="sec"><span class="pill">Spark Internals</span></td><td>Assigns individual tasks to executors (resource offers from cluster manager).</td><td class="ex">Prefer `PROCESS_LOCAL` / `NODE_LOCAL` tasks when data is cached on that executor.</td></tr>
+<tr><td class="kw">Tungsten Engine</td><td class="sec"><span class="pill">Spark Internals</span></td><td>Execution layer: off-heap/cache-aware memory, whole-stage codegen, binary processing.</td><td class="ex">Whole-stage codegen fuses operators into Java bytecode.</td></tr>
+<tr><td class="kw">Wide vs Narrow Transformations</td><td class="sec"><span class="pill">Spark Internals</span></td><td>- **Narrow:** each input partition maps to ≤1 output partition (`map`, `filter`) — no shuffle - **Wide:** input partitions contribute to many outputs (`groupByKey`, `join`) — shuffle</td><td class="ex">`filter` narrow; `reduceByKey` wide.</td></tr>
+<tr><td class="kw">Worker</td><td class="sec"><span class="pill">Spark Internals</span></td><td>Cluster node process (e.g., Spark standalone worker) that hosts executors.</td><td class="ex">One worker machine runs multiple executors.</td></tr>
+<tr><td class="kw">At Least Once</td><td class="sec"><span class="pill">Streaming</span></td><td>Every record processed ≥1 time; duplicates possible on retry.</td><td class="ex">Restart after crash reprocesses last uncommitted batch.</td></tr>
+<tr><td class="kw">At Most Once</td><td class="sec"><span class="pill">Streaming</span></td><td>Process ≤1 time; may lose data on failure.</td><td class="ex">Fire metrics where loss is acceptable.</td></tr>
+<tr><td class="kw">CQRS</td><td class="sec"><span class="pill">Streaming</span></td><td>Command Query Responsibility Segregation — separate write model from read model(s).</td><td class="ex">Write orders to OLTP; project read-optimized order search index.</td></tr>
+<tr><td class="kw">Event Sourcing</td><td class="sec"><span class="pill">Streaming</span></td><td>Persist state as an append-only sequence of events; rebuild state by replay.</td><td class="ex">`OrderPlaced`, `ItemAdded`, `OrderShipped` rebuild current order.</td></tr>
+<tr><td class="kw">Event Time</td><td class="sec"><span class="pill">Streaming</span></td><td>Timestamp when the event actually occurred in the real world.</td><td class="ex">Click happened at 10:00; arrived at 10:07 → event time = 10:00.</td></tr>
+<tr><td class="kw">Exactly Once</td><td class="sec"><span class="pill">Streaming</span></td><td>Effect of each record applied once end-to-end (despite retries).</td><td class="ex">Kafka → Flink → transactional sink / idempotent sink with checkpoints.</td></tr>
+<tr><td class="kw">Ingestion Time</td><td class="sec"><span class="pill">Streaming</span></td><td>Time when the event enters the streaming system.</td><td class="ex">Kafka timestamp at produce/consume (depending on config).</td></tr>
+<tr><td class="kw">Late Data</td><td class="sec"><span class="pill">Streaming</span></td><td>Events arriving after the watermark/window allowed them.</td><td class="ex">Event time 10:01 arrives at 10:25 with 5-min watermark — late.</td></tr>
+<tr><td class="kw">Processing Time</td><td class="sec"><span class="pill">Streaming</span></td><td>Time on the machine when the event is processed.</td><td class="ex">Same click processed at 10:07 → processing-time window uses 10:07.</td></tr>
+<tr><td class="kw">Stateful Processing</td><td class="sec"><span class="pill">Streaming</span></td><td>Operators keep state across events (windows, joins, dedupe).</td><td class="ex">Running count per user; stream-stream join.</td></tr>
+<tr><td class="kw">Stateless Processing</td><td class="sec"><span class="pill">Streaming</span></td><td>Each event handled independently; no cross-event state.</td><td class="ex">Map parse JSON → enrich from broadcast config → filter.</td></tr>
+<tr><td class="kw">Watermarks</td><td class="sec"><span class="pill">Streaming</span></td><td>Engine&#x27;s notion of how far event time has advanced; used to close windows.</td><td class="ex">Watermark = max_event_time - 10 minutes → close hour window when watermark passes end + grace.</td></tr>
+<tr><td class="kw">Windowing</td><td class="sec"><span class="pill">Streaming</span></td><td>Group stream events into finite buckets: tumbling, sliding, session.</td><td class="ex">Tumbling 5-min count of orders; session window by user inactivity gap.</td></tr>
+<tr><td class="kw">dbt Model</td><td class="sec"><span class="pill">dbt</span></td><td>A versioned SQL (or Python) select statement materialized as a table/view in the warehouse.</td><td class="ex">`models/marts/fct_orders.sql` builds from staging models.</td></tr>
+<tr><td class="kw">Documentation / Docs Site</td><td class="sec"><span class="pill">dbt</span></td><td>YAML descriptions + `dbt docs generate` catalog of models/columns.</td><td class="ex">Column description for `gross_revenue` definition.</td></tr>
+<tr><td class="kw">Exposures</td><td class="sec"><span class="pill">dbt</span></td><td>Declared downstream uses (dashboards, ML jobs) that depend on models.</td><td class="ex">Exposure `finance_arr_dashboard` depends on `fct_subscriptions`.</td></tr>
+<tr><td class="kw">Incremental Model</td><td class="sec"><span class="pill">dbt</span></td><td>Only process new/changed rows each run instead of full rebuild.</td><td class="ex">`where updated_at &gt; (select max(updated_at) from {{ this }})`</td></tr>
+<tr><td class="kw">Materialization</td><td class="sec"><span class="pill">dbt</span></td><td>How dbt builds a model: view, table, incremental, ephemeral.</td><td class="ex">`{{ config(materialized=&#x27;incremental&#x27;, unique_key=&#x27;order_id&#x27;) }}`</td></tr>
+<tr><td class="kw">ref()</td><td class="sec"><span class="pill">dbt</span></td><td>dbt function linking models so the DAG and schema names resolve correctly.</td><td class="ex">`select * from {{ ref(&#x27;stg_orders&#x27;) }}`</td></tr>
+<tr><td class="kw">Seeds</td><td class="sec"><span class="pill">dbt</span></td><td>CSV files checked into the repo and loaded as tables.</td><td class="ex">`seeds/country_codes.csv` → `ref(&#x27;country_codes&#x27;)`.</td></tr>
+<tr><td class="kw">Slim CI / State Defer</td><td class="sec"><span class="pill">dbt</span></td><td>Run/test only modified models (and downstream) using prior manifest state.</td><td class="ex">`dbt test --select state:modified+` with defer to prod.</td></tr>
+<tr><td class="kw">Sources</td><td class="sec"><span class="pill">dbt</span></td><td>Declared raw upstream tables dbt reads but does not own.</td><td class="ex">`sources.yml` → `{{ source(&#x27;stripe&#x27;, &#x27;payments&#x27;) }}`</td></tr>
+<tr><td class="kw">Tests (dbt)</td><td class="sec"><span class="pill">dbt</span></td><td>Assertions on models/columns: unique, not_null, accepted_values, relationships, custom.</td><td class="ex">`unique` + `not_null` on `order_id`; relationship to `dim_customers`.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+<script>
+const q = document.getElementById('q');
+const sec = document.getElementById('sec');
+const shown = document.getElementById('shown');
+const rows = [...document.querySelectorAll('#tbody tr')];
+function filter() {
+  const term = q.value.trim().toLowerCase();
+  const section = sec.value;
+  let n = 0;
+  for (const row of rows) {
+    const text = row.innerText.toLowerCase();
+    const okTerm = !term || text.includes(term);
+    const okSec = !section || row.querySelector('.pill').textContent === section;
+    const show = okTerm && okSec;
+    row.style.display = show ? '' : 'none';
+    if (show) n++;
+  }
+  shown.textContent = String(n);
+}
+q.addEventListener('input', filter);
+sec.addEventListener('change', filter);
+</script>
+</body>
+</html>
