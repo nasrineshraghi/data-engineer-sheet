@@ -17,10 +17,14 @@ A practical glossary of techniques, keywords, and concepts every data engineer s
 
 Also: **streak** counter, deep links `?tag=kafka` · `?mode=quiz` · `?mode=scenarios`
 
-### GitHub Pages
+### GitHub Pages (one bookmark)
 
-1. Settings → Pages → Source: **GitHub Actions**
-2. Bookmark: `https://nasrineshraghi.github.io/data-engineer-sheet/`
+1. Repo → **Settings** → **Pages**
+2. **Build and deployment** → Source: **Deploy from a branch**
+3. Branch: **`main`** · Folder: **`/docs`** → **Save**
+4. After a minute, open: `https://nasrineshraghi.github.io/data-engineer-sheet/`
+
+(You can ignore old failed “Deploy GitHub Pages” Action runs — that workflow was removed.)
 
 ## How to use
 
