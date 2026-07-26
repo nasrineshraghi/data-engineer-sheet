@@ -5868,5 +5868,510 @@
       "healthcare",
       "quality"
     ]
+  },
+  {
+    "name": "REST API",
+    "category": "APIs for Data Engineers",
+    "categorySlug": "19-api",
+    "file": "19-api/concepts.md",
+    "definition": "HTTP API that manipulates resources with methods like GET, POST, PUT/PATCH, DELETE and status codes.",
+    "why": "Most SaaS extracts and internal services speak REST; pipelines are HTTP clients first.",
+    "example": "`GET /v1/orders?updated_since=2024-01-01` \u2192 JSON list of orders.",
+    "remember": [
+      "Idempotent methods: GET, PUT, DELETE (when designed correctly)",
+      "2xx success, 4xx your fault, 5xx retry carefully"
+    ],
+    "mustKnow": null,
+    "snippet": "GET /v1/orders?updated_since=2024-01-01 HTTP/1.1\nHost: api.example.com\nAuthorization: Bearer <token>",
+    "related": [
+      "Endpoint / Resource",
+      "Status Codes",
+      "Pagination"
+    ],
+    "symptom": "Pipeline treats every non-200 as fatal and never retries 503s.",
+    "tags": [
+      "api",
+      "pipeline"
+    ]
+  },
+  {
+    "name": "Endpoint / Resource",
+    "category": "APIs for Data Engineers",
+    "categorySlug": "19-api",
+    "file": "19-api/concepts.md",
+    "definition": "A URL path that represents a collection or item (`/customers`, `/customers/{id}`).",
+    "why": "Your extract grain and join keys usually follow resource design.",
+    "example": "`/patients/{id}/labs` returns lab results for one patient.",
+    "remember": [
+      "Path params identify; query params filter/sort/page",
+      "Stable resource IDs beat fuzzy name matches"
+    ],
+    "mustKnow": null,
+    "snippet": "GET /customers/{id}\nGET /customers/{id}/orders?limit=100",
+    "related": [
+      "REST API",
+      "Pagination"
+    ],
+    "symptom": "Join keys missing because extract used display names instead of resource ids.",
+    "tags": [
+      "api",
+      "pipeline"
+    ]
+  },
+  {
+    "name": "Request / Response",
+    "category": "APIs for Data Engineers",
+    "categorySlug": "19-api",
+    "file": "19-api/concepts.md",
+    "definition": "Client sends a request (method, URL, headers, body); server returns a response (status, headers, body).",
+    "why": "Logging only the body loses status and rate-limit headers you need to debug.",
+    "example": "Request `Authorization: Bearer \u2026` \u2192 Response `200` + JSON payload.",
+    "remember": [
+      "Capture status, latency, and `Retry-After`",
+      "Never log secrets (tokens, API keys)"
+    ],
+    "mustKnow": null,
+    "snippet": "# log status + headers, not only body\nstatus, retry_after = resp.status_code, resp.headers.get(\"Retry-After\")",
+    "related": [
+      "Status Codes",
+      "Rate Limiting"
+    ],
+    "symptom": "On-call can't tell timeout from 401 because only payloads were saved.",
+    "tags": [
+      "api",
+      "pipeline"
+    ]
+  },
+  {
+    "name": "JSON / Payload Schema",
+    "category": "APIs for Data Engineers",
+    "categorySlug": "19-api",
+    "file": "19-api/concepts.md",
+    "definition": "Structured body format (usually JSON) with an agreed shape for fields and types.",
+    "why": "Schema drift breaks pipelines; optional fields become required without notice.",
+    "example": "`{ \"order_id\": \"O-1\", \"total_cents\": 1999, \"currency\": \"USD\" }`",
+    "remember": [
+      "Version fields or use a schema registry/contract",
+      "Prefer explicit nulls over omitting keys inconsistently"
+    ],
+    "mustKnow": null,
+    "snippet": "{\n  \"order_id\": \"O-1\",\n  \"total_cents\": 1999,\n  \"currency\": \"USD\"\n}",
+    "related": [
+      "API Contract / OpenAPI",
+      "Versioning"
+    ],
+    "symptom": "Field renamed from total to total_cents; warehouse silently nulls revenue.",
+    "tags": [
+      "api",
+      "pipeline"
+    ]
+  },
+  {
+    "name": "Status Codes",
+    "category": "APIs for Data Engineers",
+    "categorySlug": "19-api",
+    "file": "19-api/concepts.md",
+    "definition": "Numeric HTTP outcomes: 2xx OK, 3xx redirect, 4xx client error, 5xx server error.",
+    "why": "Retry logic must distinguish \u201cbad request\u201d from \u201ctry again.\u201d",
+    "example": "`429 Too Many Requests` \u2192 back off; `401` \u2192 refresh auth, don\u2019t hammer.",
+    "remember": [
+      "Don\u2019t retry 400/401/403/404 blindly",
+      "409 conflict often needs upsert/merge semantics"
+    ],
+    "mustKnow": null,
+    "snippet": "# retry policy sketch\nif status in (429, 500, 502, 503, 504): backoff()\nelif status in (400, 401, 403, 404): fail_no_retry()",
+    "related": [
+      "Timeout / Retry / Backoff",
+      "Rate Limiting"
+    ],
+    "symptom": "Job retries 400 Bad Request 50 times and burns the quota.",
+    "tags": [
+      "api",
+      "pipeline"
+    ]
+  },
+  {
+    "name": "Authentication vs Authorization",
+    "category": "APIs for Data Engineers",
+    "categorySlug": "19-api",
+    "file": "19-api/concepts.md",
+    "definition": "Authentication = who you are; authorization = what you\u2019re allowed to do.",
+    "why": "A valid token can still lack scope to read the dataset you need.",
+    "example": "Service authenticates with OAuth client credentials but isn\u2019t authorized for `/admin/exports`.",
+    "remember": [
+      "Check scopes/roles when extracts return empty",
+      "Rotate credentials; store in a secret manager"
+    ],
+    "mustKnow": null,
+    "snippet": "# 401 \u2192 auth; 403 \u2192 authenticated but not allowed\nif resp.status_code == 401: refresh_token()\nelif resp.status_code == 403: raise PermissionError(scope)",
+    "related": [
+      "OAuth 2.0 / Bearer Token",
+      "API Key"
+    ],
+    "symptom": "Token works in Postman personal sandbox but prod service principal lacks scope.",
+    "tags": [
+      "api",
+      "pipeline"
+    ]
+  },
+  {
+    "name": "API Key",
+    "category": "APIs for Data Engineers",
+    "categorySlug": "19-api",
+    "file": "19-api/concepts.md",
+    "definition": "Static secret sent in a header or query param to identify the calling app.",
+    "why": "Simple but easy to leak in logs, notebooks, and git.",
+    "example": "Header `X-API-Key: sk_live_\u2026`",
+    "remember": [
+      "Prefer header over query string (URLs get logged)",
+      "Treat like a password; never commit"
+    ],
+    "mustKnow": null,
+    "snippet": "headers = {\"X-API-Key\": os.environ[\"VENDOR_API_KEY\"]}\n# never: ?api_key=... in committed notebooks",
+    "related": [
+      "Authentication vs Authorization",
+      "OAuth 2.0 / Bearer Token"
+    ],
+    "symptom": "Key leaked in CI logs via verbose HTTP debug.",
+    "tags": [
+      "api",
+      "pipeline"
+    ]
+  },
+  {
+    "name": "OAuth 2.0 / Bearer Token",
+    "category": "APIs for Data Engineers",
+    "categorySlug": "19-api",
+    "file": "19-api/concepts.md",
+    "definition": "Delegated auth where the client gets a short-lived access token (often refreshable).",
+    "why": "Most modern SaaS APIs require token refresh in long-running pipelines.",
+    "example": "Client credentials \u2192 `access_token` \u2192 `Authorization: Bearer <token>`.",
+    "remember": [
+      "Refresh before expiry; handle 401 with one retry",
+      "Cache tokens; don\u2019t request a new one per page"
+    ],
+    "mustKnow": null,
+    "snippet": "POST /oauth/token\ngrant_type=client_credentials&client_id=...&client_secret=...\n# then: Authorization: Bearer <access_token>",
+    "related": [
+      "Authentication vs Authorization",
+      "Timeout / Retry / Backoff"
+    ],
+    "symptom": "Long backfill dies mid-way when access token expires and isn't refreshed.",
+    "tags": [
+      "api",
+      "pipeline"
+    ]
+  },
+  {
+    "name": "Pagination",
+    "category": "APIs for Data Engineers",
+    "categorySlug": "19-api",
+    "file": "19-api/concepts.md",
+    "definition": "Splitting large result sets across pages (offset/limit, cursor/token, or page numbers).",
+    "why": "Full extracts die without pagination; naive offset pages drift under concurrent writes.",
+    "example": "`GET /events?cursor=eyJpZCI6MTAwfQ&limit=500`",
+    "remember": [
+      "Prefer cursor pagination for stable extracts",
+      "Stop when next cursor is null/empty"
+    ],
+    "mustKnow": null,
+    "snippet": "cursor = None\nwhile True:\n    page = get(\"/events\", params={\"cursor\": cursor, \"limit\": 500})\n    write(page[\"data\"])\n    cursor = page.get(\"next_cursor\")\n    if not cursor: break",
+    "related": [
+      "Rate Limiting",
+      "Change Data via API (Incremental Extract)"
+    ],
+    "symptom": "Offset pages skip/dupe rows while source data is actively updating.",
+    "tags": [
+      "api",
+      "pipeline"
+    ]
+  },
+  {
+    "name": "Rate Limiting",
+    "category": "APIs for Data Engineers",
+    "categorySlug": "19-api",
+    "file": "19-api/concepts.md",
+    "definition": "Server caps how many requests you can make per window (per key, IP, or tenant).",
+    "why": "Ignoring limits causes 429s, bans, and incomplete loads.",
+    "example": "100 req/min; response headers `X-RateLimit-Remaining: 0`, `Retry-After: 30`.",
+    "remember": [
+      "Respect `Retry-After`",
+      "Parallelism \u00d7 pages can explode QPS"
+    ],
+    "mustKnow": null,
+    "snippet": "if resp.status_code == 429:\n    sleep(int(resp.headers.get(\"Retry-After\", 60)))\n    retry()",
+    "related": [
+      "Timeout / Retry / Backoff",
+      "SLA / Quotas"
+    ],
+    "symptom": "10 parallel workers \u00d7 50 pages/sec \u2192 IP banned for 24h.",
+    "tags": [
+      "api",
+      "pipeline"
+    ]
+  },
+  {
+    "name": "Idempotency Key",
+    "category": "APIs for Data Engineers",
+    "categorySlug": "19-api",
+    "file": "19-api/concepts.md",
+    "definition": "Client-supplied key so retries of the same write are applied once.",
+    "why": "Network timeouts cause duplicate POSTs without idempotency.",
+    "example": "Header `Idempotency-Key: load-2024-01-01-batch-7` on `POST /charges`.",
+    "remember": [
+      "Critical for payment and webhook-driven writes",
+      "Keys should be deterministic per business event"
+    ],
+    "mustKnow": null,
+    "snippet": "headers = {\n  \"Idempotency-Key\": f\"{pipeline}-{run_id}-{record_id}\"\n}\nPOST /v1/charges",
+    "related": [
+      "Timeout / Retry / Backoff",
+      "Webhook"
+    ],
+    "symptom": "Timeout on POST creates duplicate charges after retry.",
+    "tags": [
+      "api",
+      "pipeline"
+    ]
+  },
+  {
+    "name": "Webhook",
+    "category": "APIs for Data Engineers",
+    "categorySlug": "19-api",
+    "file": "19-api/concepts.md",
+    "definition": "Server pushes an HTTP callback to your URL when an event happens (vs you polling).",
+    "why": "Near-real-time ingest without constant polling cost.",
+    "example": "Stripe sends `POST /hooks/stripe` with `invoice.paid` payload.",
+    "remember": [
+      "Verify signatures; reject unsigned calls",
+      "Make handlers idempotent \u2014 deliveries retry"
+    ],
+    "mustKnow": null,
+    "snippet": "# verify signature, then upsert by event id\nassert hmac_ok(headers, body, secret)\nupsert(event_id=payload[\"id\"], payload=payload)",
+    "related": [
+      "Idempotency Key",
+      "Polling vs Event-Driven"
+    ],
+    "symptom": "Provider retries webhooks; mirror table doubles without event_id dedupe.",
+    "tags": [
+      "api",
+      "pipeline"
+    ]
+  },
+  {
+    "name": "Polling vs Event-Driven",
+    "category": "APIs for Data Engineers",
+    "categorySlug": "19-api",
+    "file": "19-api/concepts.md",
+    "definition": "Polling periodically GETs for changes; event-driven consumes webhooks/streams as events arrive.",
+    "why": "Polling is simple but laggy/expensive; events need reliable endpoints.",
+    "example": "Poll `updated_since` every 5 minutes vs webhook on `order.updated`.",
+    "remember": [
+      "Polling needs a high-water mark",
+      "Combine: webhook + nightly reconcile poll"
+    ],
+    "mustKnow": null,
+    "snippet": "# hybrid\n# 1) webhook \u2192 near real time\n# 2) nightly poll updated_since = watermark - 1h",
+    "related": [
+      "Webhook",
+      "Change Data via API (Incremental Extract)"
+    ],
+    "symptom": "Only webhooks \u2192 missed events during endpoint downtime forever.",
+    "tags": [
+      "api",
+      "pipeline"
+    ]
+  },
+  {
+    "name": "API Contract / OpenAPI",
+    "category": "APIs for Data Engineers",
+    "categorySlug": "19-api",
+    "file": "19-api/concepts.md",
+    "definition": "Documented agreement on paths, params, schemas, and errors (often OpenAPI/Swagger).",
+    "why": "Contracts let you generate clients and catch breaking changes in CI.",
+    "example": "OpenAPI spec declares `Order.total_cents` as integer required.",
+    "remember": [
+      "Consumer-driven checks on staging",
+      "Breaking change = version bump"
+    ],
+    "mustKnow": null,
+    "snippet": "# openapi.yaml excerpt\nOrder:\n  required: [order_id, total_cents]\n  properties:\n    total_cents: { type: integer }",
+    "related": [
+      "JSON / Payload Schema",
+      "Versioning"
+    ],
+    "symptom": "Producer ships breaking JSON; 12 Airflow DAGs fail at 3am.",
+    "tags": [
+      "api",
+      "pipeline"
+    ]
+  },
+  {
+    "name": "Versioning",
+    "category": "APIs for Data Engineers",
+    "categorySlug": "19-api",
+    "file": "19-api/concepts.md",
+    "definition": "Evolving an API without breaking clients (`/v1`, `/v2`, or header versions).",
+    "why": "Unversioned breaking changes silently empty or corrupt warehouses.",
+    "example": "`/v1/orders` keeps old shape while `/v2/orders` renames fields.",
+    "remember": [
+      "Pin version in pipeline config",
+      "Run dual-read during migrations"
+    ],
+    "mustKnow": null,
+    "snippet": "BASE = \"https://api.example.com/v1\"  # pin in config\n# dual run v1+v2 during migration",
+    "related": [
+      "API Contract / OpenAPI",
+      "JSON / Payload Schema"
+    ],
+    "symptom": "Unpinned client floated to v2 and renamed fields overnight.",
+    "tags": [
+      "api",
+      "pipeline"
+    ]
+  },
+  {
+    "name": "Timeout / Retry / Backoff",
+    "category": "APIs for Data Engineers",
+    "categorySlug": "19-api",
+    "file": "19-api/concepts.md",
+    "definition": "Client gives up after N ms; retries failed calls with increasing delay (and jitter).",
+    "why": "Aggressive retries amplify outages; no retries drop data.",
+    "example": "Timeout 30s; retry 5xx/429 with exponential backoff + jitter.",
+    "remember": [
+      "Cap max retries and total time",
+      "Idempotent retries only for safe/write-keyed calls"
+    ],
+    "mustKnow": null,
+    "snippet": "for attempt in range(5):\n    try:\n        return call(timeout=30)\n    except Transient:\n        sleep(min(2**attempt, 60) + jitter())",
+    "related": [
+      "Rate Limiting",
+      "Idempotency Key"
+    ],
+    "symptom": "Immediate retries from 100 workers turn a blip into an outage.",
+    "tags": [
+      "api",
+      "pipeline"
+    ]
+  },
+  {
+    "name": "Synchronous vs Asynchronous API",
+    "category": "APIs for Data Engineers",
+    "categorySlug": "19-api",
+    "file": "19-api/concepts.md",
+    "definition": "Sync returns the final result in one response; async accepts work and returns a job id to poll or webhook later.",
+    "why": "Big exports are often async \u2014 treating them as sync causes timeouts.",
+    "example": "`POST /exports` \u2192 `202` + `job_id` \u2192 poll `/exports/{job_id}` until `download_url`.",
+    "remember": [
+      "Store job ids for recovery",
+      "Don\u2019t block an Airflow worker for hours without deferral"
+    ],
+    "mustKnow": null,
+    "snippet": "job = POST(\"/exports\", {\"from\": date})\nwhile job[\"status\"] != \"done\":\n    job = GET(f\"/exports/{job['id']}\")\ndownload(job[\"url\"])",
+    "related": [
+      "Timeout / Retry / Backoff",
+      "Polling vs Event-Driven"
+    ],
+    "symptom": "Airflow task times out waiting for a 2-hour export in one HTTP call.",
+    "tags": [
+      "api",
+      "pipeline"
+    ]
+  },
+  {
+    "name": "GraphQL (Basics)",
+    "category": "APIs for Data Engineers",
+    "categorySlug": "19-api",
+    "file": "19-api/concepts.md",
+    "definition": "Query language API where the client asks for exact fields in one request (vs many REST round-trips).",
+    "why": "Flexible reads; easy to over-fetch or hit cost/complexity limits.",
+    "example": "Query `{ order(id:\"O-1\") { id total items { sku qty } } }`",
+    "remember": [
+      "Paginate connections explicitly",
+      "Watch rate/cost limits on nested queries"
+    ],
+    "mustKnow": null,
+    "snippet": "query {\n  order(id: \"O-1\") {\n    id total\n    items(first: 50) { sku qty }\n  }\n}",
+    "related": [
+      "Pagination",
+      "Rate Limiting"
+    ],
+    "symptom": "Nested GraphQL extract hits complexity limit and returns partial data.",
+    "tags": [
+      "api",
+      "pipeline"
+    ]
+  },
+  {
+    "name": "gRPC / Protobuf (Basics)",
+    "category": "APIs for Data Engineers",
+    "categorySlug": "19-api",
+    "file": "19-api/concepts.md",
+    "definition": "Binary RPC framework using Protocol Buffers \u2014 common for internal low-latency services.",
+    "why": "Faster than JSON REST inside the datacenter; schemas are strongly typed.",
+    "example": "`GetOrder(OrderRequest) returns (Order)` over HTTP/2.",
+    "remember": [
+      "Need stub generation and proto versioning",
+      "Harder to curl; invest in tooling"
+    ],
+    "mustKnow": null,
+    "snippet": "// order.proto\nrpc GetOrder(OrderRequest) returns (Order);",
+    "related": [
+      "API Contract / OpenAPI",
+      "Versioning"
+    ],
+    "symptom": "Proto field number reused; old consumers read garbage values.",
+    "tags": [
+      "api",
+      "pipeline"
+    ]
+  },
+  {
+    "name": "Change Data via API (Incremental Extract)",
+    "category": "APIs for Data Engineers",
+    "categorySlug": "19-api",
+    "file": "19-api/concepts.md",
+    "definition": "Pull only new/changed rows using cursors, `updated_at` filters, or event APIs.",
+    "why": "Full dumps don\u2019t scale; incremental needs trustworthy watermarks.",
+    "example": "`GET /objects?updated_after={watermark}&sort=updated_at`",
+    "remember": [
+      "Overlap windows to avoid missing late updates",
+      "Periodic full reconcile catches API gaps"
+    ],
+    "mustKnow": null,
+    "snippet": "watermark = state.get(\"updated_at\")\npage = GET(\"/objects\", {\"updated_after\": watermark - overlap})\nstate[\"updated_at\"] = max(row.updated_at)",
+    "related": [
+      "Pagination",
+      "Polling vs Event-Driven"
+    ],
+    "symptom": "Watermark advances past late-updated rows; incremental forever incomplete.",
+    "tags": [
+      "api",
+      "pipeline"
+    ]
+  },
+  {
+    "name": "SLA / Quotas",
+    "category": "APIs for Data Engineers",
+    "categorySlug": "19-api",
+    "file": "19-api/concepts.md",
+    "definition": "Provider promises (latency, uptime) and hard caps (rows/day, concurrent calls).",
+    "why": "Pipeline design must fit quotas or fail mid-load.",
+    "example": "Free tier 10k calls/day; enterprise 100 concurrent connections.",
+    "remember": [
+      "Budget calls per DAG run",
+      "Alert before quota exhaustion"
+    ],
+    "mustKnow": null,
+    "snippet": "# budget: 50k calls/day \u2192 ~30 calls/min sustained\nmax_workers = min(config.workers, quota.safe_concurrency)",
+    "related": [
+      "Rate Limiting",
+      "REST API"
+    ],
+    "symptom": "Monday backfill exhausts monthly quota by noon.",
+    "tags": [
+      "api",
+      "pipeline"
+    ]
   }
 ]

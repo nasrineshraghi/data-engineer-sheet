@@ -4,10 +4,31 @@ One-page cheat sheet: keyword · section · definition · example.
 
 **Prefer the interactive HTML table:** https://nasrineshraghi.github.io/data-engineer-sheet/table.html
 
-**236 concepts** · [Study app](https://nasrineshraghi.github.io/data-engineer-sheet/) · [Local HTML](docs/table.html)
+**257 concepts** · [Study app](https://nasrineshraghi.github.io/data-engineer-sheet/) · [Local HTML](docs/table.html)
 
 | Keyword | Section | Definition | Example |
 |---|---|---|---|
+| **API Contract / OpenAPI** | APIs for Data Engineers | Documented agreement on paths, params, schemas, and errors (often OpenAPI/Swagger). | OpenAPI spec declares `Order.total_cents` as integer required. |
+| **API Key** | APIs for Data Engineers | Static secret sent in a header or query param to identify the calling app. | Header `X-API-Key: sk_live_…` |
+| **Authentication vs Authorization** | APIs for Data Engineers | Authentication = who you are; authorization = what you’re allowed to do. | Service authenticates with OAuth client credentials but isn’t authorized for `/admin/exports`. |
+| **Change Data via API (Incremental Extract)** | APIs for Data Engineers | Pull only new/changed rows using cursors, `updated_at` filters, or event APIs. | `GET /objects?updated_after={watermark}&sort=updated_at` |
+| **Endpoint / Resource** | APIs for Data Engineers | A URL path that represents a collection or item (`/customers`, `/customers/{id}`). | `/patients/{id}/labs` returns lab results for one patient. |
+| **GraphQL (Basics)** | APIs for Data Engineers | Query language API where the client asks for exact fields in one request (vs many REST round-trips). | Query `{ order(id:"O-1") { id total items { sku qty } } }` |
+| **gRPC / Protobuf (Basics)** | APIs for Data Engineers | Binary RPC framework using Protocol Buffers — common for internal low-latency services. | `GetOrder(OrderRequest) returns (Order)` over HTTP/2. |
+| **Idempotency Key** | APIs for Data Engineers | Client-supplied key so retries of the same write are applied once. | Header `Idempotency-Key: load-2024-01-01-batch-7` on `POST /charges`. |
+| **JSON / Payload Schema** | APIs for Data Engineers | Structured body format (usually JSON) with an agreed shape for fields and types. | `{ "order_id": "O-1", "total_cents": 1999, "currency": "USD" }` |
+| **OAuth 2.0 / Bearer Token** | APIs for Data Engineers | Delegated auth where the client gets a short-lived access token (often refreshable). | Client credentials → `access_token` → `Authorization: Bearer <token>`. |
+| **Pagination** | APIs for Data Engineers | Splitting large result sets across pages (offset/limit, cursor/token, or page numbers). | `GET /events?cursor=eyJpZCI6MTAwfQ&limit=500` |
+| **Polling vs Event-Driven** | APIs for Data Engineers | Polling periodically GETs for changes; event-driven consumes webhooks/streams as events arrive. | Poll `updated_since` every 5 minutes vs webhook on `order.updated`. |
+| **Rate Limiting** | APIs for Data Engineers | Server caps how many requests you can make per window (per key, IP, or tenant). | 100 req/min; response headers `X-RateLimit-Remaining: 0`, `Retry-After: 30`. |
+| **Request / Response** | APIs for Data Engineers | Client sends a request (method, URL, headers, body); server returns a response (status, headers, body). | Request `Authorization: Bearer …` → Response `200` + JSON payload. |
+| **REST API** | APIs for Data Engineers | HTTP API that manipulates resources with methods like GET, POST, PUT/PATCH, DELETE and status codes. | `GET /v1/orders?updated_since=2024-01-01` → JSON list of orders. |
+| **SLA / Quotas** | APIs for Data Engineers | Provider promises (latency, uptime) and hard caps (rows/day, concurrent calls). | Free tier 10k calls/day; enterprise 100 concurrent connections. |
+| **Status Codes** | APIs for Data Engineers | Numeric HTTP outcomes: 2xx OK, 3xx redirect, 4xx client error, 5xx server error. | `429 Too Many Requests` → back off; `401` → refresh auth, don’t hammer. |
+| **Synchronous vs Asynchronous API** | APIs for Data Engineers | Sync returns the final result in one response; async accepts work and returns a job id to poll or webhook later. | `POST /exports` → `202` + `job_id` → poll `/exports/{job_id}` until `download_url`. |
+| **Timeout / Retry / Backoff** | APIs for Data Engineers | Client gives up after N ms; retries failed calls with increasing delay (and jitter). | Timeout 30s; retry 5xx/429 with exponential backoff + jitter. |
+| **Versioning** | APIs for Data Engineers | Evolving an API without breaking clients (`/v1`, `/v2`, or header versions). | `/v1/orders` keeps old shape while `/v2/orders` renames fields. |
+| **Webhook** | APIs for Data Engineers | Server pushes an HTTP callback to your URL when an event happens (vs you polling). | Stripe sends `POST /hooks/stripe` with `invoice.paid` payload. |
 | **Backfill** | Airflow | Intentionally run a DAG for past logical dates. | Backfill last 30 days after fixing a currency join. |
 | **Catchup** | Airflow | Airflow auto-schedules missed past runs between start_date and now. | Deploy DAG with old `start_date` and `catchup=True` → hundreds of runs. |
 | **DAG** | Airflow | Directed Acyclic Graph of tasks with dependencies — Airflow’s unit of workflow. | `extract >> transform >> test >> publish`. |

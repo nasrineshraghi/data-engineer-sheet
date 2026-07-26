@@ -2189,5 +2189,237 @@
       "clinical",
       "quality"
     ]
+  },
+  "REST API": {
+    "snippet": "GET /v1/orders?updated_since=2024-01-01 HTTP/1.1\nHost: api.example.com\nAuthorization: Bearer <token>",
+    "related": [
+      "Endpoint / Resource",
+      "Status Codes",
+      "Pagination"
+    ],
+    "symptom": "Pipeline treats every non-200 as fatal and never retries 503s.",
+    "tags": [
+      "api"
+    ]
+  },
+  "Endpoint / Resource": {
+    "snippet": "GET /customers/{id}\nGET /customers/{id}/orders?limit=100",
+    "related": [
+      "REST API",
+      "Pagination"
+    ],
+    "symptom": "Join keys missing because extract used display names instead of resource ids.",
+    "tags": [
+      "api"
+    ]
+  },
+  "Request / Response": {
+    "snippet": "# log status + headers, not only body\nstatus, retry_after = resp.status_code, resp.headers.get(\"Retry-After\")",
+    "related": [
+      "Status Codes",
+      "Rate Limiting"
+    ],
+    "symptom": "On-call can't tell timeout from 401 because only payloads were saved.",
+    "tags": [
+      "api"
+    ]
+  },
+  "JSON / Payload Schema": {
+    "snippet": "{\n  \"order_id\": \"O-1\",\n  \"total_cents\": 1999,\n  \"currency\": \"USD\"\n}",
+    "related": [
+      "API Contract / OpenAPI",
+      "Versioning"
+    ],
+    "symptom": "Field renamed from total to total_cents; warehouse silently nulls revenue.",
+    "tags": [
+      "api"
+    ]
+  },
+  "Status Codes": {
+    "snippet": "# retry policy sketch\nif status in (429, 500, 502, 503, 504): backoff()\nelif status in (400, 401, 403, 404): fail_no_retry()",
+    "related": [
+      "Timeout / Retry / Backoff",
+      "Rate Limiting"
+    ],
+    "symptom": "Job retries 400 Bad Request 50 times and burns the quota.",
+    "tags": [
+      "api"
+    ]
+  },
+  "Authentication vs Authorization": {
+    "snippet": "# 401 \u2192 auth; 403 \u2192 authenticated but not allowed\nif resp.status_code == 401: refresh_token()\nelif resp.status_code == 403: raise PermissionError(scope)",
+    "related": [
+      "OAuth 2.0 / Bearer Token",
+      "API Key"
+    ],
+    "symptom": "Token works in Postman personal sandbox but prod service principal lacks scope.",
+    "tags": [
+      "api"
+    ]
+  },
+  "API Key": {
+    "snippet": "headers = {\"X-API-Key\": os.environ[\"VENDOR_API_KEY\"]}\n# never: ?api_key=... in committed notebooks",
+    "related": [
+      "Authentication vs Authorization",
+      "OAuth 2.0 / Bearer Token"
+    ],
+    "symptom": "Key leaked in CI logs via verbose HTTP debug.",
+    "tags": [
+      "api"
+    ]
+  },
+  "OAuth 2.0 / Bearer Token": {
+    "snippet": "POST /oauth/token\ngrant_type=client_credentials&client_id=...&client_secret=...\n# then: Authorization: Bearer <access_token>",
+    "related": [
+      "Authentication vs Authorization",
+      "Timeout / Retry / Backoff"
+    ],
+    "symptom": "Long backfill dies mid-way when access token expires and isn't refreshed.",
+    "tags": [
+      "api"
+    ]
+  },
+  "Pagination": {
+    "snippet": "cursor = None\nwhile True:\n    page = get(\"/events\", params={\"cursor\": cursor, \"limit\": 500})\n    write(page[\"data\"])\n    cursor = page.get(\"next_cursor\")\n    if not cursor: break",
+    "related": [
+      "Rate Limiting",
+      "Change Data via API (Incremental Extract)"
+    ],
+    "symptom": "Offset pages skip/dupe rows while source data is actively updating.",
+    "tags": [
+      "api"
+    ]
+  },
+  "Rate Limiting": {
+    "snippet": "if resp.status_code == 429:\n    sleep(int(resp.headers.get(\"Retry-After\", 60)))\n    retry()",
+    "related": [
+      "Timeout / Retry / Backoff",
+      "SLA / Quotas"
+    ],
+    "symptom": "10 parallel workers \u00d7 50 pages/sec \u2192 IP banned for 24h.",
+    "tags": [
+      "api"
+    ]
+  },
+  "Idempotency Key": {
+    "snippet": "headers = {\n  \"Idempotency-Key\": f\"{pipeline}-{run_id}-{record_id}\"\n}\nPOST /v1/charges",
+    "related": [
+      "Timeout / Retry / Backoff",
+      "Webhook"
+    ],
+    "symptom": "Timeout on POST creates duplicate charges after retry.",
+    "tags": [
+      "api"
+    ]
+  },
+  "Webhook": {
+    "snippet": "# verify signature, then upsert by event id\nassert hmac_ok(headers, body, secret)\nupsert(event_id=payload[\"id\"], payload=payload)",
+    "related": [
+      "Idempotency Key",
+      "Polling vs Event-Driven"
+    ],
+    "symptom": "Provider retries webhooks; mirror table doubles without event_id dedupe.",
+    "tags": [
+      "api"
+    ]
+  },
+  "Polling vs Event-Driven": {
+    "snippet": "# hybrid\n# 1) webhook \u2192 near real time\n# 2) nightly poll updated_since = watermark - 1h",
+    "related": [
+      "Webhook",
+      "Change Data via API (Incremental Extract)"
+    ],
+    "symptom": "Only webhooks \u2192 missed events during endpoint downtime forever.",
+    "tags": [
+      "api"
+    ]
+  },
+  "API Contract / OpenAPI": {
+    "snippet": "# openapi.yaml excerpt\nOrder:\n  required: [order_id, total_cents]\n  properties:\n    total_cents: { type: integer }",
+    "related": [
+      "JSON / Payload Schema",
+      "Versioning"
+    ],
+    "symptom": "Producer ships breaking JSON; 12 Airflow DAGs fail at 3am.",
+    "tags": [
+      "api"
+    ]
+  },
+  "Versioning": {
+    "snippet": "BASE = \"https://api.example.com/v1\"  # pin in config\n# dual run v1+v2 during migration",
+    "related": [
+      "API Contract / OpenAPI",
+      "JSON / Payload Schema"
+    ],
+    "symptom": "Unpinned client floated to v2 and renamed fields overnight.",
+    "tags": [
+      "api"
+    ]
+  },
+  "Timeout / Retry / Backoff": {
+    "snippet": "for attempt in range(5):\n    try:\n        return call(timeout=30)\n    except Transient:\n        sleep(min(2**attempt, 60) + jitter())",
+    "related": [
+      "Rate Limiting",
+      "Idempotency Key"
+    ],
+    "symptom": "Immediate retries from 100 workers turn a blip into an outage.",
+    "tags": [
+      "api"
+    ]
+  },
+  "Synchronous vs Asynchronous API": {
+    "snippet": "job = POST(\"/exports\", {\"from\": date})\nwhile job[\"status\"] != \"done\":\n    job = GET(f\"/exports/{job['id']}\")\ndownload(job[\"url\"])",
+    "related": [
+      "Timeout / Retry / Backoff",
+      "Polling vs Event-Driven"
+    ],
+    "symptom": "Airflow task times out waiting for a 2-hour export in one HTTP call.",
+    "tags": [
+      "api"
+    ]
+  },
+  "GraphQL (Basics)": {
+    "snippet": "query {\n  order(id: \"O-1\") {\n    id total\n    items(first: 50) { sku qty }\n  }\n}",
+    "related": [
+      "Pagination",
+      "Rate Limiting"
+    ],
+    "symptom": "Nested GraphQL extract hits complexity limit and returns partial data.",
+    "tags": [
+      "api"
+    ]
+  },
+  "gRPC / Protobuf (Basics)": {
+    "snippet": "// order.proto\nrpc GetOrder(OrderRequest) returns (Order);",
+    "related": [
+      "API Contract / OpenAPI",
+      "Versioning"
+    ],
+    "symptom": "Proto field number reused; old consumers read garbage values.",
+    "tags": [
+      "api"
+    ]
+  },
+  "Change Data via API (Incremental Extract)": {
+    "snippet": "watermark = state.get(\"updated_at\")\npage = GET(\"/objects\", {\"updated_after\": watermark - overlap})\nstate[\"updated_at\"] = max(row.updated_at)",
+    "related": [
+      "Pagination",
+      "Polling vs Event-Driven"
+    ],
+    "symptom": "Watermark advances past late-updated rows; incremental forever incomplete.",
+    "tags": [
+      "api"
+    ]
+  },
+  "SLA / Quotas": {
+    "snippet": "# budget: 50k calls/day \u2192 ~30 calls/min sustained\nmax_workers = min(config.workers, quota.safe_concurrency)",
+    "related": [
+      "Rate Limiting",
+      "REST API"
+    ],
+    "symptom": "Monday backfill exhausts monthly quota by noon.",
+    "tags": [
+      "api"
+    ]
   }
 }

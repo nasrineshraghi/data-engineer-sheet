@@ -152,5 +152,27 @@
       "LOINC"
     ],
     "habit": "Same LOINC with mixed units is not one series."
+  },
+  {
+    "id": "api-429-storm",
+    "see": "SaaS extract fails with 429s or incomplete pages",
+    "do": "Respect Retry-After, lower concurrency, use cursor pagination, and budget calls against quotas.",
+    "concepts": [
+      "Rate Limiting",
+      "Pagination",
+      "Timeout / Retry / Backoff"
+    ],
+    "habit": "Throughput is limited by the API, not your cluster size."
+  },
+  {
+    "id": "webhook-dupes",
+    "see": "Webhook-fed table has duplicate events after provider retries",
+    "do": "Upsert on event id, verify signatures, and run a nightly reconcile poll.",
+    "concepts": [
+      "Webhook",
+      "Idempotency Key",
+      "Polling vs Event-Driven"
+    ],
+    "habit": "At-least-once delivery needs idempotent handlers."
   }
 ]

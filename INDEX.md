@@ -14,8 +14,11 @@ Jump to the category file for definition + example.
 | Additive Facts | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
 | Apache Hudi | [Data Lake & Lakehouse](04-data-lake-lakehouse/concepts.md) |
 | Apache Iceberg | [Data Lake & Lakehouse](04-data-lake-lakehouse/concepts.md) |
+| API Contract / OpenAPI | [APIs for Data Engineers](19-api/concepts.md) |
+| API Key | [APIs for Data Engineers](19-api/concepts.md) |
 | At Least Once | [Streaming](06-streaming/concepts.md) |
 | At Most Once | [Streaming](06-streaming/concepts.md) |
+| Authentication vs Authorization | [APIs for Data Engineers](19-api/concepts.md) |
 | Autoscaling / Autosuspend | [Cost Optimization](16-cost-optimization/concepts.md) |
 | B-Tree Index | [Database & SQL Concepts](01-database-sql/concepts.md) |
 | Backfill | [Airflow](15-airflow/concepts.md) |
@@ -33,6 +36,7 @@ Jump to the category file for definition + example.
 | Catalyst Optimizer | [Spark Internals](02-spark-internals/concepts.md) |
 | Catchup | [Airflow](15-airflow/concepts.md) |
 | Change Data Capture (CDC) | [CDC & SCD](12-cdc-scd/concepts.md) |
+| Change Data via API (Incremental Extract) | [APIs for Data Engineers](19-api/concepts.md) |
 | Checkpointing | [Pipeline Design](07-pipeline-design/concepts.md) |
 | CI/CD | [DevOps for Data](11-devops/concepts.md) |
 | Circuit Breaker | [Pipeline Design](07-pipeline-design/concepts.md) |
@@ -82,6 +86,7 @@ Jump to the category file for definition + example.
 | Encounter / Visit Context | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Encryption at Rest | [Cloud & Storage](10-cloud-storage/concepts.md) |
 | Encryption in Transit | [Cloud & Storage](10-cloud-storage/concepts.md) |
+| Endpoint / Resource | [APIs for Data Engineers](19-api/concepts.md) |
 | Event Sourcing | [Streaming](06-streaming/concepts.md) |
 | Event Time | [Streaming](06-streaming/concepts.md) |
 | Eventual Consistency | [Distributed Systems](05-distributed-systems/concepts.md) |
@@ -101,6 +106,8 @@ Jump to the category file for definition + example.
 | Grain | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
 | Granularity | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
 | Granularity (Grain) | [Database & SQL Concepts](01-database-sql/concepts.md) |
+| GraphQL (Basics) | [APIs for Data Engineers](19-api/concepts.md) |
+| gRPC / Protobuf (Basics) | [APIs for Data Engineers](19-api/concepts.md) |
 | Hash Join | [Performance Tuning](08-performance-tuning/concepts.md) |
 | Helm | [DevOps for Data](11-devops/concepts.md) |
 | High Availability (HA) | [Distributed Systems](05-distributed-systems/concepts.md) |
@@ -108,12 +115,14 @@ Jump to the category file for definition + example.
 | Horizontal Scaling | [Distributed Systems](05-distributed-systems/concepts.md) |
 | IAM | [Cloud & Storage](10-cloud-storage/concepts.md) |
 | Idempotency | [Pipeline Design](07-pipeline-design/concepts.md) |
+| Idempotency Key | [APIs for Data Engineers](19-api/concepts.md) |
 | Incremental Model | [dbt](13-dbt/concepts.md) |
 | Incremental vs Full Refresh | [Cost Optimization](16-cost-optimization/concepts.md) |
 | Infrastructure as Code (IaC) | [DevOps for Data](11-devops/concepts.md) |
 | Ingestion Time | [Streaming](06-streaming/concepts.md) |
 | ISR (In-Sync Replicas) | [Kafka](14-kafka/concepts.md) |
 | Job → Stage → Task | [Spark Internals](02-spark-internals/concepts.md) |
+| JSON / Payload Schema | [APIs for Data Engineers](19-api/concepts.md) |
 | Junk Dimension | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
 | KMS | [Cloud & Storage](10-cloud-storage/concepts.md) |
 | Kubernetes | [DevOps for Data](11-devops/concepts.md) |
@@ -140,11 +149,13 @@ Jump to the category file for definition + example.
 | Natural Key | [CDC & SCD](12-cdc-scd/concepts.md) |
 | NDC (National Drug Code) | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Non-Additive Facts | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
+| OAuth 2.0 / Bearer Token | [APIs for Data Engineers](19-api/concepts.md) |
 | Object Storage | [Cloud & Storage](10-cloud-storage/concepts.md) |
 | Observability | [Data Quality & Governance](09-data-quality-governance/concepts.md) |
 | Offset | [Kafka](14-kafka/concepts.md) |
 | Optimize | [Data Lake & Lakehouse](04-data-lake-lakehouse/concepts.md) |
 | Order → Dispense → Administration Chain | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
+| Pagination | [APIs for Data Engineers](19-api/concepts.md) |
 | Panel vs Analyte | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Parallelism | [Performance Tuning](08-performance-tuning/concepts.md) |
 | Partition | [Kafka](14-kafka/concepts.md) |
@@ -155,6 +166,7 @@ Jump to the category file for definition + example.
 | Persistence Levels | [Performance Tuning](08-performance-tuning/concepts.md) |
 | PHI in Meds & Labs | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Pipeline Orchestration | [Pipeline Design](07-pipeline-design/concepts.md) |
+| Polling vs Event-Driven | [APIs for Data Engineers](19-api/concepts.md) |
 | Pool / Slot | [Airflow](15-airflow/concepts.md) |
 | Predicate Pushdown | [Database & SQL Concepts](01-database-sql/concepts.md) |
 | Private Endpoints | [Cloud & Storage](10-cloud-storage/concepts.md) |
@@ -164,10 +176,13 @@ Jump to the category file for definition + example.
 | Query Profile | [Snowflake](17-snowflake/concepts.md) |
 | Query-Based CDC | [CDC & SCD](12-cdc-scd/concepts.md) |
 | Raft | [Distributed Systems](05-distributed-systems/concepts.md) |
+| Rate Limiting | [APIs for Data Engineers](19-api/concepts.md) |
 | ref() | [dbt](13-dbt/concepts.md) |
 | Reference Range | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Replication | [Distributed Systems](05-distributed-systems/concepts.md) |
 | Replication Factor | [Kafka](14-kafka/concepts.md) |
+| Request / Response | [APIs for Data Engineers](19-api/concepts.md) |
+| REST API | [APIs for Data Engineers](19-api/concepts.md) |
 | Result Cache | [Snowflake](17-snowflake/concepts.md) |
 | Result Caching | [Cost Optimization](16-cost-optimization/concepts.md) |
 | Retry Strategy | [Pipeline Design](07-pipeline-design/concepts.md) |
@@ -199,6 +214,7 @@ Jump to the category file for definition + example.
 | Sig / Dose / Route / Frequency | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Skew Join Optimization | [Spark Internals](02-spark-internals/concepts.md) |
 | SLA / Callback | [Airflow](15-airflow/concepts.md) |
+| SLA / Quotas | [APIs for Data Engineers](19-api/concepts.md) |
 | Slim CI / State Defer | [dbt](13-dbt/concepts.md) |
 | Small File Problem | [Performance Tuning](08-performance-tuning/concepts.md) |
 | Snapshot Fact | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
@@ -213,10 +229,12 @@ Jump to the category file for definition + example.
 | Stateful Processing | [Streaming](06-streaming/concepts.md) |
 | Stateless Processing | [Streaming](06-streaming/concepts.md) |
 | Statistics | [Database & SQL Concepts](01-database-sql/concepts.md) |
+| Status Codes | [APIs for Data Engineers](19-api/concepts.md) |
 | Storage Tiering | [Cost Optimization](16-cost-optimization/concepts.md) |
 | Stream (Snowflake) | [Snowflake](17-snowflake/concepts.md) |
 | Strong Consistency | [Distributed Systems](05-distributed-systems/concepts.md) |
 | Surrogate Key | [CDC & SCD](12-cdc-scd/concepts.md) |
+| Synchronous vs Asynchronous API | [APIs for Data Engineers](19-api/concepts.md) |
 | Table Scan vs Index Scan | [Database & SQL Concepts](01-database-sql/concepts.md) |
 | Task | [Snowflake](17-snowflake/concepts.md) |
 | Task / Operator | [Airflow](15-airflow/concepts.md) |
@@ -225,15 +243,18 @@ Jump to the category file for definition + example.
 | Tests (dbt) | [dbt](13-dbt/concepts.md) |
 | Time Travel | [Data Lake & Lakehouse](04-data-lake-lakehouse/concepts.md) |
 | Time Travel (Snowflake) | [Snowflake](17-snowflake/concepts.md) |
+| Timeout / Retry / Backoff | [APIs for Data Engineers](19-api/concepts.md) |
 | Topic | [Kafka](14-kafka/concepts.md) |
 | Tungsten Engine | [Spark Internals](02-spark-internals/concepts.md) |
 | Units of Measure (UCUM) | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Vacuum | [Data Lake & Lakehouse](04-data-lake-lakehouse/concepts.md) |
 | VARIANT | [Snowflake](17-snowflake/concepts.md) |
+| Versioning | [APIs for Data Engineers](19-api/concepts.md) |
 | Vertical Scaling | [Distributed Systems](05-distributed-systems/concepts.md) |
 | Virtual Warehouse | [Snowflake](17-snowflake/concepts.md) |
 | VPC | [Cloud & Storage](10-cloud-storage/concepts.md) |
 | Watermarks | [Streaming](06-streaming/concepts.md) |
+| Webhook | [APIs for Data Engineers](19-api/concepts.md) |
 | Wide vs Narrow Transformations | [Spark Internals](02-spark-internals/concepts.md) |
 | Windowing | [Streaming](06-streaming/concepts.md) |
 | Worker | [Spark Internals](02-spark-internals/concepts.md) |

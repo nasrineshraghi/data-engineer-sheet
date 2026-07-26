@@ -32,6 +32,7 @@ CATEGORIES = [
     ("16-cost-optimization", "Cost Optimization"),
     ("17-snowflake", "Snowflake"),
     ("18-clinical-data", "Clinical Data — Meds & Labs"),
+    ("19-api", "APIs for Data Engineers"),
 ]
 
 
