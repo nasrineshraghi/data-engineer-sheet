@@ -50,23 +50,23 @@
   },
   "Shuffle": {
     "mustKnow": 5,
-    "snippet": "df.groupBy(\"user_id\").count()  # wide transform \u2192 shuffle\n# Spark UI: Shuffle Read/Write bytes",
+    "snippet": "df.groupBy(\"user_id\").count()  # wide transform → shuffle\n# Spark UI: Shuffle Read/Write bytes",
     "related": [
       "Wide vs Narrow Transformations",
-      "Job \u2192 Stage \u2192 Task",
+      "Job → Stage → Task",
       "Data Skew"
     ],
     "symptom": "Stage stuck; network/disk dominated by shuffle."
   },
-  "Job \u2192 Stage \u2192 Task": {
+  "Job → Stage → Task": {
     "mustKnow": 6,
-    "snippet": "# action \u2192 job; shuffle boundary \u2192 stage; partition \u2192 task\ndf.write.parquet(path)  # triggers a job",
+    "snippet": "# action → job; shuffle boundary → stage; partition → task\ndf.write.parquet(path)  # triggers a job",
     "related": [
       "DAG Scheduler",
       "Shuffle",
       "Lazy Evaluation"
     ],
-    "symptom": "Confused debugging \u2014 looking at tasks without finding the slow stage."
+    "symptom": "Confused debugging — looking at tasks without finding the slow stage."
   },
   "Lazy Evaluation": {
     "mustKnow": 7,
@@ -74,7 +74,7 @@
     "related": [
       "Catalyst Optimizer",
       "Lineage",
-      "Job \u2192 Stage \u2192 Task"
+      "Job → Stage → Task"
     ],
     "symptom": "Thinking transforms already ran; surprise cost on first action."
   },
@@ -106,7 +106,7 @@
       "Predicate Pushdown",
       "Cost-Based Optimizer (CBO)"
     ],
-    "symptom": "Python UDF blocks optimizations \u2192 slower than SQL expr."
+    "symptom": "Python UDF blocks optimizations → slower than SQL expr."
   },
   "Broadcast Join": {
     "mustKnow": 11,
@@ -136,7 +136,7 @@
       "Skew Join Optimization",
       "Shuffle"
     ],
-    "symptom": "One task runs 10\u00d7 longer than the rest of the stage."
+    "symptom": "One task runs 10× longer than the rest of the stage."
   },
   "Small File Problem": {
     "mustKnow": 14,
@@ -230,7 +230,7 @@
   },
   "At Least Once": {
     "mustKnow": 23,
-    "snippet": "# retries may re-send \u2014 make sink upsert/idempotent\n# ON CONFLICT (id) DO UPDATE ...",
+    "snippet": "# retries may re-send — make sink upsert/idempotent\n# ON CONFLICT (id) DO UPDATE ...",
     "related": [
       "Exactly Once",
       "Idempotency",
@@ -280,7 +280,7 @@
   },
   "Data Lineage": {
     "mustKnow": 28,
-    "snippet": "# raw.orders \u2192 stg_orders \u2192 fct_orders \u2192 BI KPI\n# track table + column lineage in the catalog",
+    "snippet": "# raw.orders → stg_orders → fct_orders → BI KPI\n# track table + column lineage in the catalog",
     "related": [
       "Metadata",
       "Data Catalog",
@@ -345,7 +345,7 @@
     "symptom": "Selective filters on non-partition columns still scan everything."
   },
   "Circuit Breaker": {
-    "snippet": "# after N failures \u2192 open circuit \u2192 fail fast \u2192 half-open probe",
+    "snippet": "# after N failures → open circuit → fail fast → half-open probe",
     "related": [
       "Retry Strategy",
       "Backoff Strategy",
@@ -561,7 +561,7 @@
     "snippet": "df.explain(True)  # check stages/shuffles",
     "related": [
       "Cluster Manager",
-      "Job \u2192 Stage \u2192 Task",
+      "Job → Stage → Task",
       "DAG Scheduler"
     ],
     "symptom": "Stage time dominated by unexpected work."
@@ -569,7 +569,7 @@
   "Cluster Manager": {
     "snippet": "df.explain(True)  # check stages/shuffles",
     "related": [
-      "Job \u2192 Stage \u2192 Task",
+      "Job → Stage → Task",
       "Lineage",
       "DAG Scheduler"
     ],
@@ -1038,7 +1038,9 @@
     "snippet": "# make reruns safe: upsert / partition overwrite",
     "related": [
       "Metadata-Driven Pipelines",
-      "Idempotency"
+      "Idempotency",
+      "Cron vs Orchestrator",
+      "Cron Expression"
     ],
     "symptom": "Reruns corrupt or duplicate outputs."
   },
@@ -1322,7 +1324,7 @@
     "symptom": "Environment drift between staging and prod."
   },
   "Change Data Capture (CDC)": {
-    "snippet": "# Debezium/Postgres example topic\n# orders.Customer \u2192 apply MERGE into lake table by PK",
+    "snippet": "# Debezium/Postgres example topic\n# orders.Customer → apply MERGE into lake table by PK",
     "related": [
       "Log-Based CDC",
       "SCD Type 2",
@@ -1331,7 +1333,7 @@
     "symptom": "Nightly full reloads thrash the source DB and miss deletes."
   },
   "Log-Based CDC": {
-    "snippet": "# Debezium connector \u2192 Kafka topic with op=c/u/d\n# before/after payload for each change",
+    "snippet": "# Debezium connector → Kafka topic with op=c/u/d\n# before/after payload for each change",
     "related": [
       "Change Data Capture (CDC)",
       "Soft Delete vs Hard Delete",
@@ -1349,7 +1351,7 @@
     "symptom": "Gaps appear when updated_at doesn't move on some updates."
   },
   "Soft Delete vs Hard Delete": {
-    "snippet": "-- soft: UPDATE SET is_deleted=true\n-- CDC hard delete: op='d' tombstone \u2192 target delete/flag",
+    "snippet": "-- soft: UPDATE SET is_deleted=true\n-- CDC hard delete: op='d' tombstone → target delete/flag",
     "related": [
       "Change Data Capture (CDC)",
       "SCD Type 2",
@@ -1385,7 +1387,7 @@
     "symptom": "Need more than one prior value but only type-3 columns exist."
   },
   "Surrogate Key": {
-    "snippet": "-- dim_customer(customer_sk, customer_nk, ...)\n-- fact_orders.customer_sk \u2192 type-2 version at order time",
+    "snippet": "-- dim_customer(customer_sk, customer_nk, ...)\n-- fact_orders.customer_sk → type-2 version at order time",
     "related": [
       "Natural Key",
       "SCD Type 2",
@@ -1601,7 +1603,7 @@
     "symptom": "Using compaction on high-volume click streams deletes needed history."
   },
   "Dead Letter Topic": {
-    "snippet": "# after retries \u2192 produce to orders.dlq with error headers",
+    "snippet": "# after retries → produce to orders.dlq with error headers",
     "related": [
       "Dead Letter Queue (DLQ)",
       "Schema Registry",
@@ -1766,7 +1768,7 @@
     "symptom": "Dev warehouse sits XL 24/7 with no queries."
   },
   "Storage Tiering": {
-    "snippet": "# lifecycle: Standard \u2192 IA 30d \u2192 Glacier 180d",
+    "snippet": "# lifecycle: Standard → IA 30d → Glacier 180d",
     "related": [
       "Lifecycle Policies",
       "Object Storage",
@@ -1937,7 +1939,7 @@
     "symptom": "Assuming all fast queries mean the warehouse size is perfect."
   },
   "Query Profile": {
-    "snippet": "-- History \u2192 Query ID \u2192 Profile\n-- check partitions scanned, spilling, join explosion",
+    "snippet": "-- History → Query ID → Profile\n-- check partitions scanned, spilling, join explosion",
     "related": [
       "Micro-partitions",
       "Clustering Key",
@@ -1968,7 +1970,7 @@
     "related": [
       "Medication Dispense",
       "Medication Administration (MAR)",
-      "Order \u2192 Dispense \u2192 Administration Chain"
+      "Order → Dispense → Administration Chain"
     ],
     "symptom": "Sepsis antibiotic metric uses order time; nursing says dose was hours later.",
     "tags": [
@@ -1992,7 +1994,7 @@
   "Medication Administration (MAR)": {
     "snippet": "-- grain: 1 row per dose event\nSELECT encounter_id, rxnorm, dose_value, dose_unit, route, administered_at, given_flag\nFROM med_admin;",
     "related": [
-      "Order \u2192 Dispense \u2192 Administration Chain",
+      "Order → Dispense → Administration Chain",
       "Sig / Dose / Route / Frequency",
       "Clinical Event Time vs System Time"
     ],
@@ -2002,14 +2004,14 @@
       "medication"
     ]
   },
-  "Order \u2192 Dispense \u2192 Administration Chain": {
-    "snippet": "-- pick the stage that matches the question\n-- time-to-antibiotic \u2192 administered_at\n-- refill behavior \u2192 dispensed_at\n-- intent to treat \u2192 ordered_at",
+  "Order → Dispense → Administration Chain": {
+    "snippet": "-- pick the stage that matches the question\n-- time-to-antibiotic → administered_at\n-- refill behavior → dispensed_at\n-- intent to treat → ordered_at",
     "related": [
       "Medication Order",
       "Medication Dispense",
       "Medication Administration (MAR)"
     ],
-    "symptom": "Joining order to admin without keys fans out to 5\u00d7 dose rows.",
+    "symptom": "Joining order to admin without keys fans out to 5× dose rows.",
     "tags": [
       "clinical",
       "medication"
@@ -2028,7 +2030,7 @@
     ]
   },
   "RxNorm": {
-    "snippet": "-- map local name \u2192 RxNorm for rollups\nSELECT local_drug_name, rxnorm_cui, tty\nFROM drug_map WHERE tty IN ('SCD','SBD','IN');",
+    "snippet": "-- map local name → RxNorm for rollups\nSELECT local_drug_name, rxnorm_cui, tty\nFROM drug_map WHERE tty IN ('SCD','SBD','IN');",
     "related": [
       "NDC (National Drug Code)",
       "Medication Order"
@@ -2064,12 +2066,12 @@
     ]
   },
   "Lab Order vs Lab Result": {
-    "snippet": "-- 1 order \u2192 many result rows (panel)\nSELECT o.order_id, r.loinc, r.value_num, r.value_text, r.result_status\nFROM lab_order o\nJOIN lab_result r ON r.order_id = o.order_id\nWHERE r.result_status = 'final';",
+    "snippet": "-- 1 order → many result rows (panel)\nSELECT o.order_id, r.loinc, r.value_num, r.value_text, r.result_status\nFROM lab_order o\nJOIN lab_result r ON r.order_id = o.order_id\nWHERE r.result_status = 'final';",
     "related": [
       "Panel vs Analyte",
       "LOINC"
     ],
-    "symptom": "Lab volume metrics count orders once and results 12\u00d7 for the same CBC.",
+    "symptom": "Lab volume metrics count orders once and results 12× for the same CBC.",
     "tags": [
       "clinical",
       "lab"
@@ -2250,7 +2252,7 @@
     ]
   },
   "Authentication vs Authorization": {
-    "snippet": "# 401 \u2192 auth; 403 \u2192 authenticated but not allowed\nif resp.status_code == 401: refresh_token()\nelif resp.status_code == 403: raise PermissionError(scope)",
+    "snippet": "# 401 → auth; 403 → authenticated but not allowed\nif resp.status_code == 401: refresh_token()\nelif resp.status_code == 403: raise PermissionError(scope)",
     "related": [
       "OAuth 2.0 / Bearer Token",
       "API Key"
@@ -2299,7 +2301,7 @@
       "Timeout / Retry / Backoff",
       "SLA / Quotas"
     ],
-    "symptom": "10 parallel workers \u00d7 50 pages/sec \u2192 IP banned for 24h.",
+    "symptom": "10 parallel workers × 50 pages/sec → IP banned for 24h.",
     "tags": [
       "api"
     ]
@@ -2327,12 +2329,12 @@
     ]
   },
   "Polling vs Event-Driven": {
-    "snippet": "# hybrid\n# 1) webhook \u2192 near real time\n# 2) nightly poll updated_since = watermark - 1h",
+    "snippet": "# hybrid\n# 1) webhook → near real time\n# 2) nightly poll updated_since = watermark - 1h",
     "related": [
       "Webhook",
       "Change Data via API (Incremental Extract)"
     ],
-    "symptom": "Only webhooks \u2192 missed events during endpoint downtime forever.",
+    "symptom": "Only webhooks → missed events during endpoint downtime forever.",
     "tags": [
       "api"
     ]
@@ -2415,7 +2417,7 @@
     ]
   },
   "SLA / Quotas": {
-    "snippet": "# budget: 50k calls/day \u2192 ~30 calls/min sustained\nmax_workers = min(config.workers, quota.safe_concurrency)",
+    "snippet": "# budget: 50k calls/day → ~30 calls/min sustained\nmax_workers = min(config.workers, quota.safe_concurrency)",
     "related": [
       "Rate Limiting",
       "REST API"
@@ -2469,7 +2471,7 @@
       "Compression Codec",
       "Splittable File"
     ],
-    "symptom": "One 20GB .csv.gz file \u2192 single Spark task forever.",
+    "symptom": "One 20GB .csv.gz file → single Spark task forever.",
     "tags": [
       "file-format"
     ]
@@ -2492,19 +2494,19 @@
       "Encoding (Dictionary / RLE / Plain)",
       "Parquet"
     ],
-    "symptom": "String column of UUIDs bloats files \u2014 dictionaries don't help.",
+    "symptom": "String column of UUIDs bloats files — dictionaries don't help.",
     "tags": [
       "file-format",
       "parquet"
     ]
   },
   "Parquet Footer / Footer Statistics": {
-    "snippet": "# engines read footer first for min/max prune\n# corrupt footer \u2192 file unreadable even if bytes remain",
+    "snippet": "# engines read footer first for min/max prune\n# corrupt footer → file unreadable even if bytes remain",
     "related": [
       "Predicate Pushdown (Files)",
       "Row Group / Stripe"
     ],
-    "symptom": "Query scans every file despite selective filters \u2014 stats missing or types mismatched.",
+    "symptom": "Query scans every file despite selective filters — stats missing or types mismatched.",
     "tags": [
       "file-format",
       "parquet"
@@ -2523,7 +2525,7 @@
     ]
   },
   "Schema Evolution (Files)": {
-    "snippet": "# additive column: old files \u2192 null for new field\nspark.read.parquet(path)  # merge schemas carefully",
+    "snippet": "# additive column: old files → null for new field\nspark.read.parquet(path)  # merge schemas carefully",
     "related": [
       "Parquet",
       "Delta / Iceberg / Hudi Data Files"
@@ -2539,7 +2541,7 @@
       "Columnar vs Row-Oriented",
       "JSON / JSON Lines (NDJSON)"
     ],
-    "symptom": "Analytics team scans raw Avro topics like a warehouse \u2014 I/O explodes.",
+    "symptom": "Analytics team scans raw Avro topics like a warehouse — I/O explodes.",
     "tags": [
       "file-format",
       "streaming"
@@ -2620,7 +2622,7 @@
       "Predicate Pushdown (Files)",
       "File Size Tuning"
     ],
-    "symptom": "Partitioned by user_id \u2192 empty folders and unusable planning times.",
+    "symptom": "Partitioned by user_id → empty folders and unusable planning times.",
     "tags": [
       "file-format",
       "lakehouse"
@@ -2644,14 +2646,14 @@
       "Parquet Footer / Footer Statistics",
       "Predicate Pushdown (Files)"
     ],
-    "symptom": "Point-lookup style filters still read most row groups \u2014 no bloom/stats help.",
+    "symptom": "Point-lookup style filters still read most row groups — no bloom/stats help.",
     "tags": [
       "file-format",
       "parquet"
     ]
   },
   "Encoding (Dictionary / RLE / Plain)": {
-    "snippet": "# low cardinality \u2192 dictionary + RLE\n# unique IDs \u2192 plain / delta often better",
+    "snippet": "# low cardinality → dictionary + RLE\n# unique IDs → plain / delta often better",
     "related": [
       "Page / Column Chunk",
       "Parquet"
@@ -2660,6 +2662,241 @@
     "tags": [
       "file-format",
       "parquet"
+    ]
+  },
+  "Dimensional Modeling (Kimball)": {
+    "snippet": "-- grain: one row per order line\n-- fact_order_line + dim_product + dim_customer + dim_date",
+    "related": [
+      "Star Schema",
+      "Grain",
+      "Fact Table",
+      "Modeling Pattern Choice"
+    ],
+    "symptom": "BI metrics disagree or cannot drill by the attributes users expect.",
+    "tags": [
+      "modeling",
+      "warehouse",
+      "interview"
+    ]
+  },
+  "Star Schema": {
+    "snippet": "fact_* --FK--> dim_* (denormalized attributes on dims)",
+    "related": [
+      "Snowflake Schema",
+      "Dimensional Modeling (Kimball)",
+      "One Big Table (OBT)"
+    ],
+    "symptom": "Analysts drown in joins or dashboards are slow — consider star (or OBT) for serving.",
+    "tags": [
+      "modeling",
+      "warehouse",
+      "interview"
+    ]
+  },
+  "Snowflake Schema": {
+    "snippet": "dim_product -> dim_brand -> dim_category (normalized dims)",
+    "related": [
+      "Star Schema",
+      "Dimensional Modeling (Kimball)"
+    ],
+    "symptom": "Too many dimension joins for a simple dashboard filter.",
+    "tags": [
+      "modeling",
+      "warehouse"
+    ]
+  },
+  "Fact Table": {
+    "snippet": "fact: keys + measures at one declared grain",
+    "related": [
+      "Dimension Table",
+      "Grain",
+      "Additive Facts"
+    ],
+    "symptom": "Counts and sums double or disappear after a join — grain/keys wrong.",
+    "tags": [
+      "modeling",
+      "warehouse"
+    ]
+  },
+  "Dimension Table": {
+    "snippet": "dim: surrogate_key + business_key + attributes (+ SCD cols)",
+    "related": [
+      "Fact Table",
+      "Conformed Dimension",
+      "SCD Type 2"
+    ],
+    "symptom": "Same customer looks different across two marts.",
+    "tags": [
+      "modeling",
+      "warehouse"
+    ]
+  },
+  "One Big Table (OBT)": {
+    "snippet": "-- wide denormalized row for one consumer\n-- order_id, amount, customer_*, product_* all in one table",
+    "related": [
+      "Star Schema",
+      "Data Vault",
+      "Modeling Pattern Choice"
+    ],
+    "symptom": "One team wants a single flat table; enterprise shared metrics keep breaking.",
+    "tags": [
+      "modeling",
+      "interview"
+    ]
+  },
+  "Data Vault": {
+    "snippet": "Hub (BK) + Link (relationship) + Satellite (attrs/history)",
+    "related": [
+      "Hub (Data Vault)",
+      "Link (Data Vault)",
+      "Satellite (Data Vault)",
+      "Modeling Pattern Choice"
+    ],
+    "symptom": "Sources keep changing and rebuilding stars from scratch is too slow.",
+    "tags": [
+      "modeling",
+      "warehouse",
+      "interview"
+    ]
+  },
+  "Hub (Data Vault)": {
+    "snippet": "hub_customer(hk, business_key, load_dts, record_source)",
+    "related": [
+      "Satellite (Data Vault)",
+      "Link (Data Vault)",
+      "Data Vault"
+    ],
+    "symptom": "Need a stable identity across CRM + ERP without mixing attributes.",
+    "tags": [
+      "modeling"
+    ]
+  },
+  "Link (Data Vault)": {
+    "snippet": "link_order(order_hk, customer_hk, product_hk, load_dts, source)",
+    "related": [
+      "Hub (Data Vault)",
+      "Satellite (Data Vault)",
+      "Data Vault"
+    ],
+    "symptom": "Relationships (who bought what) need history independent of attribute changes.",
+    "tags": [
+      "modeling"
+    ]
+  },
+  "Satellite (Data Vault)": {
+    "snippet": "sat_* (parent_hk, load_dts, hashdiff, attrs...) — historized",
+    "related": [
+      "Hub (Data Vault)",
+      "SCD Type 2",
+      "Data Vault"
+    ],
+    "symptom": "Attribute history from one source must not overwrite another source's fields.",
+    "tags": [
+      "modeling",
+      "cdc"
+    ]
+  },
+  "Raw Vault vs Business Vault": {
+    "snippet": "Raw = source-shaped hubs/links/sats\nBusiness = rules, cleansed keys, derived sats",
+    "related": [
+      "Data Vault",
+      "Data Contracts",
+      "Modeling Pattern Choice"
+    ],
+    "symptom": "Business rules buried in the auditable raw layer — hard to explain lineage.",
+    "tags": [
+      "modeling"
+    ]
+  },
+  "Inmon (CIF / EDW)": {
+    "snippet": "normalized EDW (integrate) → dimensional marts (serve)",
+    "related": [
+      "Dimensional Modeling (Kimball)",
+      "Data Vault",
+      "Modeling Pattern Choice"
+    ],
+    "symptom": "Need one enterprise integrated model before many departmental marts.",
+    "tags": [
+      "modeling",
+      "warehouse"
+    ]
+  },
+  "Modeling Pattern Choice": {
+    "snippet": "integrate: Vault/3NF\nserve shared KPIs: star\nserve one consumer: OBT",
+    "related": [
+      "Data Vault",
+      "Star Schema",
+      "One Big Table (OBT)",
+      "Dimensional Modeling (Kimball)"
+    ],
+    "symptom": "Team debates Vault vs star vs OBT — pick by layer and consumer, not fashion.",
+    "tags": [
+      "modeling",
+      "interview"
+    ]
+  },
+  "Cron Expression": {
+    "snippet": "# min hour dom month dow\n0 6 * * 1-5   # 06:00 weekdays\n*/15 * * * * # every 15 min",
+    "related": [
+      "Crontab / Cron Job",
+      "Schedule / Timetable",
+      "Cron Timezone Pitfalls"
+    ],
+    "symptom": "Job fires at the wrong time or dialect (5 vs 6 fields) is misread.",
+    "tags": [
+      "pipeline",
+      "interview"
+    ]
+  },
+  "Crontab / Cron Job": {
+    "snippet": "0 2 * * * /opt/etl/load_orders.sh >> /var/log/orders.log 2>&1",
+    "related": [
+      "Cron Expression",
+      "Pipeline Orchestration",
+      "Cron vs Orchestrator"
+    ],
+    "symptom": "Scripts race with no dependency graph or silent log failures.",
+    "tags": [
+      "pipeline",
+      "devops"
+    ]
+  },
+  "Cron Timezone Pitfalls": {
+    "snippet": "# Prefer UTC on servers; map to business calendar in code\n# 0 0 * * * on UTC ≠ Eastern midnight",
+    "related": [
+      "Cron Expression",
+      "Execution Date / Data Interval",
+      "Freshness"
+    ],
+    "symptom": "Wrong partition date or missed weekday runs around DST.",
+    "tags": [
+      "pipeline"
+    ]
+  },
+  "Overlapping Cron Runs": {
+    "snippet": "# flock -n /tmp/load.lock -c '/opt/etl/load.sh'\n# or orchestrator max_active_runs=1",
+    "related": [
+      "Idempotency",
+      "Crontab / Cron Job",
+      "Retry Strategy"
+    ],
+    "symptom": "Two copies of the same hourly job write at once.",
+    "tags": [
+      "pipeline"
+    ]
+  },
+  "Cron vs Orchestrator": {
+    "snippet": "cron = clock start\norchestrator = deps + retries + backfill + sensors",
+    "related": [
+      "Pipeline Orchestration",
+      "Sensor",
+      "Schedule / Timetable",
+      "Crontab / Cron Job"
+    ],
+    "symptom": "Fixed 6am job runs before upstream file arrives.",
+    "tags": [
+      "pipeline",
+      "interview"
     ]
   }
 }

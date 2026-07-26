@@ -64,6 +64,10 @@ Jump to the category file for definition + example.
 | Cost-Based Optimizer (CBO) | [Database & SQL Concepts](01-database-sql/concepts.md) |
 | Covering Index | [Database & SQL Concepts](01-database-sql/concepts.md) |
 | CQRS | [Streaming](06-streaming/concepts.md) |
+| Cron Expression | [Pipeline Design](07-pipeline-design/concepts.md) |
+| Cron Timezone Pitfalls | [Pipeline Design](07-pipeline-design/concepts.md) |
+| Cron vs Orchestrator | [Pipeline Design](07-pipeline-design/concepts.md) |
+| Crontab / Cron Job | [Pipeline Design](07-pipeline-design/concepts.md) |
 | CSV | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | DAG | [Airflow](15-airflow/concepts.md) |
 | DAG Scheduler | [Spark Internals](02-spark-internals/concepts.md) |
@@ -78,6 +82,7 @@ Jump to the category file for definition + example.
 | Data Skew | [Performance Tuning](08-performance-tuning/concepts.md) |
 | Data Stewardship | [Data Quality & Governance](09-data-quality-governance/concepts.md) |
 | Data Validation | [Data Quality & Governance](09-data-quality-governance/concepts.md) |
+| Data Vault | [Data Modeling Patterns](21-data-modeling/concepts.md) |
 | Dataset Scheduling | [Airflow](15-airflow/concepts.md) |
 | dbt Model | [dbt](13-dbt/concepts.md) |
 | Dead Letter Queue (DLQ) | [Pipeline Design](07-pipeline-design/concepts.md) |
@@ -85,6 +90,8 @@ Jump to the category file for definition + example.
 | Degenerate Dimension | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
 | Delta / Iceberg / Hudi Data Files | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | Delta Lake | [Data Lake & Lakehouse](04-data-lake-lakehouse/concepts.md) |
+| Dimension Table | [Data Modeling Patterns](21-data-modeling/concepts.md) |
+| Dimensional Modeling (Kimball) | [Data Modeling Patterns](21-data-modeling/concepts.md) |
 | Docker | [DevOps for Data](11-devops/concepts.md) |
 | Documentation / Docs Site | [dbt](13-dbt/concepts.md) |
 | Driver | [Spark Internals](02-spark-internals/concepts.md) |
@@ -105,6 +112,7 @@ Jump to the category file for definition + example.
 | Executor | [Spark Internals](02-spark-internals/concepts.md) |
 | Explain Plan | [Database & SQL Concepts](01-database-sql/concepts.md) |
 | Exposures | [dbt](13-dbt/concepts.md) |
+| Fact Table | [Data Modeling Patterns](21-data-modeling/concepts.md) |
 | Factless Fact Table | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
 | Fail-safe | [Snowflake](17-snowflake/concepts.md) |
 | Fault Tolerance | [Distributed Systems](05-distributed-systems/concepts.md) |
@@ -122,6 +130,7 @@ Jump to the category file for definition + example.
 | High Availability (HA) | [Distributed Systems](05-distributed-systems/concepts.md) |
 | Histograms | [Database & SQL Concepts](01-database-sql/concepts.md) |
 | Horizontal Scaling | [Distributed Systems](05-distributed-systems/concepts.md) |
+| Hub (Data Vault) | [Data Modeling Patterns](21-data-modeling/concepts.md) |
 | IAM | [Cloud & Storage](10-cloud-storage/concepts.md) |
 | Idempotency | [Pipeline Design](07-pipeline-design/concepts.md) |
 | Idempotency Key | [APIs for Data Engineers](19-api/concepts.md) |
@@ -129,6 +138,7 @@ Jump to the category file for definition + example.
 | Incremental vs Full Refresh | [Cost Optimization](16-cost-optimization/concepts.md) |
 | Infrastructure as Code (IaC) | [DevOps for Data](11-devops/concepts.md) |
 | Ingestion Time | [Streaming](06-streaming/concepts.md) |
+| Inmon (CIF / EDW) | [Data Modeling Patterns](21-data-modeling/concepts.md) |
 | ISR (In-Sync Replicas) | [Kafka](14-kafka/concepts.md) |
 | Job → Stage → Task | [Spark Internals](02-spark-internals/concepts.md) |
 | JSON / JSON Lines (NDJSON) | [File Formats for Data Engineers](20-file-formats/concepts.md) |
@@ -144,6 +154,7 @@ Jump to the category file for definition + example.
 | Leader Election | [Distributed Systems](05-distributed-systems/concepts.md) |
 | Lifecycle Policies | [Cloud & Storage](10-cloud-storage/concepts.md) |
 | Lineage | [Spark Internals](02-spark-internals/concepts.md) |
+| Link (Data Vault) | [Data Modeling Patterns](21-data-modeling/concepts.md) |
 | Log-Based CDC | [CDC & SCD](12-cdc-scd/concepts.md) |
 | LOINC | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Manifest / File List | [File Formats for Data Engineers](20-file-formats/concepts.md) |
@@ -157,6 +168,7 @@ Jump to the category file for definition + example.
 | Metadata-Driven Pipelines | [Pipeline Design](07-pipeline-design/concepts.md) |
 | Micro-partitions | [Snowflake](17-snowflake/concepts.md) |
 | Mini Dimension | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
+| Modeling Pattern Choice | [Data Modeling Patterns](21-data-modeling/concepts.md) |
 | Natural Key | [CDC & SCD](12-cdc-scd/concepts.md) |
 | NDC (National Drug Code) | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Non-Additive Facts | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
@@ -164,9 +176,11 @@ Jump to the category file for definition + example.
 | Object Storage | [Cloud & Storage](10-cloud-storage/concepts.md) |
 | Observability | [Data Quality & Governance](09-data-quality-governance/concepts.md) |
 | Offset | [Kafka](14-kafka/concepts.md) |
+| One Big Table (OBT) | [Data Modeling Patterns](21-data-modeling/concepts.md) |
 | Optimize | [Data Lake & Lakehouse](04-data-lake-lakehouse/concepts.md) |
 | ORC | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | Order → Dispense → Administration Chain | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
+| Overlapping Cron Runs | [Pipeline Design](07-pipeline-design/concepts.md) |
 | Page / Column Chunk | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | Pagination | [APIs for Data Engineers](19-api/concepts.md) |
 | Panel vs Analyte | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
@@ -194,6 +208,7 @@ Jump to the category file for definition + example.
 | Query-Based CDC | [CDC & SCD](12-cdc-scd/concepts.md) |
 | Raft | [Distributed Systems](05-distributed-systems/concepts.md) |
 | Rate Limiting | [APIs for Data Engineers](19-api/concepts.md) |
+| Raw Vault vs Business Vault | [Data Modeling Patterns](21-data-modeling/concepts.md) |
 | ref() | [dbt](13-dbt/concepts.md) |
 | Reference Range | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Replication | [Distributed Systems](05-distributed-systems/concepts.md) |
@@ -210,6 +225,7 @@ Jump to the category file for definition + example.
 | Rule-Based Optimizer (RBO) | [Database & SQL Concepts](01-database-sql/concepts.md) |
 | RxNorm | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Salting | [Performance Tuning](08-performance-tuning/concepts.md) |
+| Satellite (Data Vault) | [Data Modeling Patterns](21-data-modeling/concepts.md) |
 | Scan Pruning / Partitioning | [Cost Optimization](16-cost-optimization/concepts.md) |
 | SCD Type 1 | [CDC & SCD](12-cdc-scd/concepts.md) |
 | SCD Type 2 | [CDC & SCD](12-cdc-scd/concepts.md) |
@@ -238,6 +254,7 @@ Jump to the category file for definition + example.
 | Small File Problem | [Performance Tuning](08-performance-tuning/concepts.md) |
 | Snappy / ZSTD / Gzip | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | Snapshot Fact | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
+| Snowflake Schema | [Data Modeling Patterns](21-data-modeling/concepts.md) |
 | Snowpipe | [Snowflake](17-snowflake/concepts.md) |
 | Soft Delete vs Hard Delete | [CDC & SCD](12-cdc-scd/concepts.md) |
 | Sort Merge Join | [Performance Tuning](08-performance-tuning/concepts.md) |
@@ -247,6 +264,7 @@ Jump to the category file for definition + example.
 | Splittable File | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | Spot / Preemptible Workers | [Cost Optimization](16-cost-optimization/concepts.md) |
 | Stage | [Snowflake](17-snowflake/concepts.md) |
+| Star Schema | [Data Modeling Patterns](21-data-modeling/concepts.md) |
 | Stateful Processing | [Streaming](06-streaming/concepts.md) |
 | Stateless Processing | [Streaming](06-streaming/concepts.md) |
 | Statistics | [Database & SQL Concepts](01-database-sql/concepts.md) |

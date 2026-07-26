@@ -22,6 +22,7 @@ CATEGORY_TAGS = {
     "18-clinical-data": ["clinical", "healthcare"],
     "19-api": ["api", "pipeline"],
     "20-file-formats": ["file-format", "parquet", "lakehouse"],
+    "21-data-modeling": ["modeling", "warehouse", "interview"],
 }
 
 # Extra tags layered on top of category defaults (by concept name)
@@ -61,6 +62,13 @@ CONCEPT_TAG_EXTRAS = {
     "Circuit Breaker": ["pipeline"],
     "Event Sourcing": ["streaming", "pipeline"],
     "CQRS": ["streaming", "pipeline"],
+    "Dimensional Modeling (Kimball)": ["interview"],
+    "Star Schema": ["interview"],
+    "One Big Table (OBT)": ["interview"],
+    "Data Vault": ["interview"],
+    "Modeling Pattern Choice": ["interview"],
+    "Cron Expression": ["interview"],
+    "Cron vs Orchestrator": ["interview"],
 }
 
 # Preferred chip order in the UI
@@ -75,6 +83,7 @@ TAG_ORDER = [
     "cdc",
     "sql",
     "warehouse",
+    "modeling",
     "lakehouse",
     "distributed",
     "pipeline",

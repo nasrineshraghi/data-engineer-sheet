@@ -34,6 +34,7 @@ CATEGORIES = [
     ("18-clinical-data", "Clinical Data — Meds & Labs"),
     ("19-api", "APIs for Data Engineers"),
     ("20-file-formats", "File Formats"),
+    ("21-data-modeling", "Data Modeling Patterns"),
 ]
 
 

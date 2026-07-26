@@ -4,7 +4,7 @@ One-page cheat sheet: keyword · section · definition · example.
 
 **Prefer the interactive HTML table:** https://nasrineshraghi.github.io/data-engineer-sheet/table.html
 
-**278 concepts** · [Study app](https://nasrineshraghi.github.io/data-engineer-sheet/) · [Local HTML](docs/table.html)
+**296 concepts** · [Study app](https://nasrineshraghi.github.io/data-engineer-sheet/) · [Local HTML](docs/table.html)
 
 | Keyword | Section | Definition | Example |
 |---|---|---|---|
@@ -104,6 +104,19 @@ One-page cheat sheet: keyword · section · definition · example.
 | **Time Travel** | Data Lake & Lakehouse | Query table as of a past version/timestamp via snapshots/logs. | ```sql SELECT * FROM orders VERSION AS OF 120; -- or TIMESTAMP AS OF '2024-06-01' ``` |
 | **Vacuum** | Data Lake & Lakehouse | Delete obsolete data files no longer referenced by the table (past retention). | `VACUUM table_name RETAIN 168 HOURS;` (Delta). |
 | **Z-Ordering** | Data Lake & Lakehouse | Multi-dimensional clustering of data files so related values co-locate (minmax skipping improves). | Z-Order by `user_id` so point lookups skip most files. |
+| **Data Vault** | Data Modeling Patterns | Modeling method for the **enterprise integration** layer: Hubs (business keys), Links (relationships), Satellites (descriptive/history) — built for auditabil… | Hub Customer, Hub Product, Link Order, Satellites for customer attributes from CRM and ERP. |
+| **Dimension Table** | Data Modeling Patterns | Descriptive attributes used to filter, group, and label facts (who, what, where, when). | `dim_customer` with name, segment, region; facts store `customer_key`. |
+| **Dimensional Modeling (Kimball)** | Data Modeling Patterns | Analytics design that centers on **facts** (measures at a declared grain) and **dimensions** (descriptive context), usually published as star or snowflake ma… | `fact_order_line` + `dim_product` + `dim_customer` + `dim_date` for revenue reporting. |
+| **Fact Table** | Data Modeling Patterns | Table of events or measurements at a fixed grain; foreign keys to dimensions plus numeric measures. | One row per order line: `order_line_key`, `date_key`, `product_key`, `qty`, `amount`. |
+| **Hub (Data Vault)** | Data Modeling Patterns | Table that stores a unique **business key** (and load metadata) for a core business entity — no descriptive attributes. | `hub_customer(customer_hk, customer_bk, load_dts, record_source)`. |
+| **Inmon (CIF / EDW)** | Data Modeling Patterns | Enterprise warehouse approach: normalized integration model (often 3NF) as the system of record, then departmental dimensional marts for consumption. | Normalized EDW tables for customer/order → sales mart star for Finance. |
+| **Link (Data Vault)** | Data Modeling Patterns | Table that records a **relationship** (or transaction) between hubs — the association, not the descriptions. | `link_order(order_hk, customer_hk, product_hk, load_dts, record_source)` for “customer bought product.” |
+| **Modeling Pattern Choice** | Data Modeling Patterns | Picking Vault / dimensional / OBT (or a layered mix) based on change rate, consumers, and who owns metrics. | Multi-source core → Data Vault; Finance KPIs → star mart; one ML feature set → OBT built from the mart/Vault. |
+| **One Big Table (OBT)** | Data Modeling Patterns | A single wide, denormalized table with facts and dimension attributes flattened into columns (often the final “gold” or ML feature table). | `orders_obt` with `order_id`, `amount`, `customer_name`, `customer_segment`, `product_name`, `category` all on one row. |
+| **Raw Vault vs Business Vault** | Data Modeling Patterns | **Raw Vault** mirrors source-driven hubs/links/sats with minimal business rules; **Business Vault** adds soft rules, computed satellites, and cleaned keys cl… | Raw: CRM customer as loaded. Business: standardized phone, golden customer match key, derived “active_flag.” |
+| **Satellite (Data Vault)** | Data Modeling Patterns | Descriptive and historized attributes for a hub or link — where SCD-like change lives in Vault. | `sat_customer_crm` (name, email, segment) and `sat_customer_erp` (credit_limit) on the same hub. |
+| **Snowflake Schema** | Data Modeling Patterns | Dimensions are normalized into related sub-tables (product → brand → category), so the model “snowflakes” outward. | `dim_product` → `dim_brand` → `dim_category` instead of repeating brand/category on every product row. |
+| **Star Schema** | Data Modeling Patterns | Fact table in the center with denormalized dimension tables around it (few joins, wide dims). | `fact_sales` → `dim_store`, `dim_product`, `dim_date` (product attributes live on `dim_product`, not nested tables). |
 | **Accuracy** | Data Quality & Governance | Data correctly represents real-world values. | Currency conversion rates match source system within tolerance. |
 | **Completeness** | Data Quality & Governance | Required data is present (rows and fields). | All 24 hourly partitions arrived; `customer_id` null rate < 0.1%. |
 | **Consistency** | Data Quality & Governance | Same facts agree across systems/tables within defined rules. | Sum of order lines equals order header total; warehouse matches finance extract. |
@@ -218,10 +231,15 @@ One-page cheat sheet: keyword · section · definition · example.
 | **Backoff Strategy** | Pipeline Design | Increase wait between retries (often exponential + jitter). | Wait 1s, 2s, 4s, 8s with random jitter. |
 | **Checkpointing** | Pipeline Design | Persist progress (offsets/state) so recovery resumes cleanly. | Spark Structured Streaming checkpoint location stores offsets + state. |
 | **Circuit Breaker** | Pipeline Design | Stop calling a failing dependency temporarily after error threshold; probe later. | After 50 warehouse connection failures, open circuit for 60s, then half-open trial. |
+| **Cron Expression** | Pipeline Design | Compact schedule string (usually 5 fields: minute hour day-of-month month day-of-week) that says when a job should fire. | `0 6 * * 1-5` = 06:00 every weekday; `*/15 * * * *` = every 15 minutes. |
+| **Cron Timezone Pitfalls** | Pipeline Design | Cron fires in the scheduler’s timezone (often UTC on servers); DST and “local business midnight” confuse partition dates. | Job meant for “US Eastern midnight” scheduled as `0 0 * * *` on a UTC host runs at 19:00 ET previous day. |
+| **Cron vs Orchestrator** | Pipeline Design | Cron starts a command on a clock; an orchestrator (Airflow/Dagster/etc.) manages DAGs, sensors, retries, backfill, and lineage of runs. | Cron: always start at 6am. Orchestrator: sensor waits for `_SUCCESS`, then transform → test → publish. |
+| **Crontab / Cron Job** | Pipeline Design | OS or host-level job launcher that runs a command when a cron expression matches (classic `/etc/crontab` or user crontab). | `0 2 * * * /opt/etl/load_orders.sh >> /var/log/orders.log 2>&1` |
 | **Data Contracts** | Pipeline Design | Explicit agreement on schema, semantics, SLAs, and ownership between producers and consumers. | Producer guarantees `orders.v2` fields + daily freshness < 2h; CI validates schema. |
 | **Dead Letter Queue (DLQ)** | Pipeline Design | Side channel for records that fail processing after retries. | Malformed JSON → DLQ topic/table with error reason; alert and fix. |
 | **Idempotency** | Pipeline Design | Running the same operation multiple times yields the same result as running once. | Upsert by primary key; overwrite partition `dt=2024-01-01` instead of append-only blindly. |
 | **Metadata-Driven Pipelines** | Pipeline Design | Behavior configured by metadata (tables, mappings, rules) rather than hard-coded per table jobs. | Config table lists source, target, PK, SCD type → one generic loader. |
+| **Overlapping Cron Runs** | Pipeline Design | Next scheduled start begins while the previous run is still executing (slow job + frequent cron). | Hourly job still running at :00 next hour → two loaders append the same partition. |
 | **Pipeline Orchestration** | Pipeline Design | Schedule, dependency management, retries, and observability of multi-step data jobs. | Airflow/Dagster/Prefect/Azure DF: extract → transform → test → publish. |
 | **Retry Strategy** | Pipeline Design | Policy for re-attempting failed work (how many, when, which errors). | Retry S3/API 429/5xx up to 5 times; fail fast on 400 auth errors. |
 | **Clustering Key** | Snowflake | Optional key(s) that guide how related rows are co-located across micro-partitions. | `ALTER TABLE events CLUSTER BY (event_date, customer_id);` |

@@ -24,7 +24,7 @@
   {
     "id": "skew-task",
     "see": "One Spark task runs forever; the rest finished",
-    "do": "Open Spark UI \u2192 slow stage \u2192 shuffle read. Check for a hot key; salt / AQE skew join / pre-aggregate.",
+    "do": "Open Spark UI → slow stage → shuffle read. Check for a hot key; salt / AQE skew join / pre-aggregate.",
     "concepts": [
       "Data Skew",
       "Shuffle",
@@ -52,7 +52,7 @@
       "Observability",
       "SLA / Callback"
     ],
-    "habit": "Success \u2260 useful data."
+    "habit": "Success ≠ useful data."
   },
   {
     "id": "slow-lake",
@@ -100,7 +100,7 @@
   },
   {
     "id": "point-in-time",
-    "see": "Historical report shows today\u2019s attributes, not past ones",
+    "see": "Historical report shows today’s attributes, not past ones",
     "do": "SCD Type 2 (or equivalent) with effective dates; join on the version valid at event time.",
     "concepts": [
       "SCD Type 2",
@@ -112,7 +112,7 @@
   {
     "id": "cardinality-plan",
     "see": "Join or group-by much slower than expected",
-    "do": "Check distinct counts (cardinality). Wrong NDV \u2192 bad join strategy. Broadcast small side when safe.",
+    "do": "Check distinct counts (cardinality). Wrong NDV → bad join strategy. Broadcast small side when safe.",
     "concepts": [
       "Cardinality",
       "Shuffle",
@@ -122,21 +122,21 @@
   },
   {
     "id": "lazy-surprise",
-    "see": "Spark job \u2018does nothing\u2019 then suddenly runs forever at write/count",
+    "see": "Spark job ‘does nothing’ then suddenly runs forever at write/count",
     "do": "Remember lazy evaluation: actions trigger jobs. Inspect the plan before the expensive action.",
     "concepts": [
       "Lazy Evaluation",
-      "Job \u2192 Stage \u2192 Task",
+      "Job → Stage → Task",
       "Catalyst Optimizer"
     ],
-    "habit": "Read the plan; don\u2019t wait for the surprise."
+    "habit": "Read the plan; don’t wait for the surprise."
   },
   {
     "id": "med-stage-wrong",
     "see": "Antibiotic timing / adherence metrics look wrong vs nursing charts",
     "do": "Confirm whether the metric should use order, dispense, or administration time. Prefer MAR administered_at for inpatient dosing.",
     "concepts": [
-      "Order \u2192 Dispense \u2192 Administration Chain",
+      "Order → Dispense → Administration Chain",
       "Medication Administration (MAR)",
       "Clinical Event Time vs System Time"
     ],
@@ -178,13 +178,13 @@
   {
     "id": "tiny-parquet",
     "see": "Lake queries slow; driver struggles listing files",
-    "do": "Check file counts/sizes. Compact small Parquet files; target ~128MB\u20131GB. Fix streaming small-file write pattern.",
+    "do": "Check file counts/sizes. Compact small Parquet files; target ~128MB–1GB. Fix streaming small-file write pattern.",
     "concepts": [
       "File Size Tuning",
       "Parquet",
       "Delta / Iceberg / Hudi Data Files"
     ],
-    "habit": "Table formats manage files \u2014 you still owe them healthy Parquet sizes."
+    "habit": "Table formats manage files — you still owe them healthy Parquet sizes."
   },
   {
     "id": "gzip-csv-wall",
@@ -196,5 +196,39 @@
       "Parquet"
     ],
     "habit": "If it isn't splittable, you don't have parallelism."
+  },
+  {
+    "id": "model-choice",
+    "see": "Team debates Data Vault vs star schema vs one big table",
+    "do": "Separate layers: integrate multi-source history in Vault/3NF; serve shared KPIs as star marts; flatten to OBT only for a single consumer (BI extract or ML features).",
+    "concepts": [
+      "Modeling Pattern Choice",
+      "Data Vault",
+      "Star Schema",
+      "One Big Table (OBT)"
+    ],
+    "habit": "Pattern follows the layer and the consumer — not a single company-wide religion."
+  },
+  {
+    "id": "cron-overlap",
+    "see": "Hourly cron still running when the next hour fires; duplicates or locks",
+    "do": "Prevent overlap (flock / max_active_runs=1), make writes idempotent, or move to an orchestrator with sensors.",
+    "concepts": [
+      "Overlapping Cron Runs",
+      "Idempotency",
+      "Cron vs Orchestrator"
+    ],
+    "habit": "A schedule is a start signal — not a guarantee the previous run finished."
+  },
+  {
+    "id": "cron-tz",
+    "see": "Partition dates off by one day after a DST change or UTC vs local schedule",
+    "do": "Run schedules in UTC; derive business-local dates in code; document the clock the cron uses.",
+    "concepts": [
+      "Cron Timezone Pitfalls",
+      "Cron Expression",
+      "Execution Date / Data Interval"
+    ],
+    "habit": "Never assume the server’s local midnight is the business day."
   }
 ]

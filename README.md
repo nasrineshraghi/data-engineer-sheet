@@ -77,6 +77,7 @@ Also: deep links `?mode=essentials` · `?mode=prod` · `?mode=must`
 | 18 | [Clinical Data — Meds & Labs](18-clinical-data/concepts.md) | Orders, RxNorm/NDC, LOINC, labs, MAR |
 | 19 | [APIs for Data Engineers](19-api/concepts.md) | REST, auth, pagination, webhooks, contracts |
 | 20 | [File Formats](20-file-formats/concepts.md) | Parquet, Avro, ORC, CSV/JSON, compression |
+| 21 | [Data Modeling Patterns](21-data-modeling/concepts.md) | Dimensional/star, Data Vault, One Big Table |
 
 ## All keywords
 ### Database & SQL Concepts
@@ -208,8 +209,14 @@ Also: deep links `?mode=essentials` · `?mode=prod` · `?mode=must`
 - Circuit Breaker
 - Dead Letter Queue (DLQ)
 - Data Contracts
+- Cron Expression
+- Crontab / Cron Job
+- Cron Timezone Pitfalls
+- Overlapping Cron Runs
+- Cron vs Orchestrator
 - Pipeline Orchestration
 - Metadata-Driven Pipelines
+
 
 ### Performance Tuning
 [08-performance-tuning/concepts.md](08-performance-tuning/concepts.md)
@@ -383,3 +390,20 @@ Add a concept in the matching category file using this template:
 ---
 
 *Keep entries short. Detail belongs in runbooks and deep-dive docs — this repo is the map.*
+
+### Data Modeling Patterns
+[21-data-modeling/concepts.md](21-data-modeling/concepts.md)
+
+- Data Vault
+- Dimension Table
+- Dimensional Modeling (Kimball)
+- Fact Table
+- Hub (Data Vault)
+- Inmon (CIF / EDW)
+- Link (Data Vault)
+- Modeling Pattern Choice
+- One Big Table (OBT)
+- Raw Vault vs Business Vault
+- Satellite (Data Vault)
+- Snowflake Schema
+- Star Schema

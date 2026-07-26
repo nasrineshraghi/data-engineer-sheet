@@ -2473,6 +2473,133 @@
     ]
   },
   {
+    "name": "Cron Expression",
+    "category": "Pipeline Design",
+    "categorySlug": "07-pipeline-design",
+    "file": "07-pipeline-design/concepts.md",
+    "definition": "Compact schedule string (usually 5 fields: minute hour day-of-month month day-of-week) that says when a job should fire.",
+    "why": "Still the lingua franca for schedules \u2014 OS crontab, Airflow, K8s CronJob, cloud schedulers all speak cron-ish dialects.",
+    "example": "`0 6 * * 1-5` = 06:00 every weekday; `*/15 * * * *` = every 15 minutes.",
+    "remember": [
+      "Field order: minute \u2192 hour \u2192 day \u2192 month \u2192 weekday (seconds field is a non-standard 6th)",
+      "`*` = every; `*/n` = every n; lists and ranges vary slightly by tool"
+    ],
+    "mustKnow": null,
+    "snippet": "# min hour dom month dow\n0 6 * * 1-5   # 06:00 weekdays\n*/15 * * * * # every 15 min",
+    "related": [
+      "Crontab / Cron Job",
+      "Schedule / Timetable",
+      "Cron Timezone Pitfalls"
+    ],
+    "symptom": "Job fires at the wrong time or dialect (5 vs 6 fields) is misread.",
+    "tags": [
+      "interview",
+      "pipeline"
+    ]
+  },
+  {
+    "name": "Crontab / Cron Job",
+    "category": "Pipeline Design",
+    "categorySlug": "07-pipeline-design",
+    "file": "07-pipeline-design/concepts.md",
+    "definition": "OS or host-level job launcher that runs a command when a cron expression matches (classic `/etc/crontab` or user crontab).",
+    "why": "Fine for one machine / one script; weak for dependencies, retries, observability, and multi-step pipelines.",
+    "example": "`0 2 * * * /opt/etl/load_orders.sh >> /var/log/orders.log 2>&1`",
+    "remember": [
+      "No DAG: jobs don\u2019t know about upstream readiness",
+      "Overlaps, silent failures, and timezone bugs are common",
+      "Prefer an orchestrator once you have dependencies or SLAs"
+    ],
+    "mustKnow": null,
+    "snippet": "0 2 * * * /opt/etl/load_orders.sh >> /var/log/orders.log 2>&1",
+    "related": [
+      "Cron Expression",
+      "Pipeline Orchestration",
+      "Cron vs Orchestrator"
+    ],
+    "symptom": "Scripts race with no dependency graph or silent log failures.",
+    "tags": [
+      "devops",
+      "pipeline"
+    ]
+  },
+  {
+    "name": "Cron Timezone Pitfalls",
+    "category": "Pipeline Design",
+    "categorySlug": "07-pipeline-design",
+    "file": "07-pipeline-design/concepts.md",
+    "definition": "Cron fires in the scheduler\u2019s timezone (often UTC on servers); DST and \u201clocal business midnight\u201d confuse partition dates.",
+    "why": "Wrong tz \u2192 wrong `dt=` partition, missed business-day runs, or double runs around DST.",
+    "example": "Job meant for \u201cUS Eastern midnight\u201d scheduled as `0 0 * * *` on a UTC host runs at 19:00 ET previous day.",
+    "remember": [
+      "Prefer UTC everywhere and convert for business calendars explicitly",
+      "Document which clock the schedule uses",
+      "Airflow: set DAG timezone deliberately"
+    ],
+    "mustKnow": null,
+    "snippet": "# Prefer UTC on servers; map to business calendar in code\n# 0 0 * * * on UTC \u2260 Eastern midnight",
+    "related": [
+      "Cron Expression",
+      "Execution Date / Data Interval",
+      "Freshness"
+    ],
+    "symptom": "Wrong partition date or missed weekday runs around DST.",
+    "tags": [
+      "pipeline"
+    ]
+  },
+  {
+    "name": "Overlapping Cron Runs",
+    "category": "Pipeline Design",
+    "categorySlug": "07-pipeline-design",
+    "file": "07-pipeline-design/concepts.md",
+    "definition": "Next scheduled start begins while the previous run is still executing (slow job + frequent cron).",
+    "why": "Duplicate writes, lock fights, or corrupted partial loads unless the job is idempotent and concurrency-safe.",
+    "example": "Hourly job still running at :00 next hour \u2192 two loaders append the same partition.",
+    "remember": [
+      "Use locks (`flock`), `max_active_runs=1`, or skip-if-running",
+      "Make writes idempotent even when overlaps happen",
+      "Lengthen the interval or speed up the job"
+    ],
+    "mustKnow": null,
+    "snippet": "# flock -n /tmp/load.lock -c '/opt/etl/load.sh'\n# or orchestrator max_active_runs=1",
+    "related": [
+      "Idempotency",
+      "Crontab / Cron Job",
+      "Retry Strategy"
+    ],
+    "symptom": "Two copies of the same hourly job write at once.",
+    "tags": [
+      "pipeline"
+    ]
+  },
+  {
+    "name": "Cron vs Orchestrator",
+    "category": "Pipeline Design",
+    "categorySlug": "07-pipeline-design",
+    "file": "07-pipeline-design/concepts.md",
+    "definition": "Cron starts a command on a clock; an orchestrator (Airflow/Dagster/etc.) manages DAGs, sensors, retries, backfill, and lineage of runs.",
+    "why": "Clock \u2260 data ready. Blind cron races upstream; orchestrators can wait on files/datasets and recover cleanly.",
+    "example": "Cron: always start at 6am. Orchestrator: sensor waits for `_SUCCESS`, then transform \u2192 test \u2192 publish.",
+    "remember": [
+      "Cron for simple single-host tasks; orchestrator for production pipelines",
+      "Dataset/sensor triggers beat fixed cron when latency varies"
+    ],
+    "mustKnow": null,
+    "snippet": "cron = clock start\norchestrator = deps + retries + backfill + sensors",
+    "related": [
+      "Pipeline Orchestration",
+      "Sensor",
+      "Schedule / Timetable",
+      "Crontab / Cron Job"
+    ],
+    "symptom": "Fixed 6am job runs before upstream file arrives.",
+    "tags": [
+      "interview",
+      "pipeline"
+    ]
+  },
+  {
     "name": "Pipeline Orchestration",
     "category": "Pipeline Design",
     "categorySlug": "07-pipeline-design",
@@ -2488,7 +2615,9 @@
     "snippet": "# make reruns safe: upsert / partition overwrite",
     "related": [
       "Metadata-Driven Pipelines",
-      "Idempotency"
+      "Idempotency",
+      "Cron vs Orchestrator",
+      "Cron Expression"
     ],
     "symptom": "Reruns corrupt or duplicate outputs.",
     "tags": [
@@ -6905,6 +7034,350 @@
       "file-format",
       "lakehouse",
       "parquet"
+    ]
+  },
+  {
+    "name": "Dimensional Modeling (Kimball)",
+    "category": "Data Modeling Patterns",
+    "categorySlug": "21-data-modeling",
+    "file": "21-data-modeling/concepts.md",
+    "definition": "Analytics design that centers on **facts** (measures at a declared grain) and **dimensions** (descriptive context), usually published as star or snowflake marts.",
+    "why": "Matches how BI users think (\u201csales by product by day\u201d) and keeps metric definitions tied to grain.",
+    "example": "`fact_order_line` + `dim_product` + `dim_customer` + `dim_date` for revenue reporting.",
+    "remember": [
+      "Declare grain in one sentence before keys and measures",
+      "Conformed dimensions unlock drill-across across marts"
+    ],
+    "mustKnow": null,
+    "snippet": "-- grain: one row per order line\n-- fact_order_line + dim_product + dim_customer + dim_date",
+    "related": [
+      "Star Schema",
+      "Grain",
+      "Fact Table",
+      "Modeling Pattern Choice"
+    ],
+    "symptom": "BI metrics disagree or cannot drill by the attributes users expect.",
+    "tags": [
+      "interview",
+      "modeling",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Star Schema",
+    "category": "Data Modeling Patterns",
+    "categorySlug": "21-data-modeling",
+    "file": "21-data-modeling/concepts.md",
+    "definition": "Fact table in the center with denormalized dimension tables around it (few joins, wide dims).",
+    "why": "Simple for BI tools and analysts; usually the default serving layer for dashboards.",
+    "example": "`fact_sales` \u2192 `dim_store`, `dim_product`, `dim_date` (product attributes live on `dim_product`, not nested tables).",
+    "remember": [
+      "Prefer star for marts / gold serving",
+      "Dimensions are often denormalized on purpose"
+    ],
+    "mustKnow": null,
+    "snippet": "fact_* --FK--> dim_* (denormalized attributes on dims)",
+    "related": [
+      "Snowflake Schema",
+      "Dimensional Modeling (Kimball)",
+      "One Big Table (OBT)"
+    ],
+    "symptom": "Analysts drown in joins or dashboards are slow \u2014 consider star (or OBT) for serving.",
+    "tags": [
+      "interview",
+      "modeling",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Snowflake Schema",
+    "category": "Data Modeling Patterns",
+    "categorySlug": "21-data-modeling",
+    "file": "21-data-modeling/concepts.md",
+    "definition": "Dimensions are normalized into related sub-tables (product \u2192 brand \u2192 category), so the model \u201csnowflakes\u201d outward.",
+    "why": "Saves storage and avoids repeating attributes, but adds joins and complexity for BI.",
+    "example": "`dim_product` \u2192 `dim_brand` \u2192 `dim_category` instead of repeating brand/category on every product row.",
+    "remember": [
+      "Use sparingly; most teams stay star at the mart",
+      "Fine in warehouse storage layer if tools hide the joins"
+    ],
+    "mustKnow": null,
+    "snippet": "dim_product -> dim_brand -> dim_category (normalized dims)",
+    "related": [
+      "Star Schema",
+      "Dimensional Modeling (Kimball)"
+    ],
+    "symptom": "Too many dimension joins for a simple dashboard filter.",
+    "tags": [
+      "interview",
+      "modeling",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Fact Table",
+    "category": "Data Modeling Patterns",
+    "categorySlug": "21-data-modeling",
+    "file": "21-data-modeling/concepts.md",
+    "definition": "Table of events or measurements at a fixed grain; foreign keys to dimensions plus numeric measures.",
+    "why": "Facts are where KPIs live; wrong grain or missing keys break every report built on top.",
+    "example": "One row per order line: `order_line_key`, `date_key`, `product_key`, `qty`, `amount`.",
+    "remember": [
+      "Keys + measures; grain first",
+      "Transaction, periodic snapshot, accumulating snapshot are common patterns"
+    ],
+    "mustKnow": null,
+    "snippet": "fact: keys + measures at one declared grain",
+    "related": [
+      "Dimension Table",
+      "Grain",
+      "Additive Facts"
+    ],
+    "symptom": "Counts and sums double or disappear after a join \u2014 grain/keys wrong.",
+    "tags": [
+      "interview",
+      "modeling",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Dimension Table",
+    "category": "Data Modeling Patterns",
+    "categorySlug": "21-data-modeling",
+    "file": "21-data-modeling/concepts.md",
+    "definition": "Descriptive attributes used to filter, group, and label facts (who, what, where, when).",
+    "why": "Stable, conformed dims make metrics comparable across domains.",
+    "example": "`dim_customer` with name, segment, region; facts store `customer_key`.",
+    "remember": [
+      "Surrogate keys + natural/business keys",
+      "Slowly changing dims (SCD) when history matters"
+    ],
+    "mustKnow": null,
+    "snippet": "dim: surrogate_key + business_key + attributes (+ SCD cols)",
+    "related": [
+      "Fact Table",
+      "Conformed Dimension",
+      "SCD Type 2"
+    ],
+    "symptom": "Same customer looks different across two marts.",
+    "tags": [
+      "interview",
+      "modeling",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "One Big Table (OBT)",
+    "category": "Data Modeling Patterns",
+    "categorySlug": "21-data-modeling",
+    "file": "21-data-modeling/concepts.md",
+    "definition": "A single wide, denormalized table with facts and dimension attributes flattened into columns (often the final \u201cgold\u201d or ML feature table).",
+    "why": "Fast and simple for one use case (dashboard, notebook, model training); painful when many consumers need different grains or shared definitions.",
+    "example": "`orders_obt` with `order_id`, `amount`, `customer_name`, `customer_segment`, `product_name`, `category` all on one row.",
+    "remember": [
+      "Great for a single product/team slice; weak as the enterprise source of truth",
+      "Duplication and SCD history explode unless carefully designed",
+      "Common pattern: Vault or 3NF \u2192 star \u2192 optional OBT for a consumer"
+    ],
+    "mustKnow": null,
+    "snippet": "-- wide denormalized row for one consumer\n-- order_id, amount, customer_*, product_* all in one table",
+    "related": [
+      "Star Schema",
+      "Data Vault",
+      "Modeling Pattern Choice"
+    ],
+    "symptom": "One team wants a single flat table; enterprise shared metrics keep breaking.",
+    "tags": [
+      "interview",
+      "modeling",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Data Vault",
+    "category": "Data Modeling Patterns",
+    "categorySlug": "21-data-modeling",
+    "file": "21-data-modeling/concepts.md",
+    "definition": "Modeling method for the **enterprise integration** layer: Hubs (business keys), Links (relationships), Satellites (descriptive/history) \u2014 built for auditability and multi-source change.",
+    "why": "Absorbs source change and history without rewriting marts every time; separates \u201cwhat happened\u201d storage from \u201chow we present it.\u201d",
+    "example": "Hub Customer, Hub Product, Link Order, Satellites for customer attributes from CRM and ERP.",
+    "remember": [
+      "Vault is usually raw/integration (silver), not the BI star",
+      "Build dimensional or OBT marts **on top** of Vault",
+      "Insert-mostly / historized by design"
+    ],
+    "mustKnow": null,
+    "snippet": "Hub (BK) + Link (relationship) + Satellite (attrs/history)",
+    "related": [
+      "Hub (Data Vault)",
+      "Link (Data Vault)",
+      "Satellite (Data Vault)",
+      "Modeling Pattern Choice"
+    ],
+    "symptom": "Sources keep changing and rebuilding stars from scratch is too slow.",
+    "tags": [
+      "interview",
+      "modeling",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Hub (Data Vault)",
+    "category": "Data Modeling Patterns",
+    "categorySlug": "21-data-modeling",
+    "file": "21-data-modeling/concepts.md",
+    "definition": "Table that stores a unique **business key** (and load metadata) for a core business entity \u2014 no descriptive attributes.",
+    "why": "Stable identity across sources; hubs don\u2019t churn when attributes change.",
+    "example": "`hub_customer(customer_hk, customer_bk, load_dts, record_source)`.",
+    "remember": [
+      "Business key only (+ hash key, load timestamp, source)",
+      "Attributes go in satellites"
+    ],
+    "mustKnow": null,
+    "snippet": "hub_customer(hk, business_key, load_dts, record_source)",
+    "related": [
+      "Satellite (Data Vault)",
+      "Link (Data Vault)",
+      "Data Vault"
+    ],
+    "symptom": "Need a stable identity across CRM + ERP without mixing attributes.",
+    "tags": [
+      "interview",
+      "modeling",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Link (Data Vault)",
+    "category": "Data Modeling Patterns",
+    "categorySlug": "21-data-modeling",
+    "file": "21-data-modeling/concepts.md",
+    "definition": "Table that records a **relationship** (or transaction) between hubs \u2014 the association, not the descriptions.",
+    "why": "Many-to-many and multi-source relationships stay explicit and historized.",
+    "example": "`link_order(order_hk, customer_hk, product_hk, load_dts, record_source)` for \u201ccustomer bought product.\u201d",
+    "remember": [
+      "Links connect hubs; satellites hang off hubs or links",
+      "Same relationship from two sources can share structure carefully"
+    ],
+    "mustKnow": null,
+    "snippet": "link_order(order_hk, customer_hk, product_hk, load_dts, source)",
+    "related": [
+      "Hub (Data Vault)",
+      "Satellite (Data Vault)",
+      "Data Vault"
+    ],
+    "symptom": "Relationships (who bought what) need history independent of attribute changes.",
+    "tags": [
+      "interview",
+      "modeling",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Satellite (Data Vault)",
+    "category": "Data Modeling Patterns",
+    "categorySlug": "21-data-modeling",
+    "file": "21-data-modeling/concepts.md",
+    "definition": "Descriptive and historized attributes for a hub or link \u2014 where SCD-like change lives in Vault.",
+    "why": "Source systems change fields independently; satellites isolate that churn.",
+    "example": "`sat_customer_crm` (name, email, segment) and `sat_customer_erp` (credit_limit) on the same hub.",
+    "remember": [
+      "One satellite per rate-of-change / source family is common",
+      "Load timestamp + hashdiff for change detection"
+    ],
+    "mustKnow": null,
+    "snippet": "sat_* (parent_hk, load_dts, hashdiff, attrs...) \u2014 historized",
+    "related": [
+      "Hub (Data Vault)",
+      "SCD Type 2",
+      "Data Vault"
+    ],
+    "symptom": "Attribute history from one source must not overwrite another source's fields.",
+    "tags": [
+      "cdc",
+      "interview",
+      "modeling",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Raw Vault vs Business Vault",
+    "category": "Data Modeling Patterns",
+    "categorySlug": "21-data-modeling",
+    "file": "21-data-modeling/concepts.md",
+    "definition": "**Raw Vault** mirrors source-driven hubs/links/sats with minimal business rules; **Business Vault** adds soft rules, computed satellites, and cleaned keys closer to enterprise meaning.",
+    "why": "Keeps auditable raw history separate from interpreted business logic.",
+    "example": "Raw: CRM customer as loaded. Business: standardized phone, golden customer match key, derived \u201cactive_flag.\u201d",
+    "remember": [
+      "Don\u2019t bury heavy BI metrics in Raw Vault",
+      "Marts still sit above Business Vault / information marts"
+    ],
+    "mustKnow": null,
+    "snippet": "Raw = source-shaped hubs/links/sats\nBusiness = rules, cleansed keys, derived sats",
+    "related": [
+      "Data Vault",
+      "Data Contracts",
+      "Modeling Pattern Choice"
+    ],
+    "symptom": "Business rules buried in the auditable raw layer \u2014 hard to explain lineage.",
+    "tags": [
+      "interview",
+      "modeling",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Inmon (CIF / EDW)",
+    "category": "Data Modeling Patterns",
+    "categorySlug": "21-data-modeling",
+    "file": "21-data-modeling/concepts.md",
+    "definition": "Enterprise warehouse approach: normalized integration model (often 3NF) as the system of record, then departmental dimensional marts for consumption.",
+    "why": "Strong for enterprise consistency; heavier to build and change than pure Kimball marts.",
+    "example": "Normalized EDW tables for customer/order \u2192 sales mart star for Finance.",
+    "remember": [
+      "Inmon \u2248 integrate normalized first; Kimball \u2248 marts first",
+      "Modern lakes often mix: Vault/3NF silver + Kimball/OBT gold"
+    ],
+    "mustKnow": null,
+    "snippet": "normalized EDW (integrate) \u2192 dimensional marts (serve)",
+    "related": [
+      "Dimensional Modeling (Kimball)",
+      "Data Vault",
+      "Modeling Pattern Choice"
+    ],
+    "symptom": "Need one enterprise integrated model before many departmental marts.",
+    "tags": [
+      "interview",
+      "modeling",
+      "warehouse"
+    ]
+  },
+  {
+    "name": "Modeling Pattern Choice",
+    "category": "Data Modeling Patterns",
+    "categorySlug": "21-data-modeling",
+    "file": "21-data-modeling/concepts.md",
+    "definition": "Picking Vault / dimensional / OBT (or a layered mix) based on change rate, consumers, and who owns metrics.",
+    "why": "Wrong pattern \u2192 either endless remapping (too rigid) or metric chaos (too flat).",
+    "example": "Multi-source core \u2192 Data Vault; Finance KPIs \u2192 star mart; one ML feature set \u2192 OBT built from the mart/Vault.",
+    "remember": [
+      "Integration layer: Vault or normalized EDW",
+      "Serving layer: star (shared metrics) or OBT (single consumer)",
+      "Don\u2019t make OBT your only enterprise model"
+    ],
+    "mustKnow": null,
+    "snippet": "integrate: Vault/3NF\nserve shared KPIs: star\nserve one consumer: OBT",
+    "related": [
+      "Data Vault",
+      "Star Schema",
+      "One Big Table (OBT)",
+      "Dimensional Modeling (Kimball)"
+    ],
+    "symptom": "Team debates Vault vs star vs OBT \u2014 pick by layer and consumer, not fashion.",
+    "tags": [
+      "interview",
+      "modeling",
+      "warehouse"
     ]
   }
 ]

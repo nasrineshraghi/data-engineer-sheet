@@ -100,6 +100,79 @@
 
 ---
 
+### Cron Expression
+
+**Definition:** Compact schedule string (usually 5 fields: minute hour day-of-month month day-of-week) that says when a job should fire.
+
+**Why it matters:** Still the lingua franca for schedules — OS crontab, Airflow, K8s CronJob, cloud schedulers all speak cron-ish dialects.
+
+**Example:** `0 6 * * 1-5` = 06:00 every weekday; `*/15 * * * *` = every 15 minutes.
+
+**Remember:**
+- Field order: minute → hour → day → month → weekday (seconds field is a non-standard 6th)
+- `*` = every; `*/n` = every n; lists and ranges vary slightly by tool
+
+---
+
+### Crontab / Cron Job
+
+**Definition:** OS or host-level job launcher that runs a command when a cron expression matches (classic `/etc/crontab` or user crontab).
+
+**Why it matters:** Fine for one machine / one script; weak for dependencies, retries, observability, and multi-step pipelines.
+
+**Example:** `0 2 * * * /opt/etl/load_orders.sh >> /var/log/orders.log 2>&1`
+
+**Remember:**
+- No DAG: jobs don’t know about upstream readiness
+- Overlaps, silent failures, and timezone bugs are common
+- Prefer an orchestrator once you have dependencies or SLAs
+
+---
+
+### Cron Timezone Pitfalls
+
+**Definition:** Cron fires in the scheduler’s timezone (often UTC on servers); DST and “local business midnight” confuse partition dates.
+
+**Why it matters:** Wrong tz → wrong `dt=` partition, missed business-day runs, or double runs around DST.
+
+**Example:** Job meant for “US Eastern midnight” scheduled as `0 0 * * *` on a UTC host runs at 19:00 ET previous day.
+
+**Remember:**
+- Prefer UTC everywhere and convert for business calendars explicitly
+- Document which clock the schedule uses
+- Airflow: set DAG timezone deliberately
+
+---
+
+### Overlapping Cron Runs
+
+**Definition:** Next scheduled start begins while the previous run is still executing (slow job + frequent cron).
+
+**Why it matters:** Duplicate writes, lock fights, or corrupted partial loads unless the job is idempotent and concurrency-safe.
+
+**Example:** Hourly job still running at :00 next hour → two loaders append the same partition.
+
+**Remember:**
+- Use locks (`flock`), `max_active_runs=1`, or skip-if-running
+- Make writes idempotent even when overlaps happen
+- Lengthen the interval or speed up the job
+
+---
+
+### Cron vs Orchestrator
+
+**Definition:** Cron starts a command on a clock; an orchestrator (Airflow/Dagster/etc.) manages DAGs, sensors, retries, backfill, and lineage of runs.
+
+**Why it matters:** Clock ≠ data ready. Blind cron races upstream; orchestrators can wait on files/datasets and recover cleanly.
+
+**Example:** Cron: always start at 6am. Orchestrator: sensor waits for `_SUCCESS`, then transform → test → publish.
+
+**Remember:**
+- Cron for simple single-host tasks; orchestrator for production pipelines
+- Dataset/sensor triggers beat fixed cron when latency varies
+
+---
+
 ### Pipeline Orchestration
 
 **Definition:** Schedule, dependency management, retries, and observability of multi-step data jobs.
