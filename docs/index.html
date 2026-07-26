@@ -760,6 +760,7 @@
     </footer>
   </main>
 
+  <script src="data.js"></script>
   <script>
     const $ = (id) => document.getElementById(id);
     const LEARN_KEY = "de-sheet-learned-v1";
@@ -1259,23 +1260,7 @@
       if (el) el.innerHTML = `<p class="hint" style="padding:1rem;color:var(--bad)">${escapeHtml(msg)}</p>`;
     };
 
-    const boot = async () => {
-      try {
-        const base = new URL(".", location.href);
-        const [cRes, sRes, pRes] = await Promise.all([
-          fetch(new URL("concepts.json", base)),
-          fetch(new URL("scenarios.json", base)),
-          fetch(new URL("playbook.json", base)),
-        ]);
-        if (!cRes.ok) throw new Error("Could not load concepts.json (" + cRes.status + "). Open via http://127.0.0.1:8765/ not as a raw file.");
-        concepts = await cRes.json();
-        scenarios = sRes.ok ? await sRes.json() : [];
-        playbook = pRes.ok ? await pRes.json() : [];
-      } catch (err) {
-        console.error(err);
-        showBootError(String(err.message || err));
-        return;
-      }
+    const startApp = () => {
       byName = new Map(concepts.map((c) => [c.name, c]));
       renderWotd(); renderChips(); renderTagChips(); updateProgress(); renderSearch();
       renderEssentials(); renderMustSummaryTable(); renderPlaybook();
@@ -1289,6 +1274,32 @@
       if (location.hash === "#flash") setMode("flash");
       if (location.hash === "#quiz") setMode("quiz");
       if (location.hash === "#scenarios") setMode("scenarios");
+    };
+
+    const boot = async () => {
+      if (Array.isArray(window.DE_CONCEPTS) && window.DE_CONCEPTS.length) {
+        concepts = window.DE_CONCEPTS;
+        scenarios = Array.isArray(window.DE_SCENARIOS) ? window.DE_SCENARIOS : [];
+        playbook = Array.isArray(window.DE_PLAYBOOK) ? window.DE_PLAYBOOK : [];
+        startApp();
+        return;
+      }
+      try {
+        const base = new URL(".", location.href);
+        const [cRes, sRes, pRes] = await Promise.all([
+          fetch(new URL("concepts.json", base)),
+          fetch(new URL("scenarios.json", base)),
+          fetch(new URL("playbook.json", base)),
+        ]);
+        if (!cRes.ok) throw new Error("Could not load concepts.json (" + cRes.status + ")");
+        concepts = await cRes.json();
+        scenarios = sRes.ok ? await sRes.json() : [];
+        playbook = pRes.ok ? await pRes.json() : [];
+        startApp();
+      } catch (err) {
+        console.error(err);
+        showBootError("Could not load data. Open docs/index.html next to data.js, or use http://127.0.0.1:8777/");
+      }
     };
 
     boot();

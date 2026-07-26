@@ -113,6 +113,16 @@ def main() -> None:
     (DOCS / "concepts.json").write_text(payload + "\n")
     scenarios_payload = json.dumps(scenarios, indent=2)
     playbook_payload = json.dumps(playbook, indent=2)
+    # Works with file:// (Cursor preview) and http — no fetch required
+    (DOCS / "data.js").write_text(
+        "window.DE_CONCEPTS = "
+        + payload
+        + ";\nwindow.DE_SCENARIOS = "
+        + scenarios_payload
+        + ";\nwindow.DE_PLAYBOOK = "
+        + playbook_payload
+        + ";\n"
+    )
 
     must = sorted(
         [c for c in all_concepts if c.get("mustKnow")],
