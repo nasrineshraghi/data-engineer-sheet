@@ -624,38 +624,22 @@
     <div id="top-links" style="position:sticky;top:0;z-index:9999;background:#0f766e;color:#fff;padding:.75rem 1rem;font:600 15px/1.4 system-ui,sans-serif;display:flex;flex-wrap:wrap;gap:.75rem;align-items:center">
     <a href="index.html" style="color:#fff;text-decoration:underline">Home</a>
     <a href="table.html" style="color:#fff;background:#ea580c;padding:.35rem .7rem;border-radius:999px;text-decoration:none">Summary table</a>
-    <a href="?mode=essentials" style="color:#fff;text-decoration:underline">Essentials</a>
-    <a href="?mode=prod" style="color:#fff;text-decoration:underline">Prod</a>
-    <a href="app.html?tag=api" style="color:#fff;text-decoration:underline">API</a>
-  </div>
-
-  <div id="always-visible" style="max-width:760px;margin:1rem auto;padding:0 1rem;font:16px/1.5 system-ui,sans-serif;color:#12202e;background:#fff;border-radius:12px;border:2px solid #0f766e">
-    <p style="margin:0.75rem 0;font-weight:800;color:#0f766e">Essentials (always visible)</p>
-    <ol style="margin:0 0 0.75rem 1.2rem;padding:0">
-      <li><strong>Grain</strong> — know what one row means</li>
-      <li><strong>Idempotency</strong> — safe to retry</li>
-      <li><strong>Shuffle</strong> — moving data is expensive</li>
-      <li><strong>Partition Pruning</strong> — skip folders with filters</li>
-      <li><strong>Predicate Pushdown</strong> — filter early</li>
-      <li><strong>Cardinality</strong> — distinct counts drive cost</li>
-      <li><strong>Lazy Evaluation</strong> — actions run the plan</li>
-      <li><strong>Job → Stage → Task</strong> — Spark UI shape</li>
-      <li><strong>At Least Once</strong> — duplicates after failure</li>
-      <li><strong>Freshness</strong> — green job ≠ fresh data</li>
-    </ol>
-    <p style="margin:0 0 0.75rem"><a href="table.html" style="font-weight:800;color:#ea580c">Open summary table</a> ·
-    <a href="index.html" style="font-weight:800;color:#0f766e">Home</a></p>
+    <a href="app.html?mode=essentials" style="color:#fff;text-decoration:underline">Essentials</a>
+    <a href="app.html?mode=prod" style="color:#fff;text-decoration:underline">Prod</a>
+    <a href="app.html?mode=search&tag=api" style="color:#fff;text-decoration:underline">API</a>
   </div>
 
   <main class="wrap">
     <h1 class="brand">Data Engineer<br /><span>Sheet</span></h1>
-    <p class="lede">A calm place to learn DE concepts — one idea at a time.</p>
+    <p class="lede" id="mode-lede">A calm place to learn DE concepts — one idea at a time.</p>
+    <p id="mode-banner" style="margin:0 0 1rem;padding:.55rem .85rem;background:#0f766e;color:#fff;border-radius:10px;font:700 15px/1.4 system-ui,sans-serif">Viewing: Essentials</p>
 
     <div class="quick-links">
       <a class="primary" href="table.html">Summary table (all)</a>
-      <a href="?mode=essentials">Most important (10)</a>
-      <a href="?mode=prod">When to use (Prod)</a>
-      <a href="?mode=must">Must-know 30</a>
+      <a href="app.html?mode=essentials">Most important (10)</a>
+      <a href="app.html?mode=prod">When to use (Prod)</a>
+      <a href="app.html?mode=must">Must-know 30</a>
+      <a href="app.html?mode=search">Browse all</a>
     </div>
 
     <aside class="wotd" id="wotd" title="Open this concept"></aside>
@@ -799,6 +783,7 @@
     </footer>
   </main>
 
+    <script src="data.js"></script>
     <script>
     const $ = (id) => document.getElementById(id);
     const LEARN_KEY = "de-sheet-learned-v1";
@@ -1140,6 +1125,16 @@
       }).join("");
     };
 
+    const MODE_LABELS = {
+      essentials: ["Viewing: Essentials", "The 10 concepts to learn first."],
+      prod: ["Viewing: Prod playbook", "Start from a production symptom, then open the concepts."],
+      search: ["Viewing: Browse all", "Search the full glossary by name, tag, or section."],
+      must: ["Viewing: Must-know 30", "Next layer after Essentials."],
+      flash: ["Viewing: Flashcards", "Flip cards; mark Know / Again."],
+      quiz: ["Viewing: Quiz", "Self-check definitions."],
+      scenarios: ["Viewing: Stories", "Pick the right concepts for an incident."],
+    };
+
     const setMode = (next) => {
       if (next === "path" || next === "start") next = "essentials";
       if (next === "table") {
@@ -1158,17 +1153,27 @@
         panel.classList.toggle("active", on);
         panel.hidden = !on;
       });
+      const labels = MODE_LABELS[mode] || ["Viewing: " + mode, ""];
+      const banner = $("mode-banner");
+      const lede = $("mode-lede");
+      if (banner) banner.textContent = labels[0];
+      if (lede) lede.textContent = labels[1];
       if (mode === "essentials") renderEssentials();
       if (mode === "prod") { renderPlaybook(); var _pq=$("prod-q"); if(_pq)_pq.focus(); }
       if (mode === "must") renderMust();
       if (mode === "flash") { buildDeck(); renderFlash(); $("flash-card").focus(); }
       if (mode === "quiz") { $("quiz-score").textContent = quizScore; $("quiz-asked").textContent = quizAsked; nextQuiz(); }
       if (mode === "scenarios") renderScenarios();
-      if (mode === "search") $("q").focus();
+      if (mode === "search") { renderSearch(); var _q=$("q"); if(_q)_q.focus(); }
       try {
         const url = new URL(location.href);
         url.searchParams.set("mode", mode);
+        if (mode !== "search") url.searchParams.delete("tag");
         history.replaceState(null, "", url);
+      } catch (_) {}
+      try {
+        const panel = $("panel-" + mode);
+        if (panel) panel.scrollIntoView({ behavior: "smooth", block: "start" });
       } catch (_) {}
     };
 
@@ -1377,30 +1382,42 @@
       byName = new Map(concepts.map((c) => [c.name, c]));
       updateProgress();
       renderEssentials();
-      try { setMode("essentials"); } catch (_) {}
+    };
+
+    const hideFallback = () => {
+      const fb = document.getElementById("app-fallback");
+      if (fb) fb.style.display = "none";
+    };
+
+    const applyCatalog = (c, s, p) => {
+      concepts = c;
+      scenarios = Array.isArray(s) ? s : [];
+      playbook = Array.isArray(p) ? p : [];
+      startApp();
+      hideFallback();
     };
 
     const boot = async () => {
       try { updateProgress(); } catch (_) {}
-      // Always paint essentials immediately from inline data
-      try { essentialsOnlyFallback(); } catch (e) { console.error(e); }
 
       try {
+        if (Array.isArray(window.DE_CONCEPTS) && window.DE_CONCEPTS.length) {
+          applyCatalog(window.DE_CONCEPTS, window.DE_SCENARIOS, window.DE_PLAYBOOK);
+          return;
+        }
         const [c, s, p] = await Promise.all([
           loadJson("concepts.json"),
           loadJson("scenarios.json").catch(() => []),
           loadJson("playbook.json").catch(() => []),
         ]);
         if (!Array.isArray(c) || !c.length) throw new Error("concepts.json empty");
-        concepts = c;
-        scenarios = Array.isArray(s) ? s : [];
-        playbook = Array.isArray(p) ? p : [];
-        startApp();
-        const fb = document.getElementById("app-fallback");
-        if (fb) fb.style.display = "none";
+        applyCatalog(c, s, p);
       } catch (err) {
         console.error(err);
         essentialsOnlyFallback();
+        const params = new URLSearchParams(location.search);
+        const want = params.get("mode") || "essentials";
+        try { setMode(want === "table" ? "essentials" : want); } catch (_) { setMode("essentials"); }
         showBootError("Could not load full catalog (" + (err && err.message ? err.message : err) + "). Essentials + Summary table still work.");
       }
     };
