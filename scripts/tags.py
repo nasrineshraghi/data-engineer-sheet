@@ -21,6 +21,7 @@ CATEGORY_TAGS = {
     "17-snowflake": ["snowflake", "warehouse", "interview"],
     "18-clinical-data": ["clinical", "healthcare"],
     "19-api": ["api", "pipeline"],
+    "20-file-formats": ["file-format", "parquet", "lakehouse"],
 }
 
 # Extra tags layered on top of category defaults (by concept name)

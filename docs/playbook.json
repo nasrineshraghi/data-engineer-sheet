@@ -174,5 +174,27 @@
       "Polling vs Event-Driven"
     ],
     "habit": "At-least-once delivery needs idempotent handlers."
+  },
+  {
+    "id": "tiny-parquet",
+    "see": "Lake queries slow; driver struggles listing files",
+    "do": "Check file counts/sizes. Compact small Parquet files; target ~128MB\u20131GB. Fix streaming small-file write pattern.",
+    "concepts": [
+      "File Size Tuning",
+      "Parquet",
+      "Delta / Iceberg / Hudi Data Files"
+    ],
+    "habit": "Table formats manage files \u2014 you still owe them healthy Parquet sizes."
+  },
+  {
+    "id": "gzip-csv-wall",
+    "see": "One executor works; the rest of the cluster is idle on ingest",
+    "do": "Avoid non-splittable huge .gz CSV. Convert to Parquet/ORC; use splittable compression.",
+    "concepts": [
+      "Splittable File",
+      "Snappy / ZSTD / Gzip",
+      "Parquet"
+    ],
+    "habit": "If it isn't splittable, you don't have parallelism."
   }
 ]

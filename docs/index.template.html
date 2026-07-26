@@ -233,6 +233,8 @@
     .chip[data-tag="dbt"], .chip[data-flash-tag="dbt"], .chip[data-quiz-tag="dbt"] { background: #fff1f2; border-color: #fb7185; color: #be123c; }
     .chip[data-tag="snowflake"], .chip[data-flash-tag="snowflake"], .chip[data-quiz-tag="snowflake"] { background: #eff6ff; border-color: #38bdf8; color: #0369a1; }
     .chip[data-tag="api"], .chip[data-flash-tag="api"], .chip[data-quiz-tag="api"] { background: #f5f3ff; border-color: #a78bfa; color: #5b21b6; }
+    .chip[data-tag="parquet"], .chip[data-flash-tag="parquet"], .chip[data-quiz-tag="parquet"],
+    .chip[data-tag="file-format"], .chip[data-flash-tag="file-format"], .chip[data-quiz-tag="file-format"] { background: #fff7ed; border-color: #fb923c; color: #c2410c; }
     .chip[data-tag="clinical"], .chip[data-flash-tag="clinical"], .chip[data-quiz-tag="clinical"],
     .chip[data-tag="medication"], .chip[data-flash-tag="medication"], .chip[data-quiz-tag="medication"],
     .chip[data-tag="lab"], .chip[data-flash-tag="lab"], .chip[data-quiz-tag="lab"],
@@ -776,7 +778,7 @@
     const $ = (id) => document.getElementById(id);
     const LEARN_KEY = "de-sheet-learned-v1";
     const STREAK_KEY = "de-sheet-streak-v1";
-    const TAG_ORDER = ["interview","api","clinical","medication","lab","spark","streaming","kafka","airflow","dbt","snowflake","cdc","sql","warehouse","lakehouse","distributed","pipeline","performance","cost","quality","cloud","devops","healthcare"];
+    const TAG_ORDER = ["interview","api","parquet","file-format","clinical","medication","lab","spark","streaming","kafka","airflow","dbt","snowflake","cdc","sql","warehouse","lakehouse","distributed","pipeline","performance","cost","quality","cloud","devops","healthcare"];
 
     let concepts = [], scenarios = [], playbook = [], byName = new Map();
     let activeCategory = "All", activeTag = "All", flashTag = "essentials", quizTag = "essentials";

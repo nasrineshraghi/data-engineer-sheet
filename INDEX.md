@@ -16,16 +16,19 @@ Jump to the category file for definition + example.
 | Apache Iceberg | [Data Lake & Lakehouse](04-data-lake-lakehouse/concepts.md) |
 | API Contract / OpenAPI | [APIs for Data Engineers](19-api/concepts.md) |
 | API Key | [APIs for Data Engineers](19-api/concepts.md) |
+| Arrow (In-Memory) | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | At Least Once | [Streaming](06-streaming/concepts.md) |
 | At Most Once | [Streaming](06-streaming/concepts.md) |
 | Authentication vs Authorization | [APIs for Data Engineers](19-api/concepts.md) |
 | Autoscaling / Autosuspend | [Cost Optimization](16-cost-optimization/concepts.md) |
+| Avro | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | B-Tree Index | [Database & SQL Concepts](01-database-sql/concepts.md) |
 | Backfill | [Airflow](15-airflow/concepts.md) |
 | Backoff Strategy | [Pipeline Design](07-pipeline-design/concepts.md) |
 | BASE | [Distributed Systems](05-distributed-systems/concepts.md) |
 | Bitmap Index | [Database & SQL Concepts](01-database-sql/concepts.md) |
 | Block Storage | [Cloud & Storage](10-cloud-storage/concepts.md) |
+| Bloom Filter (Parquet) | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | Bridge Table | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
 | Broadcast Join | [Performance Tuning](08-performance-tuning/concepts.md) |
 | Broadcast Variables | [Spark Internals](02-spark-internals/concepts.md) |
@@ -46,10 +49,12 @@ Jump to the category file for definition + example.
 | Clustered vs Non-Clustered Index | [Database & SQL Concepts](01-database-sql/concepts.md) |
 | Clustering Key | [Snowflake](17-snowflake/concepts.md) |
 | Column Pruning | [Cost Optimization](16-cost-optimization/concepts.md) |
+| Columnar vs Row-Oriented | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | Compaction | [Data Lake & Lakehouse](04-data-lake-lakehouse/concepts.md) |
 | Compaction (Kafka) | [Kafka](14-kafka/concepts.md) |
 | Completeness | [Data Quality & Governance](09-data-quality-governance/concepts.md) |
 | Composite Index | [Database & SQL Concepts](01-database-sql/concepts.md) |
+| Compression Codec | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | Conformed Dimension | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
 | Consensus | [Distributed Systems](05-distributed-systems/concepts.md) |
 | Consistency | [Data Quality & Governance](09-data-quality-governance/concepts.md) |
@@ -59,6 +64,7 @@ Jump to the category file for definition + example.
 | Cost-Based Optimizer (CBO) | [Database & SQL Concepts](01-database-sql/concepts.md) |
 | Covering Index | [Database & SQL Concepts](01-database-sql/concepts.md) |
 | CQRS | [Streaming](06-streaming/concepts.md) |
+| CSV | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | DAG | [Airflow](15-airflow/concepts.md) |
 | DAG Scheduler | [Spark Internals](02-spark-internals/concepts.md) |
 | Data Catalog | [Data Quality & Governance](09-data-quality-governance/concepts.md) |
@@ -77,12 +83,14 @@ Jump to the category file for definition + example.
 | Dead Letter Queue (DLQ) | [Pipeline Design](07-pipeline-design/concepts.md) |
 | Dead Letter Topic | [Kafka](14-kafka/concepts.md) |
 | Degenerate Dimension | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
+| Delta / Iceberg / Hudi Data Files | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | Delta Lake | [Data Lake & Lakehouse](04-data-lake-lakehouse/concepts.md) |
 | Docker | [DevOps for Data](11-devops/concepts.md) |
 | Documentation / Docs Site | [dbt](13-dbt/concepts.md) |
 | Driver | [Spark Internals](02-spark-internals/concepts.md) |
 | Dynamic Partition Pruning | [Spark Internals](02-spark-internals/concepts.md) |
 | Effective Dating | [CDC & SCD](12-cdc-scd/concepts.md) |
+| Encoding (Dictionary / RLE / Plain) | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | Encounter / Visit Context | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Encryption at Rest | [Cloud & Storage](10-cloud-storage/concepts.md) |
 | Encryption in Transit | [Cloud & Storage](10-cloud-storage/concepts.md) |
@@ -101,6 +109,7 @@ Jump to the category file for definition + example.
 | Fail-safe | [Snowflake](17-snowflake/concepts.md) |
 | Fault Tolerance | [Distributed Systems](05-distributed-systems/concepts.md) |
 | File Size Tuning | [Cost Optimization](16-cost-optimization/concepts.md) |
+| File Size Tuning | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | Freshness | [Data Quality & Governance](09-data-quality-governance/concepts.md) |
 | GitOps | [DevOps for Data](11-devops/concepts.md) |
 | Grain | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
@@ -122,6 +131,7 @@ Jump to the category file for definition + example.
 | Ingestion Time | [Streaming](06-streaming/concepts.md) |
 | ISR (In-Sync Replicas) | [Kafka](14-kafka/concepts.md) |
 | Job → Stage → Task | [Spark Internals](02-spark-internals/concepts.md) |
+| JSON / JSON Lines (NDJSON) | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | JSON / Payload Schema | [APIs for Data Engineers](19-api/concepts.md) |
 | Junk Dimension | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
 | KMS | [Cloud & Storage](10-cloud-storage/concepts.md) |
@@ -136,6 +146,7 @@ Jump to the category file for definition + example.
 | Lineage | [Spark Internals](02-spark-internals/concepts.md) |
 | Log-Based CDC | [CDC & SCD](12-cdc-scd/concepts.md) |
 | LOINC | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
+| Manifest / File List | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | Master Data Management (MDM) | [Data Quality & Governance](09-data-quality-governance/concepts.md) |
 | Materialization | [dbt](13-dbt/concepts.md) |
 | Medication Administration (MAR) | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
@@ -154,11 +165,16 @@ Jump to the category file for definition + example.
 | Observability | [Data Quality & Governance](09-data-quality-governance/concepts.md) |
 | Offset | [Kafka](14-kafka/concepts.md) |
 | Optimize | [Data Lake & Lakehouse](04-data-lake-lakehouse/concepts.md) |
+| ORC | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | Order → Dispense → Administration Chain | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
+| Page / Column Chunk | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | Pagination | [APIs for Data Engineers](19-api/concepts.md) |
 | Panel vs Analyte | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Parallelism | [Performance Tuning](08-performance-tuning/concepts.md) |
+| Parquet | [File Formats for Data Engineers](20-file-formats/concepts.md) |
+| Parquet Footer / Footer Statistics | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | Partition | [Kafka](14-kafka/concepts.md) |
+| Partition Layout (Files on Disk) | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | Partition Pruning | [Database & SQL Concepts](01-database-sql/concepts.md) |
 | Partition Sizing | [Performance Tuning](08-performance-tuning/concepts.md) |
 | Paxos | [Distributed Systems](05-distributed-systems/concepts.md) |
@@ -169,6 +185,7 @@ Jump to the category file for definition + example.
 | Polling vs Event-Driven | [APIs for Data Engineers](19-api/concepts.md) |
 | Pool / Slot | [Airflow](15-airflow/concepts.md) |
 | Predicate Pushdown | [Database & SQL Concepts](01-database-sql/concepts.md) |
+| Predicate Pushdown (Files) | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | Private Endpoints | [Cloud & Storage](10-cloud-storage/concepts.md) |
 | Processing Time | [Streaming](06-streaming/concepts.md) |
 | Producer / Consumer | [Kafka](14-kafka/concepts.md) |
@@ -189,6 +206,7 @@ Jump to the category file for definition + example.
 | Right-Sizing Warehouses | [Cost Optimization](16-cost-optimization/concepts.md) |
 | Role-Playing Dimension | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
 | Roles & RBAC | [Snowflake](17-snowflake/concepts.md) |
+| Row Group / Stripe | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | Rule-Based Optimizer (RBO) | [Database & SQL Concepts](01-database-sql/concepts.md) |
 | RxNorm | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Salting | [Performance Tuning](08-performance-tuning/concepts.md) |
@@ -199,6 +217,7 @@ Jump to the category file for definition + example.
 | Schedule / Timetable | [Airflow](15-airflow/concepts.md) |
 | Schema Enforcement | [Data Lake & Lakehouse](04-data-lake-lakehouse/concepts.md) |
 | Schema Evolution | [Data Lake & Lakehouse](04-data-lake-lakehouse/concepts.md) |
+| Schema Evolution (Files) | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | Schema Registry | [Kafka](14-kafka/concepts.md) |
 | Secrets Management | [Cloud & Storage](10-cloud-storage/concepts.md) |
 | Secure Data Sharing | [Snowflake](17-snowflake/concepts.md) |
@@ -217,6 +236,7 @@ Jump to the category file for definition + example.
 | SLA / Quotas | [APIs for Data Engineers](19-api/concepts.md) |
 | Slim CI / State Defer | [dbt](13-dbt/concepts.md) |
 | Small File Problem | [Performance Tuning](08-performance-tuning/concepts.md) |
+| Snappy / ZSTD / Gzip | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | Snapshot Fact | [Data Warehouse Concepts](03-data-warehouse/concepts.md) |
 | Snowpipe | [Snowflake](17-snowflake/concepts.md) |
 | Soft Delete vs Hard Delete | [CDC & SCD](12-cdc-scd/concepts.md) |
@@ -224,6 +244,7 @@ Jump to the category file for definition + example.
 | Sources | [dbt](13-dbt/concepts.md) |
 | Specimen & Collection Time | [Clinical Data — Medications & Labs](18-clinical-data/concepts.md) |
 | Spill to Disk | [Spark Internals](02-spark-internals/concepts.md) |
+| Splittable File | [File Formats for Data Engineers](20-file-formats/concepts.md) |
 | Spot / Preemptible Workers | [Cost Optimization](16-cost-optimization/concepts.md) |
 | Stage | [Snowflake](17-snowflake/concepts.md) |
 | Stateful Processing | [Streaming](06-streaming/concepts.md) |

@@ -4,7 +4,7 @@ One-page cheat sheet: keyword · section · definition · example.
 
 **Prefer the interactive HTML table:** https://nasrineshraghi.github.io/data-engineer-sheet/table.html
 
-**257 concepts** · [Study app](https://nasrineshraghi.github.io/data-engineer-sheet/) · [Local HTML](docs/table.html)
+**278 concepts** · [Study app](https://nasrineshraghi.github.io/data-engineer-sheet/) · [Local HTML](docs/table.html)
 
 | Keyword | Section | Definition | Example |
 |---|---|---|---|
@@ -171,6 +171,27 @@ One-page cheat sheet: keyword · section · definition · example.
 | **Replication** | Distributed Systems | Keep multiple copies of data for durability and/or read scale. | Kafka topic RF=3; Postgres primary + replicas; S3 cross-region copy. |
 | **Strong Consistency** | Distributed Systems | After a write commits, all subsequent reads see it (linearizability / similar guarantees vary by system). | Financial ledger balance must be strongly consistent. |
 | **Vertical Scaling** | Distributed Systems | Give one machine more CPU/RAM/disk. | Upsize a warehouse warehouse node or driver machine. |
+| **Arrow (In-Memory)** | File Formats | Columnar in-memory representation (and IPC/flight) used by pandas, Spark, DuckDB, etc. | `pyarrow.parquet.read_table(...)` → Arrow table → pandas. |
+| **Avro** | File Formats | Row-oriented binary format with a JSON schema; common in Kafka and streaming. | Produce `OrderCreated` Avro to Kafka; Spark Structured Streaming reads with from_avro. |
+| **Bloom Filter (Parquet)** | File Formats | Optional probabilistic structure to skip row groups that definitely don’t contain a value. | Enable bloom filters on `order_id` for “fetch these ids” style scans. |
+| **Columnar vs Row-Oriented** | File Formats | Columnar stores values by column across rows; row-oriented stores whole rows together (CSV, JSON lines, Avro records). | SELECT `user_id, amount` from a 200-column Parquet table reads ~2 columns, not all 200. |
+| **Compression Codec** | File Formats | Algorithm used inside a format (Snappy, ZSTD, Gzip, LZ4, Brottli, …). | Parquet + Snappy for fast ETL; ZSTD for colder, denser storage. |
+| **CSV** | File Formats | Delimited text rows; no embedded types or compression standards. | `user_id,event_time,amount` |
+| **Delta / Iceberg / Hudi Data Files** | File Formats | Open table formats that store data mainly as Parquet (sometimes ORC) plus transaction metadata. | Delta `OPTIMIZE` rewrites small Parquet files into larger ones. |
+| **Encoding (Dictionary / RLE / Plain)** | File Formats | How column values are packed — dictionary, run-length, delta, plain bytes, etc. | Booleans and repeated enums compress extremely well with RLE/dictionary. |
+| **File Size Tuning** | File Formats | Targeting healthy on-disk sizes (often ~128MB–1GB compressed) per file for engine parallelism. | Compact 10,000 × 2MB Parquet files → ~200 × 100MB files. |
+| **JSON / JSON Lines (NDJSON)** | File Formats | JSON objects — as an array file or one object per line (JSONL/NDJSON). | `{"id":1,"items":[{"sku":"A"}]}` per line in `.jsonl`. |
+| **Manifest / File List** | File Formats | Inventory of data files belonging to a table version (Iceberg/Delta manifests; Hive directory listing). | Iceberg manifest lists Parquet paths for snapshot `N`. |
+| **ORC** | File Formats | Columnar format popular in Hive ecosystems (stripes, indexes, ACID tables historically). | Hive table `STORED AS ORC` with ZLIB compression. |
+| **Page / Column Chunk** | File Formats | Inside a row group, each column is stored as chunks/pages (data + optional dictionary page). | Low-cardinality `country` column stores a dictionary once per chunk. |
+| **Parquet** | File Formats | Columnar binary file format with per-column compression, stats (min/max), and nested types (often via Arrow/Spark). | `df.write.mode("overwrite").parquet("s3://lake/events/")` |
+| **Parquet Footer / Footer Statistics** | File Formats | Trailing metadata in a Parquet file: schema, row-group offsets, and min/max/null counts per column chunk. | Query `WHERE amount > 1000` skips row groups with `max(amount) <= 1000`. |
+| **Partition Layout (Files on Disk)** | File Formats | Directory layout like `dt=2024-01-01/country=US/*.parquet` that engines prune by path. | `s3://lake/events/dt=2024-01-01/*.parquet` |
+| **Predicate Pushdown (Files)** | File Formats | Pushing filters into the scan so the reader skips row groups/pages using stats (and partitions). | Spark reads Parquet with `filter("event_date = '2024-01-01'")` → partition + row-group prune. |
+| **Row Group / Stripe** | File Formats | Parquet row group (or ORC stripe) — a horizontal chunk of rows with its own column chunks and stats. | 128MB row groups; filter `dt='2024-01-01'` skips row groups whose max(dt) is older. |
+| **Schema Evolution (Files)** | File Formats | Adding/renaming/dropping fields over time while old files remain readable. | New column `device_type` added; old Parquet files return null for that field. |
+| **Snappy / ZSTD / Gzip** | File Formats | Common codecs — Snappy (fast), ZSTD (strong ratio, tunable), Gzip (ubiquitous, often slower / less friendly for splits). | `parquet.compression=zstd` in Spark writer options. |
+| **Splittable File** | File Formats | A file that workers can read in byte-range splits in parallel (e.g. uncompressed or block-compressed Parquet). | 8GB Gzip CSV → one giant task; 8GB Parquet → many parallel tasks. |
 | **Compaction (Kafka)** | Kafka | Log compaction keeps the latest value per key; older keys garbage-collected. | `customer_profile` compacted topic always has latest profile per `customer_id`. |
 | **Consumer Group** | Kafka | Set of consumers sharing work on a topic; each partition goes to one member. | 6 partitions, 3 consumers in group `billing` → ~2 partitions each. |
 | **Dead Letter Topic** | Kafka | Topic receiving poison / failed records after retries. | Deserialization failures → `orders.dlq` with headers explaining error. |

@@ -33,6 +33,7 @@ CATEGORIES = [
     ("17-snowflake", "Snowflake"),
     ("18-clinical-data", "Clinical Data — Meds & Labs"),
     ("19-api", "APIs for Data Engineers"),
+    ("20-file-formats", "File Formats"),
 ]
 
 

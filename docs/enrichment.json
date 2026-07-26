@@ -1736,13 +1736,16 @@
     "symptom": "SELECT * on a 400-column wide table doubles the bill."
   },
   "File Size Tuning": {
-    "snippet": "df.coalesce(100).write.parquet(path)\n# target ~128-512MB files",
+    "snippet": "# target ~128MB-1GB compressed files for batch tables",
     "related": [
-      "Small File Problem",
-      "Compaction",
-      "Optimize"
+      "Delta / Iceberg / Hudi Data Files",
+      "Partition Layout (Files on Disk)"
     ],
-    "symptom": "Millions of 2MB files make listing slower than scanning."
+    "symptom": "Spark driver OOMs listing 5 million small objects before any scan.",
+    "tags": [
+      "file-format",
+      "performance"
+    ]
   },
   "Spot / Preemptible Workers": {
     "snippet": "# executors on spot; driver on-demand; idempotent job",
@@ -2420,6 +2423,243 @@
     "symptom": "Monday backfill exhausts monthly quota by noon.",
     "tags": [
       "api"
+    ]
+  },
+  "Parquet": {
+    "snippet": "df.write.mode(\"overwrite\").option(\"compression\", \"zstd\").parquet(\"s3://lake/events/dt=2024-01-01\")",
+    "related": [
+      "Columnar vs Row-Oriented",
+      "Parquet Footer / Footer Statistics",
+      "File Size Tuning"
+    ],
+    "symptom": "Wide SELECT * on Parquet is almost as slow as scanning a row format.",
+    "tags": [
+      "file-format",
+      "parquet",
+      "lakehouse"
+    ]
+  },
+  "Columnar vs Row-Oriented": {
+    "snippet": "-- columnar reads only needed columns\nSELECT user_id, amount FROM events_parquet WHERE dt = '2024-01-01';",
+    "related": [
+      "Parquet",
+      "ORC",
+      "Avro"
+    ],
+    "symptom": "Lake bills soar because every query rewrites/reads full-row JSON dumps.",
+    "tags": [
+      "file-format"
+    ]
+  },
+  "Compression Codec": {
+    "snippet": "spark.conf.set(\"spark.sql.parquet.compression.codec\", \"zstd\")",
+    "related": [
+      "Snappy / ZSTD / Gzip",
+      "Parquet"
+    ],
+    "symptom": "CPU-bound jobs after switching all datasets to max-level Gzip.",
+    "tags": [
+      "file-format",
+      "performance"
+    ]
+  },
+  "Snappy / ZSTD / Gzip": {
+    "snippet": "# prefer Parquet+Snappy/ZSTD over .csv.gz for big scans",
+    "related": [
+      "Compression Codec",
+      "Splittable File"
+    ],
+    "symptom": "One 20GB .csv.gz file \u2192 single Spark task forever.",
+    "tags": [
+      "file-format"
+    ]
+  },
+  "Row Group / Stripe": {
+    "snippet": "# parquet.block.size / row group size affects prune + memory\nspark.conf.set(\"parquet.block.size\", 128 * 1024 * 1024)",
+    "related": [
+      "Parquet Footer / Footer Statistics",
+      "Predicate Pushdown (Files)"
+    ],
+    "symptom": "Filters never skip data because each file is one huge row group of mixed dates.",
+    "tags": [
+      "file-format",
+      "parquet"
+    ]
+  },
+  "Page / Column Chunk": {
+    "snippet": "# low-cardinality columns benefit from dictionary pages",
+    "related": [
+      "Encoding (Dictionary / RLE / Plain)",
+      "Parquet"
+    ],
+    "symptom": "String column of UUIDs bloats files \u2014 dictionaries don't help.",
+    "tags": [
+      "file-format",
+      "parquet"
+    ]
+  },
+  "Parquet Footer / Footer Statistics": {
+    "snippet": "# engines read footer first for min/max prune\n# corrupt footer \u2192 file unreadable even if bytes remain",
+    "related": [
+      "Predicate Pushdown (Files)",
+      "Row Group / Stripe"
+    ],
+    "symptom": "Query scans every file despite selective filters \u2014 stats missing or types mismatched.",
+    "tags": [
+      "file-format",
+      "parquet"
+    ]
+  },
+  "Predicate Pushdown (Files)": {
+    "snippet": "spark.read.parquet(path).filter(\"dt = '2024-01-01' AND amount > 100\")",
+    "related": [
+      "Partition Layout (Files on Disk)",
+      "Parquet Footer / Footer Statistics"
+    ],
+    "symptom": "CAST(dt AS string) in filter disables partition/stat pruning.",
+    "tags": [
+      "file-format",
+      "performance"
+    ]
+  },
+  "Schema Evolution (Files)": {
+    "snippet": "# additive column: old files \u2192 null for new field\nspark.read.parquet(path)  # merge schemas carefully",
+    "related": [
+      "Parquet",
+      "Delta / Iceberg / Hudi Data Files"
+    ],
+    "symptom": "Renamed column creates two half-null fields across history.",
+    "tags": [
+      "file-format"
+    ]
+  },
+  "Avro": {
+    "snippet": "# Kafka + Schema Registry\n# value.serializer = KafkaAvroSerializer",
+    "related": [
+      "Columnar vs Row-Oriented",
+      "JSON / JSON Lines (NDJSON)"
+    ],
+    "symptom": "Analytics team scans raw Avro topics like a warehouse \u2014 I/O explodes.",
+    "tags": [
+      "file-format",
+      "streaming"
+    ]
+  },
+  "ORC": {
+    "snippet": "CREATE TABLE t (...) STORED AS ORC TBLPROPERTIES (\"orc.compress\"=\"ZLIB\");",
+    "related": [
+      "Parquet",
+      "Columnar vs Row-Oriented"
+    ],
+    "symptom": "Mixed Parquet+ORC lake confuses tooling and doubles reader codepaths.",
+    "tags": [
+      "file-format"
+    ]
+  },
+  "Arrow (In-Memory)": {
+    "snippet": "import pyarrow.parquet as pq\ntable = pq.read_table(\"events.parquet\", columns=[\"user_id\", \"amount\"])",
+    "related": [
+      "Parquet",
+      "Columnar vs Row-Oriented"
+    ],
+    "symptom": "Pandas read_csv of a huge extract OOMs; Arrow/Parquet path would prune columns.",
+    "tags": [
+      "file-format"
+    ]
+  },
+  "CSV": {
+    "snippet": "# ok for exchange; convert early\n# sep, quote, escape, encoding must be explicit",
+    "related": [
+      "JSON / JSON Lines (NDJSON)",
+      "Parquet"
+    ],
+    "symptom": "Commas inside quoted fields shift columns; types inferred wrong every run.",
+    "tags": [
+      "file-format"
+    ]
+  },
+  "JSON / JSON Lines (NDJSON)": {
+    "snippet": "{\"id\":1,\"ts\":\"2024-01-01T00:00:00Z\"}\n{\"id\":2,\"ts\":\"2024-01-01T00:01:00Z\"}",
+    "related": [
+      "Avro",
+      "CSV"
+    ],
+    "symptom": "One giant JSON array file can't stream; memory spikes on read.",
+    "tags": [
+      "file-format"
+    ]
+  },
+  "Delta / Iceberg / Hudi Data Files": {
+    "snippet": "# data still Parquet underneath\nOPTIMIZE lake.events;  -- compaction rewrites small files",
+    "related": [
+      "Parquet",
+      "File Size Tuning",
+      "Manifest / File List"
+    ],
+    "symptom": "Blaming Delta for slowness when the real issue is 2M tiny Parquet files.",
+    "tags": [
+      "file-format",
+      "lakehouse"
+    ]
+  },
+  "Splittable File": {
+    "snippet": "# good: Parquet/ORC\n# bad: single huge .gz CSV for parallel ETL",
+    "related": [
+      "Snappy / ZSTD / Gzip",
+      "Parquet"
+    ],
+    "symptom": "Cluster idle except one executor reading a non-splittable blob.",
+    "tags": [
+      "file-format",
+      "performance"
+    ]
+  },
+  "Partition Layout (Files on Disk)": {
+    "snippet": "s3://lake/events/dt=2024-01-01/part-000.parquet",
+    "related": [
+      "Predicate Pushdown (Files)",
+      "File Size Tuning"
+    ],
+    "symptom": "Partitioned by user_id \u2192 empty folders and unusable planning times.",
+    "tags": [
+      "file-format",
+      "lakehouse"
+    ]
+  },
+  "Manifest / File List": {
+    "snippet": "# Iceberg/Delta track files in manifests instead of LIST /*",
+    "related": [
+      "Delta / Iceberg / Hudi Data Files",
+      "File Size Tuning"
+    ],
+    "symptom": "Hive-style dir listing dominates query time on large tables.",
+    "tags": [
+      "file-format",
+      "lakehouse"
+    ]
+  },
+  "Bloom Filter (Parquet)": {
+    "snippet": "# enable bloom filter on selective id columns (engine-specific writer flags)",
+    "related": [
+      "Parquet Footer / Footer Statistics",
+      "Predicate Pushdown (Files)"
+    ],
+    "symptom": "Point-lookup style filters still read most row groups \u2014 no bloom/stats help.",
+    "tags": [
+      "file-format",
+      "parquet"
+    ]
+  },
+  "Encoding (Dictionary / RLE / Plain)": {
+    "snippet": "# low cardinality \u2192 dictionary + RLE\n# unique IDs \u2192 plain / delta often better",
+    "related": [
+      "Page / Column Chunk",
+      "Parquet"
+    ],
+    "symptom": "Unexpectedly large Parquet for enum-like columns written as plain strings.",
+    "tags": [
+      "file-format",
+      "parquet"
     ]
   }
 }

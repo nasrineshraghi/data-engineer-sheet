@@ -76,6 +76,7 @@ Also: deep links `?mode=essentials` · `?mode=prod` · `?mode=must`
 | 17 | [Snowflake](17-snowflake/concepts.md) | Warehouses, micro-partitions, Snowpipe, streams |
 | 18 | [Clinical Data — Meds & Labs](18-clinical-data/concepts.md) | Orders, RxNorm/NDC, LOINC, labs, MAR |
 | 19 | [APIs for Data Engineers](19-api/concepts.md) | REST, auth, pagination, webhooks, contracts |
+| 20 | [File Formats](20-file-formats/concepts.md) | Parquet, Avro, ORC, CSV/JSON, compression |
 
 ## All keywords
 ### Database & SQL Concepts
