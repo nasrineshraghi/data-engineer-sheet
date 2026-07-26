@@ -19,12 +19,11 @@ Also: **streak** counter, deep links `?tag=kafka` · `?mode=quiz` · `?mode=scen
 
 ### GitHub Pages (one bookmark)
 
-1. Repo → **Settings** → **Pages**
-2. **Build and deployment** → Source: **Deploy from a branch**
-3. Branch: **`main`** · Folder: **`/docs`** → **Save**
-4. After a minute, open: `https://nasrineshraghi.github.io/data-engineer-sheet/`
-
-(You can ignore old failed “Deploy GitHub Pages” Action runs — that workflow was removed.)
+1. After the **Deploy study app** Action turns green (creates `gh-pages` branch)…
+2. Open https://github.com/nasrineshraghi/data-engineer-sheet/settings/pages
+3. Source: **Deploy from a branch**
+4. Branch: **`gh-pages`** · Folder: **`/ (root)`** → **Save**
+5. Wait 1–2 minutes → https://nasrineshraghi.github.io/data-engineer-sheet/
 
 ## How to use
 
