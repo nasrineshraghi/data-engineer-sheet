@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Merge markdown concepts + enrichment + tags → docs/concepts.json and docs/index.html."""
+"""Merge markdown + enrichment + tags → docs/concepts.json and docs/index.html."""
 
 from __future__ import annotations
 
@@ -25,6 +25,11 @@ CATEGORIES = [
     ("09-data-quality-governance", "Data Quality & Governance"),
     ("10-cloud-storage", "Cloud & Storage"),
     ("11-devops", "DevOps for Data"),
+    ("12-cdc-scd", "CDC & SCD"),
+    ("13-dbt", "dbt"),
+    ("14-kafka", "Kafka"),
+    ("15-airflow", "Airflow"),
+    ("16-cost-optimization", "Cost Optimization"),
 ]
 
 
@@ -78,6 +83,11 @@ def main() -> None:
     if enrich_path.exists():
         enrichment = json.loads(enrich_path.read_text())
 
+    scenarios = []
+    scenarios_path = DOCS / "scenarios.json"
+    if scenarios_path.exists():
+        scenarios = json.loads(scenarios_path.read_text())
+
     all_concepts: list[dict] = []
     for slug, category in CATEGORIES:
         all_concepts.extend(parse_file(ROOT / slug / "concepts.md", category, slug))
@@ -93,9 +103,9 @@ def main() -> None:
         )
 
     DOCS.mkdir(exist_ok=True)
-    json_path = DOCS / "concepts.json"
     payload = json.dumps(all_concepts, indent=2)
-    json_path.write_text(payload + "\n")
+    (DOCS / "concepts.json").write_text(payload + "\n")
+    scenarios_payload = json.dumps(scenarios, indent=2)
 
     must = sorted(
         [c for c in all_concepts if c.get("mustKnow")],
@@ -122,25 +132,21 @@ def main() -> None:
     template_path = DOCS / "index.template.html"
     html_path = DOCS / "index.html"
     if template_path.exists():
-        html = template_path.read_text().replace("__CONCEPTS_JSON__", payload)
-        html_path.write_text(html)
-    elif html_path.exists():
-        html = html_path.read_text()
-        html = re.sub(
-            r'<script type="application/json" id="concepts-data">.*?</script>',
-            lambda _m: f'<script type="application/json" id="concepts-data">\n{payload}\n  </script>',
-            html,
-            count=1,
-            flags=re.S,
+        html = (
+            template_path.read_text()
+            .replace("__CONCEPTS_JSON__", payload)
+            .replace("__SCENARIOS_JSON__", scenarios_payload)
         )
         html_path.write_text(html)
 
-    tag_counts = {}
-    for c in all_concepts:
-        for t in c["tags"]:
-            tag_counts[t] = tag_counts.get(t, 0) + 1
-    print(f"Wrote {len(all_concepts)} concepts ({len(must)} must-know)")
-    print("Tags:", ", ".join(f"{k}={v}" for k, v in sorted(tag_counts.items())))
+    with_snip = sum(1 for c in all_concepts if c.get("snippet"))
+    with_sym = sum(1 for c in all_concepts if c.get("symptom"))
+    with_rel = sum(1 for c in all_concepts if c.get("related"))
+    print(
+        f"Wrote {len(all_concepts)} concepts ({len(must)} must-know, "
+        f"{with_snip} snippets, {with_sym} symptoms, {with_rel} related, "
+        f"{len(scenarios)} scenarios)"
+    )
 
 
 if __name__ == "__main__":

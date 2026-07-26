@@ -2,30 +2,32 @@
 
 A practical glossary of techniques, keywords, and concepts every data engineer should know — with short definitions and examples. Not deep dives; enough to recall, interview, and apply.
 
-## Search · Must-know 30 · Flashcards · Tags
+## Study app
 
 **[Open the study app →](docs/index.html)**
 
-Three modes in one page:
-1. **Search** — text + **tags** (`interview`, `spark`, `streaming`, …) + category
-2. **Must-know 30** — shortest learning path ([markdown version](MUST_KNOW_30.md))
-3. **Flashcards** — pick a tag deck, flip cards, mark *Know it* / *Again* (browser-saved)
+| Mode | What you get |
+|------|----------------|
+| **Search** | Tags + categories; snippet, prod symptom, see-also on every card; mark learned |
+| **Must-know** | Curated 30 ([MUST_KNOW_30.md](MUST_KNOW_30.md)) |
+| **Flashcards** | Tag decks; progress saved in browser |
+| **Quiz** | Multiple choice from definitions |
+| **Scenarios** | “Which 3 concepts apply?” prod challenges |
+| **Word of the day** | Rotates daily on the homepage |
 
-Shortcuts: `/` search · Flashcards: `Space` flip · `1` know · `2` again  
-Deep links: `docs/index.html?tag=spark` · `?mode=flash` · `?mode=must`
+Also: **streak** counter, deep links `?tag=kafka` · `?mode=quiz` · `?mode=scenarios`
 
-### GitHub Pages (one bookmark)
+### GitHub Pages
 
-1. Repo → **Settings** → **Pages**
-2. Source: **GitHub Actions** (workflow: `.github/workflows/pages.yml`)
-3. After deploy, bookmark: `https://nasrineshraghi.github.io/data-engineer-sheet/`
+1. Settings → Pages → Source: **GitHub Actions**
+2. Bookmark: `https://nasrineshraghi.github.io/data-engineer-sheet/`
 
 ## How to use
 
 - **Study app:** [docs/index.html](docs/index.html)
 - Browse keywords below → category files for full write-ups
 - A–Z lookup: [INDEX.md](INDEX.md)
-- Rebuild search data after edits: `python3 scripts/build_search_data.py`
+- Rebuild: `python3 scripts/build_search_data.py`
 
 ## Categories
 
@@ -42,11 +44,15 @@ Deep links: `docs/index.html?tag=spark` · `?mode=flash` · `?mode=must`
 | 9 | [Data Quality & Governance](09-data-quality-governance/concepts.md) | Lineage, catalog, observability |
 | 10 | [Cloud & Storage](10-cloud-storage/concepts.md) | Object storage, IAM, encryption |
 | 11 | [DevOps for Data](11-devops/concepts.md) | Docker, K8s, IaC, CI/CD |
+| 12 | [CDC & SCD](12-cdc-scd/concepts.md) | CDC, SCD 1/2/3, surrogate keys |
+| 13 | [dbt](13-dbt/concepts.md) | Models, incremental, tests, exposures |
+| 14 | [Kafka](14-kafka/concepts.md) | Topics, offsets, EOS, schema registry |
+| 15 | [Airflow](15-airflow/concepts.md) | DAGs, sensors, backfill, datasets |
+| 16 | [Cost Optimization](16-cost-optimization/concepts.md) | Pruning, tiering, right-sizing |
 
 ## All keywords
-
 ### Database & SQL Concepts
-[concepts.md](01-database-sql/concepts.md)
+[01-database-sql/concepts.md](01-database-sql/concepts.md)
 
 - Cardinality
 - Granularity (Grain)
@@ -69,7 +75,7 @@ Deep links: `docs/index.html?tag=spark` · `?mode=flash` · `?mode=must`
 - Seek vs Scan
 
 ### Spark Internals
-[concepts.md](02-spark-internals/concepts.md)
+[02-spark-internals/concepts.md](02-spark-internals/concepts.md)
 
 - DAG Scheduler
 - Task Scheduler
@@ -95,7 +101,7 @@ Deep links: `docs/index.html?tag=spark` · `?mode=flash` · `?mode=must`
 - Skew Join Optimization
 
 ### Data Warehouse Concepts
-[concepts.md](03-data-warehouse/concepts.md)
+[03-data-warehouse/concepts.md](03-data-warehouse/concepts.md)
 
 - Grain
 - Granularity
@@ -114,7 +120,7 @@ Deep links: `docs/index.html?tag=spark` · `?mode=flash` · `?mode=must`
 - Periodic Snapshot
 
 ### Data Lake & Lakehouse
-[concepts.md](04-data-lake-lakehouse/concepts.md)
+[04-data-lake-lakehouse/concepts.md](04-data-lake-lakehouse/concepts.md)
 
 - Data Lake
 - Data Lakehouse
@@ -131,7 +137,7 @@ Deep links: `docs/index.html?tag=spark` · `?mode=flash` · `?mode=must`
 - Z-Ordering
 
 ### Distributed Systems
-[concepts.md](05-distributed-systems/concepts.md)
+[05-distributed-systems/concepts.md](05-distributed-systems/concepts.md)
 
 - CAP Theorem
 - BASE
@@ -148,7 +154,7 @@ Deep links: `docs/index.html?tag=spark` · `?mode=flash` · `?mode=must`
 - Vertical Scaling
 
 ### Streaming
-[concepts.md](06-streaming/concepts.md)
+[06-streaming/concepts.md](06-streaming/concepts.md)
 
 - Event Time
 - Processing Time
@@ -165,7 +171,7 @@ Deep links: `docs/index.html?tag=spark` · `?mode=flash` · `?mode=must`
 - CQRS
 
 ### Pipeline Design
-[concepts.md](07-pipeline-design/concepts.md)
+[07-pipeline-design/concepts.md](07-pipeline-design/concepts.md)
 
 - Idempotency
 - Checkpointing
@@ -178,7 +184,7 @@ Deep links: `docs/index.html?tag=spark` · `?mode=flash` · `?mode=must`
 - Metadata-Driven Pipelines
 
 ### Performance Tuning
-[concepts.md](08-performance-tuning/concepts.md)
+[08-performance-tuning/concepts.md](08-performance-tuning/concepts.md)
 
 - Data Skew
 - Broadcast Join
@@ -194,7 +200,7 @@ Deep links: `docs/index.html?tag=spark` · `?mode=flash` · `?mode=must`
 - Small File Problem
 
 ### Data Quality & Governance
-[concepts.md](09-data-quality-governance/concepts.md)
+[09-data-quality-governance/concepts.md](09-data-quality-governance/concepts.md)
 
 - Data Profiling
 - Data Validation
@@ -211,7 +217,7 @@ Deep links: `docs/index.html?tag=spark` · `?mode=flash` · `?mode=must`
 - Consistency
 
 ### Cloud & Storage
-[concepts.md](10-cloud-storage/concepts.md)
+[10-cloud-storage/concepts.md](10-cloud-storage/concepts.md)
 
 - Object Storage
 - Block Storage
@@ -225,7 +231,7 @@ Deep links: `docs/index.html?tag=spark` · `?mode=flash` · `?mode=must`
 - Private Endpoints
 
 ### DevOps for Data
-[concepts.md](11-devops/concepts.md)
+[11-devops/concepts.md](11-devops/concepts.md)
 
 - Docker
 - Kubernetes
@@ -234,6 +240,80 @@ Deep links: `docs/index.html?tag=spark` · `?mode=flash` · `?mode=must`
 - Terraform
 - Helm
 - Infrastructure as Code (IaC)
+
+### CDC & SCD
+[12-cdc-scd/concepts.md](12-cdc-scd/concepts.md)
+
+- Change Data Capture (CDC)
+- Log-Based CDC
+- Query-Based CDC
+- Soft Delete vs Hard Delete
+- SCD Type 1
+- SCD Type 2
+- SCD Type 3
+- Surrogate Key
+- Natural Key
+- Effective Dating
+- Late-Arriving Dimension
+- Late-Arriving Fact
+
+### dbt
+[13-dbt/concepts.md](13-dbt/concepts.md)
+
+- dbt Model
+- Materialization
+- Incremental Model
+- Sources
+- Seeds
+- ref()
+- Tests (dbt)
+- Exposures
+- Documentation / Docs Site
+- Slim CI / State Defer
+
+### Kafka
+[14-kafka/concepts.md](14-kafka/concepts.md)
+
+- Topic
+- Partition
+- Offset
+- Consumer Group
+- Producer / Consumer
+- Replication Factor
+- ISR (In-Sync Replicas)
+- Exactly-Once Semantics (EOS)
+- Compaction (Kafka)
+- Dead Letter Topic
+- Schema Registry
+
+### Airflow
+[15-airflow/concepts.md](15-airflow/concepts.md)
+
+- DAG
+- Task / Operator
+- Sensor
+- Schedule / Timetable
+- Execution Date / Data Interval
+- XCom
+- Pool / Slot
+- Backfill
+- Catchup
+- SLA / Callback
+- Dataset Scheduling
+
+### Cost Optimization
+[16-cost-optimization/concepts.md](16-cost-optimization/concepts.md)
+
+- Scan Pruning / Partitioning
+- Column Pruning
+- File Size Tuning
+- Spot / Preemptible Workers
+- Autoscaling / Autosuspend
+- Storage Tiering
+- Result Caching
+- Right-Sizing Warehouses
+- Cost Observability
+- Incremental vs Full Refresh
 
 ## Contributing
 

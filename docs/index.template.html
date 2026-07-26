@@ -3,440 +3,337 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Data Engineer Sheet — Search & Flashcards</title>
-  <meta name="description" content="Searchable DE glossary with Must-know 30, flashcards, and code snippets." />
+  <title>Data Engineer Sheet — Study App</title>
+  <meta name="description" content="Searchable DE glossary with flashcards, quiz, scenarios, and word of the day." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Sora:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --ink: #12202e;
-      --muted: #4a5d72;
-      --panel: rgba(255, 255, 255, 0.72);
-      --line: rgba(18, 32, 46, 0.12);
-      --teal: #0f766e;
-      --teal-deep: #0a5c56;
-      --amber: #d97706;
-      --good: #15803d;
-      --glow: rgba(15, 118, 110, 0.18);
-      --shadow: 0 18px 50px rgba(18, 32, 46, 0.08);
-      --radius: 18px;
-      --font-display: "Fraunces", Georgia, serif;
-      --font-body: "Sora", sans-serif;
-      --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+      --ink: #12202e; --muted: #4a5d72; --panel: rgba(255,255,255,.72);
+      --line: rgba(18,32,46,.12); --teal: #0f766e; --teal-deep: #0a5c56;
+      --amber: #d97706; --good: #15803d; --bad: #b91c1c;
+      --glow: rgba(15,118,110,.18); --shadow: 0 18px 50px rgba(18,32,46,.08);
+      --radius: 18px; --font-display: "Fraunces", Georgia, serif;
+      --font-body: "Sora", sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, monospace;
     }
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
     body {
-      margin: 0;
-      min-height: 100vh;
-      color: var(--ink);
-      font-family: var(--font-body);
+      margin: 0; min-height: 100vh; color: var(--ink); font-family: var(--font-body);
       background:
-        radial-gradient(1200px 600px at 10% -10%, rgba(15, 118, 110, 0.16), transparent 55%),
-        radial-gradient(900px 500px at 95% 5%, rgba(217, 119, 6, 0.12), transparent 50%),
+        radial-gradient(1200px 600px at 10% -10%, rgba(15,118,110,.16), transparent 55%),
+        radial-gradient(900px 500px at 95% 5%, rgba(217,119,6,.12), transparent 50%),
         linear-gradient(165deg, #eef3f7 0%, #f7f4ee 45%, #e8eef4 100%);
       background-attachment: fixed;
     }
     body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.35;
-      background-image:
-        linear-gradient(rgba(18, 32, 46, 0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(18, 32, 46, 0.04) 1px, transparent 1px);
+      content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .35;
+      background-image: linear-gradient(rgba(18,32,46,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(18,32,46,.04) 1px, transparent 1px);
       background-size: 48px 48px;
       mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
     }
-    .wrap {
-      position: relative;
-      width: min(920px, calc(100% - 2rem));
-      margin: 0 auto;
-      padding: 3.5rem 0 5rem;
-    }
+    .wrap { position: relative; width: min(920px, calc(100% - 2rem)); margin: 0 auto; padding: 3rem 0 5rem; }
     .brand {
-      font-family: var(--font-display);
-      font-size: clamp(2.4rem, 6.5vw, 4rem);
-      font-weight: 700;
-      line-height: 0.95;
-      letter-spacing: -0.03em;
-      margin: 0 0 0.85rem;
-      animation: rise 0.7s ease both;
+      font-family: var(--font-display); font-size: clamp(2.3rem, 6vw, 3.8rem); font-weight: 700;
+      line-height: .95; letter-spacing: -.03em; margin: 0 0 .75rem; animation: rise .7s ease both;
     }
     .brand span { display: block; color: var(--teal-deep); }
-    .lede {
-      max-width: 36rem;
-      margin: 0 0 1.5rem;
-      color: var(--muted);
-      font-size: 1.02rem;
-      line-height: 1.55;
-      animation: rise 0.7s ease 0.08s both;
-    }
-    .modes {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-bottom: 1.25rem;
-      animation: rise 0.7s ease 0.12s both;
-    }
-    .mode-btn {
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.55);
-      color: var(--muted);
-      border-radius: 999px;
-      padding: 0.55rem 1rem;
-      font: inherit;
-      font-size: 0.88rem;
-      font-weight: 600;
+    .lede { max-width: 38rem; margin: 0 0 1.25rem; color: var(--muted); line-height: 1.55; animation: rise .7s ease .08s both; }
+    .wotd {
+      border: 1px solid var(--line); border-radius: var(--radius); background: rgba(255,255,255,.7);
+      padding: 1rem 1.15rem; margin-bottom: 1.25rem; box-shadow: var(--shadow); animation: rise .7s ease .1s both;
       cursor: pointer;
-      transition: 0.2s ease;
     }
-    .mode-btn:hover { transform: translateY(-1px); }
-    .mode-btn.active {
-      background: var(--teal);
-      border-color: var(--teal);
-      color: #fff;
+    .wotd .eyebrow { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--amber); }
+    .wotd h2 { font-family: var(--font-display); margin: .35rem 0; font-size: 1.45rem; }
+    .wotd p { margin: 0; color: var(--muted); line-height: 1.5; }
+    .modes { display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: 1rem; animation: rise .7s ease .12s both; }
+    .mode-btn {
+      border: 1px solid var(--line); background: rgba(255,255,255,.55); color: var(--muted);
+      border-radius: 999px; padding: .5rem .9rem; font: inherit; font-size: .82rem; font-weight: 600; cursor: pointer;
     }
-    .progress-pill {
-      margin-left: auto;
-      font-size: 0.82rem;
-      color: var(--muted);
-      align-self: center;
-    }
+    .mode-btn.active { background: var(--teal); border-color: var(--teal); color: #fff; }
+    .progress-pill { margin-left: auto; font-size: .8rem; color: var(--muted); align-self: center; }
     .progress-pill strong { color: var(--good); }
-    .panel { display: none; animation: rise 0.4s ease both; }
+    .panel { display: none; animation: rise .35s ease both; }
     .panel.active { display: block; }
-    .search-shell { position: sticky; top: 0.75rem; z-index: 20; }
+    .search-shell { position: sticky; top: .75rem; z-index: 20; }
     .search-box {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.95rem 1.15rem;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: var(--panel);
-      backdrop-filter: blur(14px);
+      display: flex; align-items: center; gap: .75rem; padding: .9rem 1.1rem; border: 1px solid var(--line);
+      border-radius: 999px; background: var(--panel); backdrop-filter: blur(14px);
       box-shadow: var(--shadow), 0 0 0 6px var(--glow);
     }
-    .search-box:focus-within {
-      border-color: rgba(15, 118, 110, 0.45);
-      box-shadow: var(--shadow), 0 0 0 8px rgba(15, 118, 110, 0.22);
-    }
-    .search-box svg { width: 1.25rem; height: 1.25rem; color: var(--teal); flex: 0 0 auto; }
-    #q {
-      flex: 1; border: 0; outline: 0; background: transparent;
-      font: inherit; font-size: 1.05rem; color: var(--ink); min-width: 0;
-    }
-    #q::placeholder { color: #7d8ea3; }
-    .clear-btn {
-      border: 0; background: transparent; color: var(--muted);
-      font: inherit; font-size: 0.85rem; cursor: pointer; display: none;
-    }
+    #q { flex: 1; border: 0; outline: 0; background: transparent; font: inherit; font-size: 1.02rem; min-width: 0; }
+    .clear-btn { border: 0; background: transparent; color: var(--muted); font: inherit; cursor: pointer; display: none; }
     .clear-btn.show { display: inline; }
-    .meta-row {
-      display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem;
-      align-items: center; margin: 1.1rem 0 1.5rem; color: var(--muted); font-size: 0.92rem;
-    }
-    .chips { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+    .meta-row { display: flex; flex-wrap: wrap; gap: .75rem 1rem; margin: 1rem 0 1.25rem; color: var(--muted); font-size: .9rem; }
+    .chips { display: flex; flex-wrap: wrap; gap: .4rem; }
     .chip {
-      border: 1px solid var(--line); background: rgba(255,255,255,0.55);
-      color: var(--muted); border-radius: 999px; padding: 0.35rem 0.7rem;
-      font-size: 0.75rem; font-weight: 500; cursor: pointer;
+      border: 1px solid var(--line); background: rgba(255,255,255,.55); color: var(--muted);
+      border-radius: 999px; padding: .32rem .65rem; font-size: .74rem; font-weight: 500; cursor: pointer;
     }
     .chip.active { background: var(--teal); border-color: var(--teal); color: #fff; }
-    .chip.tag {
-      border-style: dashed;
-      text-transform: lowercase;
-      letter-spacing: 0.02em;
-    }
-    .chip.tag.active {
-      background: #92400e;
-      border-color: #92400e;
-      border-style: solid;
-      color: #fff;
-    }
-    .filter-block { width: 100%; display: grid; gap: 0.45rem; }
-    .filter-label {
-      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em;
-      text-transform: uppercase; color: var(--muted);
-    }
-    .results { display: flex; flex-direction: column; gap: 0.85rem; }
+    .chip.tag { border-style: dashed; }
+    .chip.tag.active { background: #92400e; border-color: #92400e; border-style: solid; color: #fff; }
+    .filter-block { width: 100%; display: grid; gap: .4rem; }
+    .filter-label { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+    .results { display: flex; flex-direction: column; gap: .8rem; }
     details.result {
-      border: 1px solid var(--line); border-radius: var(--radius);
-      background: rgba(255,255,255,0.66); backdrop-filter: blur(8px); overflow: hidden;
+      border: 1px solid var(--line); border-radius: var(--radius); background: rgba(255,255,255,.66); overflow: hidden;
     }
-    details.result[open] {
-      border-color: rgba(15, 118, 110, 0.35);
-      box-shadow: 0 10px 30px rgba(18, 32, 46, 0.06);
-    }
-    summary {
-      list-style: none; cursor: pointer; padding: 1rem 1.15rem; display: grid; gap: 0.35rem;
-    }
+    details.result[open] { border-color: rgba(15,118,110,.35); box-shadow: 0 10px 30px rgba(18,32,46,.06); }
+    summary { list-style: none; cursor: pointer; padding: 1rem 1.1rem; display: grid; gap: .3rem; }
     summary::-webkit-details-marker { display: none; }
-    .name {
-      font-family: var(--font-display); font-size: 1.22rem; font-weight: 700; letter-spacing: -0.02em;
-    }
-    .cat {
-      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em;
-      text-transform: uppercase; color: var(--teal-deep);
-    }
+    .name { font-family: var(--font-display); font-size: 1.18rem; font-weight: 700; }
+    .cat { font-size: .72rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--teal-deep); }
     .badge {
-      display: inline-block; margin-left: 0.4rem; padding: 0.1rem 0.45rem;
-      border-radius: 999px; background: rgba(217, 119, 6, 0.18);
-      color: #92400e; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.03em;
-      vertical-align: middle;
+      display: inline-block; margin-left: .35rem; padding: .08rem .4rem; border-radius: 999px;
+      background: rgba(217,119,6,.18); color: #92400e; font-size: .66rem; font-weight: 700;
     }
-    .snippet-text { color: var(--muted); font-size: 0.92rem; line-height: 1.45; }
-    .body { padding: 0 1.15rem 1.2rem; border-top: 1px solid var(--line); display: grid; gap: 0.85rem; }
-    .label {
-      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em;
-      text-transform: uppercase; color: var(--amber); margin-bottom: 0.25rem;
-    }
-    .body p, .body li { margin: 0; line-height: 1.55; font-size: 0.95rem; }
+    .snippet-text { color: var(--muted); font-size: .9rem; line-height: 1.45; }
+    .body { padding: 0 1.1rem 1.15rem; border-top: 1px solid var(--line); display: grid; gap: .8rem; }
+    .label { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--amber); margin-bottom: .2rem; }
+    .body p, .body li { margin: 0; line-height: 1.5; font-size: .93rem; }
     .body ul { margin: 0; padding-left: 1.1rem; }
-    pre, code { font-family: var(--font-mono); font-size: 0.84rem; }
-    pre {
-      margin: 0; white-space: pre-wrap; background: #12202e; color: #e8eef4;
-      padding: 0.85rem 1rem; border-radius: 12px; overflow-x: auto;
+    pre, code { font-family: var(--font-mono); font-size: .82rem; }
+    pre { margin: 0; white-space: pre-wrap; background: #12202e; color: #e8eef4; padding: .8rem 1rem; border-radius: 12px; }
+    .related { display: flex; flex-wrap: wrap; gap: .35rem; }
+    .related button, .mark-btn {
+      border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: .3rem .65rem;
+      font: inherit; font-size: .76rem; cursor: pointer; color: var(--teal-deep);
     }
-    .related { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-    .related button {
-      border: 1px solid var(--line); background: #fff; border-radius: 999px;
-      padding: 0.3rem 0.65rem; font: inherit; font-size: 0.78rem; cursor: pointer; color: var(--teal-deep);
-    }
-    .empty { text-align: center; padding: 3rem 1rem; color: var(--muted); }
-    mark { background: rgba(217, 119, 6, 0.28); color: inherit; border-radius: 3px; padding: 0 0.1em; }
+    .mark-btn.learned { background: rgba(21,128,61,.12); border-color: rgba(21,128,61,.35); color: #166534; }
+    .empty { text-align: center; padding: 2.5rem 1rem; color: var(--muted); }
+    mark { background: rgba(217,119,6,.28); border-radius: 3px; }
     .must-intro {
-      border: 1px solid var(--line); border-radius: var(--radius);
-      background: rgba(255,255,255,0.6); padding: 1rem 1.15rem; margin-bottom: 1rem;
-      color: var(--muted); line-height: 1.5; font-size: 0.95rem;
+      border: 1px solid var(--line); border-radius: var(--radius); background: rgba(255,255,255,.6);
+      padding: 1rem 1.1rem; margin-bottom: 1rem; color: var(--muted); line-height: 1.5; font-size: .93rem;
     }
     .must-intro strong { color: var(--ink); }
-    .flash-wrap { display: grid; gap: 1rem; }
-    .flash-card {
-      min-height: 280px; border: 1px solid var(--line); border-radius: 24px;
-      background: rgba(255,255,255,0.78); backdrop-filter: blur(10px);
-      box-shadow: var(--shadow); padding: 1.5rem; display: grid; gap: 1rem;
-      align-content: start; cursor: pointer; transition: transform 0.25s ease;
-      user-select: none;
+    .flash-card, .quiz-card, .scenario-card {
+      min-height: 240px; border: 1px solid var(--line); border-radius: 22px; background: rgba(255,255,255,.78);
+      box-shadow: var(--shadow); padding: 1.35rem; display: grid; gap: .85rem;
     }
-    .flash-card:hover { transform: translateY(-2px); }
-    .flash-card.flipped { border-color: rgba(15, 118, 110, 0.4); }
-    .flash-top {
-      display: flex; justify-content: space-between; gap: 1rem;
-      font-size: 0.8rem; color: var(--muted); font-weight: 600;
+    .flash-card { cursor: pointer; user-select: none; }
+    .flash-card.flipped { border-color: rgba(15,118,110,.4); }
+    .flash-top { display: flex; justify-content: space-between; gap: 1rem; font-size: .78rem; color: var(--muted); font-weight: 600; }
+    .flash-name, .quiz-q, .scenario-card h3 {
+      font-family: var(--font-display); font-size: clamp(1.35rem, 3.5vw, 1.9rem); font-weight: 700; margin: .2rem 0 0; letter-spacing: -.02em;
     }
-    .flash-name {
-      font-family: var(--font-display); font-size: clamp(1.6rem, 4vw, 2.2rem);
-      font-weight: 700; letter-spacing: -0.02em; margin: 0.5rem 0 0;
-    }
-    .flash-prompt { color: var(--muted); font-size: 0.95rem; }
+    .flash-prompt { color: var(--muted); }
     .flash-answer { display: none; }
-    .flash-card.flipped .flash-answer { display: grid; gap: 0.85rem; }
+    .flash-card.flipped .flash-answer { display: grid; gap: .75rem; }
     .flash-card.flipped .flash-prompt { display: none; }
-    .flash-actions {
-      display: flex; flex-wrap: wrap; gap: 0.55rem; margin-top: 0.25rem;
+    .actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .actions button {
+      border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: .6rem .95rem;
+      font: inherit; font-size: .85rem; font-weight: 600; cursor: pointer;
     }
-    .flash-actions button {
-      border: 1px solid var(--line); background: #fff; border-radius: 999px;
-      padding: 0.65rem 1rem; font: inherit; font-size: 0.88rem; font-weight: 600; cursor: pointer;
+    .actions .know, .actions .primary { background: var(--teal); border-color: var(--teal); color: #fff; }
+    .actions .again { background: rgba(217,119,6,.12); border-color: rgba(217,119,6,.35); color: #92400e; }
+    .choices { display: grid; gap: .55rem; }
+    .choice {
+      text-align: left; border: 1px solid var(--line); background: #fff; border-radius: 14px;
+      padding: .85rem 1rem; font: inherit; cursor: pointer;
     }
-    .flash-actions .know {
-      background: var(--teal); border-color: var(--teal); color: #fff;
-    }
-    .flash-actions .again {
-      background: rgba(217, 119, 6, 0.12); border-color: rgba(217, 119, 6, 0.35); color: #92400e;
-    }
-    .hint { font-size: 0.82rem; color: var(--muted); }
-    footer {
-      margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid var(--line);
-      color: var(--muted); font-size: 0.85rem;
-    }
+    .choice.correct { border-color: var(--good); background: rgba(21,128,61,.1); }
+    .choice.wrong { border-color: var(--bad); background: rgba(185,28,28,.08); }
+    .choice:disabled { cursor: default; }
+    .scoreline { color: var(--muted); font-size: .88rem; }
+    .scenario-list { display: grid; gap: .8rem; }
+    .scenario-card h3 { font-size: 1.25rem; }
+    .hint { font-size: .8rem; color: var(--muted); }
+    footer { margin-top: 2.75rem; padding-top: 1.1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .84rem; }
     footer a { color: var(--teal-deep); }
     kbd {
-      font: 0.8em var(--font-mono); border: 1px solid var(--line);
-      border-bottom-width: 2px; border-radius: 6px; padding: 0.1em 0.4em;
-      background: rgba(255,255,255,0.7);
+      font: .78em var(--font-mono); border: 1px solid var(--line); border-bottom-width: 2px;
+      border-radius: 6px; padding: .08em .35em; background: rgba(255,255,255,.7);
     }
-    @keyframes rise {
-      from { opacity: 0; transform: translateY(14px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
     @media (max-width: 640px) {
-      .wrap { padding-top: 2.5rem; }
-      .search-box { border-radius: 16px; }
       .progress-pill { margin-left: 0; width: 100%; }
+      .search-box { border-radius: 16px; }
     }
   </style>
 </head>
 <body>
   <main class="wrap">
     <h1 class="brand">Data Engineer<br /><span>Sheet</span></h1>
-    <p class="lede">Search everything, drill the Must-know 30, then lock it in with flashcards — definitions, snippets, and prod symptoms.</p>
+    <p class="lede">Search, drill, quiz, and solve scenarios — snippets, prod symptoms, and related concepts on every card.</p>
 
-    <div class="modes" role="tablist" aria-label="Study mode">
-      <button type="button" class="mode-btn active" data-mode="search" role="tab" aria-selected="true">Search</button>
-      <button type="button" class="mode-btn" data-mode="must" role="tab" aria-selected="false">Must-know 30</button>
-      <button type="button" class="mode-btn" data-mode="flash" role="tab" aria-selected="false">Flashcards</button>
-      <div class="progress-pill">Learned <strong id="learned-count">0</strong> / <span id="must-total">30</span></div>
+    <aside class="wotd" id="wotd" title="Open this concept"></aside>
+
+    <div class="modes" role="tablist">
+      <button type="button" class="mode-btn active" data-mode="search">Search</button>
+      <button type="button" class="mode-btn" data-mode="must">Must-know</button>
+      <button type="button" class="mode-btn" data-mode="flash">Flashcards</button>
+      <button type="button" class="mode-btn" data-mode="quiz">Quiz</button>
+      <button type="button" class="mode-btn" data-mode="scenarios">Scenarios</button>
+      <div class="progress-pill">
+        Learned <strong id="learned-count">0</strong>/<span id="must-total">30</span>
+        · Streak <strong id="streak-count">0</strong>🔥
+      </div>
     </div>
 
-    <section id="panel-search" class="panel active" role="tabpanel">
+    <section id="panel-search" class="panel active">
       <div class="search-shell">
         <label class="search-box" for="q">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
-            <path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-          <input id="q" type="search" placeholder="Search: shuffle, watermark, Z-ordering…" autocomplete="off" />
+          <input id="q" type="search" placeholder="Search: MERGE, watermark, SCD Type 2, dbt incremental…" autocomplete="off" />
           <button type="button" class="clear-btn" id="clear">Clear</button>
         </label>
       </div>
       <div class="meta-row">
         <div><strong id="shown">0</strong> of <strong id="total">0</strong></div>
-        <div class="filter-block">
-          <div class="filter-label">Tags</div>
-          <div class="chips" id="tag-chips"></div>
-        </div>
-        <div class="filter-block">
-          <div class="filter-label">Category</div>
-          <div class="chips" id="chips"></div>
-        </div>
+        <div class="filter-block"><div class="filter-label">Tags</div><div class="chips" id="tag-chips"></div></div>
+        <div class="filter-block"><div class="filter-label">Category</div><div class="chips" id="chips"></div></div>
       </div>
       <div class="results" id="results"></div>
     </section>
 
-    <section id="panel-must" class="panel" role="tabpanel" hidden>
-      <div class="must-intro">
-        <strong>Must-know 30</strong> — the shortest path before the long tail. Open any card for snippet + “in prod” symptom. Mark learned from flashcards.
-      </div>
+    <section id="panel-must" class="panel" hidden>
+      <div class="must-intro"><strong>Must-know 30</strong> — shortest path. Every card has snippet + prod symptom + see also.</div>
       <div class="results" id="must-results"></div>
     </section>
 
-    <section id="panel-flash" class="panel" role="tabpanel" hidden>
-      <div class="flash-wrap">
-        <div class="must-intro">
-          Tap the card to reveal. <kbd>Space</kbd> flip · <kbd>→</kbd> next · <kbd>1</kbd> know it · <kbd>2</kbd> again.
-          Pick a tag deck for focused sessions (interview / spark / streaming…).
-        </div>
-        <div class="filter-block" style="margin-bottom:0.5rem">
-          <div class="filter-label">Flashcard deck</div>
-          <div class="chips" id="flash-tag-chips"></div>
-        </div>
-        <div id="flash-card" class="flash-card" tabindex="0" aria-live="polite"></div>
-        <div class="flash-actions">
-          <button type="button" id="flip-btn">Flip</button>
-          <button type="button" class="know" id="know-btn">Know it</button>
-          <button type="button" class="again" id="again-btn">Again</button>
-          <button type="button" id="reset-btn">Reset progress</button>
-        </div>
-        <div class="hint" id="flash-hint"></div>
+    <section id="panel-flash" class="panel" hidden>
+      <div class="must-intro">Tap to flip. <kbd>Space</kbd> flip · <kbd>1</kbd> know · <kbd>2</kbd> again. Pick a tag deck.</div>
+      <div class="filter-block" style="margin-bottom:.75rem">
+        <div class="filter-label">Deck</div>
+        <div class="chips" id="flash-tag-chips"></div>
+      </div>
+      <div id="flash-card" class="flash-card" tabindex="0"></div>
+      <div class="actions" style="margin-top:.75rem">
+        <button type="button" id="flip-btn">Flip</button>
+        <button type="button" class="know" id="know-btn">Know it</button>
+        <button type="button" class="again" id="again-btn">Again</button>
+        <button type="button" id="reset-btn">Reset progress</button>
+      </div>
+      <div class="hint" id="flash-hint"></div>
+    </section>
+
+    <section id="panel-quiz" class="panel" hidden>
+      <div class="must-intro"><strong>Quiz</strong> — multiple choice from definitions. Defaults to interview-tagged concepts.</div>
+      <div class="filter-block" style="margin-bottom:.75rem">
+        <div class="filter-label">Quiz pool</div>
+        <div class="chips" id="quiz-tag-chips"></div>
+      </div>
+      <div class="scoreline">Score <strong id="quiz-score">0</strong> / <span id="quiz-asked">0</span></div>
+      <div id="quiz-card" class="quiz-card" style="margin-top:.75rem"></div>
+      <div class="actions" style="margin-top:.75rem">
+        <button type="button" class="primary" id="quiz-next">Next question</button>
       </div>
     </section>
 
+    <section id="panel-scenarios" class="panel" hidden>
+      <div class="must-intro"><strong>Scenario challenges</strong> — pick the 3 concepts that best fit. Click concepts to toggle.</div>
+      <div class="scenario-list" id="scenario-list"></div>
+    </section>
+
     <footer>
-      Press <kbd>/</kbd> to search · filter by tags · data saved in this browser only<br />
-      <a href="https://nasrineshraghi.github.io/data-engineer-sheet/">Live site (GitHub Pages)</a>
-      ·
-      <a href="https://github.com/nasrineshraghi/data-engineer-sheet">Source</a>
-      ·
-      <a href="https://github.com/nasrineshraghi/data-engineer-sheet/blob/main/MUST_KNOW_30.md">Must-know markdown</a>
+      <kbd>/</kbd> search · progress + streak saved in this browser<br />
+      <a href="https://nasrineshraghi.github.io/data-engineer-sheet/">Live site</a> ·
+      <a href="https://github.com/nasrineshraghi/data-engineer-sheet">Source</a> ·
+      <a href="https://github.com/nasrineshraghi/data-engineer-sheet/blob/main/MUST_KNOW_30.md">Must-know</a>
     </footer>
   </main>
 
-  <script type="application/json" id="concepts-data">
-__CONCEPTS_JSON__
-  </script>
+  <script type="application/json" id="concepts-data">__CONCEPTS_JSON__</script>
+  <script type="application/json" id="scenarios-data">__SCENARIOS_JSON__</script>
   <script>
     const $ = (id) => document.getElementById(id);
     const LEARN_KEY = "de-sheet-learned-v1";
+    const STREAK_KEY = "de-sheet-streak-v1";
+    const TAG_ORDER = ["interview","spark","streaming","kafka","airflow","dbt","cdc","sql","warehouse","lakehouse","distributed","pipeline","performance","cost","quality","cloud","devops"];
 
-    const TAG_ORDER = ["interview","spark","streaming","sql","warehouse","lakehouse","distributed","pipeline","performance","quality","cloud","devops"];
+    let concepts = [], scenarios = [], byName = new Map();
+    let activeCategory = "All", activeTag = "All", flashTag = "interview", quizTag = "interview";
+    let mode = "search", learned = new Set(JSON.parse(localStorage.getItem(LEARN_KEY) || "[]"));
+    let streak = JSON.parse(localStorage.getItem(STREAK_KEY) || '{"count":0,"last":null}');
+    let deck = [], deckIndex = 0, flipped = false;
+    let quizPool = [], quizItem = null, quizScore = 0, quizAsked = 0, quizLocked = false;
+    let scenarioPicks = {};
 
-    let concepts = [];
-    let byName = new Map();
-    let activeCategory = "All";
-    let activeTag = "All";
-    let flashTag = "interview";
-    let mode = "search";
-    let learned = new Set(JSON.parse(localStorage.getItem(LEARN_KEY) || "[]"));
-    let deck = [];
-    let deckIndex = 0;
-    let flipped = false;
-
-    const escapeHtml = (s) =>
-      String(s)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
+    const escapeHtml = (s) => String(s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 
     const highlight = (text, terms) => {
       let out = escapeHtml(text || "");
       for (const t of terms) {
         if (t.length < 2) continue;
-        const re = new RegExp(`(${t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "ig");
-        out = out.replace(re, "<mark>$1</mark>");
+      out = out.replace(new RegExp("(" + t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "ig"), "<mark>$1</mark>");
       }
       return out;
     };
 
-    const tokens = (query) =>
-      query.toLowerCase().split(/[^a-z0-9+#.-]+/i).filter(Boolean);
+    const tokens = (q) => q.toLowerCase().split(/[^a-z0-9+#.-]+/i).filter(Boolean);
 
-    const score = (c, terms) => {
-      if (!terms.length) return 1;
-      const hay = [c.name, c.category, c.definition, c.why, c.example, c.snippet, c.symptom, ...(c.tags || []), ...(c.remember || []), ...(c.related || [])]
-        .join("\n").toLowerCase();
-      let s = 0;
-      for (const t of terms) {
-        if (c.name.toLowerCase().includes(t)) s += 8;
-        else if (c.category.toLowerCase().includes(t)) s += 3;
-        else if (hay.includes(t)) s += 1;
-        else return 0;
-      }
-      if (c.name.toLowerCase().startsWith(terms[0])) s += 4;
-      if (c.mustKnow) s += 1;
-      return s;
+    const todayKey = () => new Date().toISOString().slice(0, 10);
+
+    const touchStreak = () => {
+      const today = todayKey();
+      if (streak.last === today) return;
+      const y = new Date(); y.setDate(y.getDate() - 1);
+      const yesterday = y.toISOString().slice(0, 10);
+      streak.count = streak.last === yesterday ? (streak.count || 0) + 1 : 1;
+      streak.last = today;
+      localStorage.setItem(STREAK_KEY, JSON.stringify(streak));
+      updateProgress();
     };
 
     const saveLearned = () => {
       localStorage.setItem(LEARN_KEY, JSON.stringify([...learned]));
+      touchStreak();
       updateProgress();
     };
 
     const updateProgress = () => {
       const mustNames = concepts.filter((c) => c.mustKnow).map((c) => c.name);
-      const n = mustNames.filter((n) => learned.has(n)).length;
-      $("learned-count").textContent = String(n);
+      $("learned-count").textContent = String(mustNames.filter((n) => learned.has(n)).length);
       $("must-total").textContent = String(mustNames.length || 30);
+      $("streak-count").textContent = String(streak.count || 0);
     };
 
-    const renderSnippet = (snippet) => {
-      if (!snippet) return "";
-      return `<div><div class="label">Snippet</div><pre>${escapeHtml(snippet)}</pre></div>`;
+    const score = (c, terms) => {
+      if (!terms.length) return 1;
+      const hay = [c.name,c.category,c.definition,c.why,c.example,c.snippet,c.symptom,...(c.tags||[]),...(c.remember||[]),...(c.related||[])].join("\n").toLowerCase();
+      let s = 0;
+      for (const t of terms) {
+        if (c.name.toLowerCase().includes(t)) s += 8;
+        else if (hay.includes(t)) s += 1;
+        else return 0;
+      }
+      if (c.mustKnow) s += 1;
+      return s;
     };
 
+    const dayIndex = () => Math.floor(Date.now() / 86400000);
+
+    const renderWotd = () => {
+      if (!concepts.length) return;
+      const c = concepts[dayIndex() % concepts.length];
+      $("wotd").innerHTML = `
+        <div class="eyebrow">DE word of the day</div>
+        <h2>${escapeHtml(c.name)}</h2>
+        <p>${escapeHtml(c.definition)}</p>
+        <p style="margin-top:.55rem"><strong style="color:var(--ink)">In prod:</strong> ${escapeHtml(c.symptom || "")}</p>`;
+      $("wotd").onclick = () => jumpTo(c.name);
+    };
+
+    const renderSnippet = (snippet) => snippet ? `<div><div class="label">Snippet</div><pre>${escapeHtml(snippet)}</pre></div>` : "";
     const renderRelated = (related) => {
-      if (!related || !related.length) return "";
-      const buttons = related
-        .map((r) => `<button type="button" data-jump="${escapeHtml(r)}">${escapeHtml(r)}</button>`)
-        .join("");
-      return `<div><div class="label">See also</div><div class="related">${buttons}</div></div>`;
+      if (!related?.length) return "";
+      return `<div><div class="label">See also</div><div class="related">${related.map((r) =>
+        `<button type="button" data-jump="${escapeHtml(r)}">${escapeHtml(r)}</button>`).join("")}</div></div>`;
     };
 
-    const tagPills = (c) =>
-      (c.tags || []).map((t) => `<span class="badge" style="background:rgba(15,118,110,.12);color:#0a5c56">${escapeHtml(t)}</span>`).join("");
+    const tagPills = (c) => (c.tags || []).slice(0, 4).map((t) =>
+      `<span class="badge" style="background:rgba(15,118,110,.12);color:#0a5c56">${escapeHtml(t)}</span>`).join("");
 
     const cardHtml = (c, terms = [], open = false) => {
       const badge = c.mustKnow ? `<span class="badge">MUST ${c.mustKnow}</span>` : "";
       const learnedBadge = learned.has(c.name) ? `<span class="badge" style="background:rgba(21,128,61,.15);color:#166534">LEARNED</span>` : "";
       const remember = (c.remember || []).map((r) => `<li>${highlight(r, terms)}</li>`).join("");
-      const symptom = c.symptom
-        ? `<div><div class="label">In prod</div><p>${highlight(c.symptom, terms)}</p></div>`
-        : "";
       return `
         <details class="result"${open ? " open" : ""} data-name="${escapeHtml(c.name)}">
           <summary>
@@ -448,9 +345,10 @@ __CONCEPTS_JSON__
             <div><div class="label">Why it matters</div><p>${highlight(c.why, terms)}</p></div>
             <div><div class="label">Example</div><p>${highlight(c.example, terms)}</p></div>
             ${renderSnippet(c.snippet)}
-            ${symptom}
+            ${c.symptom ? `<div><div class="label">In prod</div><p>${highlight(c.symptom, terms)}</p></div>` : ""}
             ${remember ? `<div><div class="label">Remember</div><ul>${remember}</ul></div>` : ""}
             ${renderRelated(c.related)}
+            <div><button type="button" class="mark-btn${learned.has(c.name) ? " learned" : ""}" data-learn="${escapeHtml(c.name)}">${learned.has(c.name) ? "Learned ✓" : "Mark learned"}</button></div>
           </div>
         </details>`;
     };
@@ -464,13 +362,13 @@ __CONCEPTS_JSON__
     const renderTagChips = () => {
       const tags = ["All", ...allTags()];
       $("tag-chips").innerHTML = tags.map((tag) =>
-        `<button type="button" class="chip tag${tag === activeTag ? " active" : ""}" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`
-      ).join("");
-      const flashTags = ["interview", "spark", "streaming", "must-know", ...allTags().filter((t) => !["interview","spark","streaming"].includes(t))];
-      const uniq = [...new Set(flashTags)];
+        `<button type="button" class="chip tag${tag === activeTag ? " active" : ""}" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`).join("");
+      const deckTags = ["interview","spark","streaming","kafka","airflow","dbt","cdc","must-know", ...allTags()];
+      const uniq = [...new Set(deckTags)];
       $("flash-tag-chips").innerHTML = uniq.map((tag) =>
-        `<button type="button" class="chip tag${tag === flashTag ? " active" : ""}" data-flash-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`
-      ).join("");
+        `<button type="button" class="chip tag${tag === flashTag ? " active" : ""}" data-flash-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`).join("");
+      $("quiz-tag-chips").innerHTML = uniq.filter((t) => t !== "must-know").concat(["must-know"]).map((tag) =>
+        `<button type="button" class="chip tag${tag === quizTag ? " active" : ""}" data-quiz-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`).join("");
     };
 
     const renderChips = () => {
@@ -490,20 +388,17 @@ __CONCEPTS_JSON__
       list.sort((a, b) => b.s - a.s || a.c.name.localeCompare(b.c.name));
       $("shown").textContent = String(list.length);
       $("total").textContent = String(concepts.length);
-      if (!list.length) {
-        $("results").innerHTML = `<div class="empty">No matches. Try tag <em>spark</em> or search <em>watermark</em>.</div>`;
-        return;
-      }
-      $("results").innerHTML = list.map(({ c }, i) => cardHtml(c, terms, terms.length > 0 && i === 0)).join("");
+      $("results").innerHTML = list.length
+        ? list.map(({ c }, i) => cardHtml(c, terms, terms.length > 0 && i === 0)).join("")
+        : `<div class="empty">No matches. Try tag <em>kafka</em> or <em>cdc</em>.</div>`;
     };
 
     const renderMust = () => {
-      const list = concepts.filter((c) => c.mustKnow).sort((a, b) => a.mustKnow - b.mustKnow);
-      $("must-results").innerHTML = list.map((c) => cardHtml(c)).join("");
+      $("must-results").innerHTML = concepts.filter((c) => c.mustKnow).sort((a,b)=>a.mustKnow-b.mustKnow).map((c) => cardHtml(c)).join("");
     };
 
     const deckPool = () => {
-      if (flashTag === "must-know") return concepts.filter((c) => c.mustKnow).sort((a, b) => a.mustKnow - b.mustKnow);
+      if (flashTag === "must-know") return concepts.filter((c) => c.mustKnow).sort((a,b)=>a.mustKnow-b.mustKnow);
       return concepts.filter((c) => (c.tags || []).includes(flashTag));
     };
 
@@ -511,38 +406,82 @@ __CONCEPTS_JSON__
       const pool = deckPool();
       const pending = pool.filter((c) => !learned.has(c.name));
       deck = pending.length ? pending : [...pool].sort(() => Math.random() - 0.5);
-      deckIndex = 0;
-      flipped = false;
+      deckIndex = 0; flipped = false;
     };
 
-    const currentCard = () => deck[deckIndex];
-
     const renderFlash = () => {
-      const c = currentCard();
+      const c = deck[deckIndex];
       const el = $("flash-card");
-      if (!c) {
-        el.innerHTML = `<p class="flash-prompt">No cards in deck.</p>`;
-        return;
-      }
+      if (!c) { el.innerHTML = `<p class="flash-prompt">Empty deck for this tag.</p>`; return; }
       el.classList.toggle("flipped", flipped);
-      const remember = (c.remember || []).map((r) => `<li>${escapeHtml(r)}</li>`).join("");
       el.innerHTML = `
-        <div class="flash-top">
-          <span>${escapeHtml(c.category)} · ${(c.tags || []).slice(0, 3).map(escapeHtml).join(" · ") || "—"}</span>
-          <span>${deckIndex + 1} / ${deck.length}</span>
-        </div>
+        <div class="flash-top"><span>${escapeHtml(c.category)}</span><span>${deckIndex+1}/${deck.length}</span></div>
         <h2 class="flash-name">${escapeHtml(c.name)}</h2>
         <p class="flash-prompt">What is it? Tap to reveal definition, snippet, and prod symptom.</p>
         <div class="flash-answer">
           <div><div class="label">Definition</div><p>${escapeHtml(c.definition)}</p></div>
-          <div><div class="label">Why it matters</div><p>${escapeHtml(c.why)}</p></div>
+          <div><div class="label">Why</div><p>${escapeHtml(c.why)}</p></div>
           ${c.snippet ? `<div><div class="label">Snippet</div><pre>${escapeHtml(c.snippet)}</pre></div>` : ""}
           ${c.symptom ? `<div><div class="label">In prod</div><p>${escapeHtml(c.symptom)}</p></div>` : ""}
-          ${remember ? `<div><div class="label">Remember</div><ul>${remember}</ul></div>` : ""}
         </div>`;
-      $("flash-hint").textContent = learned.has(c.name)
-        ? "Already marked learned — keep drilling or reset progress."
-        : `${[...learned].filter((n) => concepts.some((x) => x.mustKnow && x.name === n)).length} must-know marked learned in this browser.`;
+      $("flash-hint").textContent = `Streak ${streak.count || 0} · ${learned.size} concepts marked learned`;
+    };
+
+    const shuffle = (arr) => [...arr].sort(() => Math.random() - 0.5);
+
+    const quizCandidates = () => {
+      if (quizTag === "must-know") return concepts.filter((c) => c.mustKnow && c.definition);
+      return concepts.filter((c) => (c.tags || []).includes(quizTag) && c.definition);
+    };
+
+    const nextQuiz = () => {
+      const pool = quizCandidates();
+      if (pool.length < 4) {
+        $("quiz-card").innerHTML = `<p>Need at least 4 concepts in this pool.</p>`;
+        return;
+      }
+      const answer = pool[Math.floor(Math.random() * pool.length)];
+      const distractors = shuffle(pool.filter((c) => c.name !== answer.name)).slice(0, 3);
+      const choices = shuffle([answer, ...distractors]);
+      quizItem = { answer, choices };
+      quizLocked = false;
+      $("quiz-card").innerHTML = `
+        <div class="eyebrow" style="font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--amber)">Which concept is this?</div>
+        <p class="quiz-q" style="font-size:1.15rem">${escapeHtml(answer.definition)}</p>
+        <div class="choices" id="quiz-choices">
+          ${choices.map((c) => `<button type="button" class="choice" data-choice="${escapeHtml(c.name)}">${escapeHtml(c.name)}</button>`).join("")}
+        </div>
+        <div class="hint" id="quiz-feedback"></div>`;
+    };
+
+    const renderScenarios = () => {
+      $("scenario-list").innerHTML = scenarios.map((s) => {
+        const picks = new Set(scenarioPicks[s.id] || []);
+        const opts = shuffle([
+          ...(s.answers || []),
+          ...shuffle(concepts.map((c) => c.name).filter((n) => !(s.answers || []).includes(n))).slice(0, 6)
+        ]).slice(0, 9);
+        const done = picks.size >= 3;
+        let result = "";
+        if (done) {
+          const exact = (s.answers || []).length === picks.size && (s.answers || []).every((a) => picks.has(a));
+          result = exact
+            ? `<p style="color:var(--good)"><strong>Nice.</strong> ${escapeHtml(s.explain)}</p>`
+            : `<p style="color:var(--bad)"><strong>Not quite.</strong> Aim for: ${(s.answers||[]).map(escapeHtml).join(", ")}. ${escapeHtml(s.explain)}</p>`;
+        }
+        return `
+          <article class="scenario-card" data-scenario="${escapeHtml(s.id)}">
+            <div class="eyebrow" style="font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--amber)">Challenge</div>
+            <h3>${escapeHtml(s.title)}</h3>
+            <p>${escapeHtml(s.prompt)}</p>
+            <div class="related" style="margin-top:.25rem">
+              ${opts.map((name) => `<button type="button" data-scenario-pick="${escapeHtml(s.id)}" data-concept="${escapeHtml(name)}" style="${picks.has(name) ? "background:var(--teal);color:#fff;border-color:var(--teal)" : ""}">${escapeHtml(name)}</button>`).join("")}
+            </div>
+            <p class="hint">Selected ${picks.size}/3</p>
+            ${result}
+            <div class="actions"><button type="button" data-scenario-reset="${escapeHtml(s.id)}">Reset</button></div>
+          </article>`;
+      }).join("");
     };
 
     const setMode = (next) => {
@@ -550,156 +489,149 @@ __CONCEPTS_JSON__
       document.querySelectorAll(".mode-btn").forEach((btn) => {
         const on = btn.dataset.mode === mode;
         btn.classList.toggle("active", on);
-        btn.setAttribute("aria-selected", on ? "true" : "false");
       });
-      ["search", "must", "flash"].forEach((m) => {
+      ["search","must","flash","quiz","scenarios"].forEach((m) => {
         const panel = $(`panel-${m}`);
         const on = m === mode;
         panel.classList.toggle("active", on);
         panel.hidden = !on;
       });
       if (mode === "must") renderMust();
-      if (mode === "flash") {
-        buildDeck();
-        renderFlash();
-        $("flash-card").focus();
-      }
+      if (mode === "flash") { buildDeck(); renderFlash(); $("flash-card").focus(); }
+      if (mode === "quiz") { $("quiz-score").textContent = quizScore; $("quiz-asked").textContent = quizAsked; nextQuiz(); }
+      if (mode === "scenarios") renderScenarios();
       if (mode === "search") $("q").focus();
     };
 
     const jumpTo = (name) => {
       setMode("search");
       $("q").value = name;
-      activeCategory = "All";
-      activeTag = "All";
-      renderChips();
-      renderTagChips();
-      renderSearch();
+      activeCategory = "All"; activeTag = "All";
+      renderChips(); renderTagChips(); renderSearch();
       const el = document.querySelector(`details[data-name="${CSS.escape(name)}"]`);
-      if (el) {
-        el.open = true;
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
+      if (el) { el.open = true; el.scrollIntoView({ behavior: "smooth", block: "center" }); }
+    };
+
+    const toggleLearned = (name) => {
+      if (learned.has(name)) learned.delete(name); else learned.add(name);
+      saveLearned();
+      renderSearch(); renderMust();
     };
 
     document.querySelector(".modes").addEventListener("click", (e) => {
       const btn = e.target.closest(".mode-btn");
       if (btn) setMode(btn.dataset.mode);
     });
-
     $("chips").addEventListener("click", (e) => {
-      const btn = e.target.closest(".chip");
-      if (!btn) return;
-      activeCategory = btn.dataset.cat;
-      renderChips();
-      renderSearch();
+      const btn = e.target.closest("[data-cat]"); if (!btn) return;
+      activeCategory = btn.dataset.cat; renderChips(); renderSearch();
     });
-
     $("tag-chips").addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-tag]");
-      if (!btn) return;
-      activeTag = btn.dataset.tag;
-      renderTagChips();
-      renderSearch();
+      const btn = e.target.closest("[data-tag]"); if (!btn) return;
+      activeTag = btn.dataset.tag; renderTagChips(); renderSearch();
     });
-
     $("flash-tag-chips").addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-flash-tag]");
-      if (!btn) return;
-      flashTag = btn.dataset.flashTag;
-      renderTagChips();
-      buildDeck();
-      renderFlash();
+      const btn = e.target.closest("[data-flash-tag]"); if (!btn) return;
+      flashTag = btn.dataset.flashTag; renderTagChips(); buildDeck(); renderFlash();
+    });
+    $("quiz-tag-chips").addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-quiz-tag]"); if (!btn) return;
+      quizTag = btn.dataset.quizTag; renderTagChips(); nextQuiz();
     });
 
     document.body.addEventListener("click", (e) => {
-      const jump = e.target.closest("[data-jump]");
-      if (jump) jumpTo(jump.dataset.jump);
+      const jump = e.target.closest("[data-jump]"); if (jump) jumpTo(jump.dataset.jump);
+      const learn = e.target.closest("[data-learn]"); if (learn) toggleLearned(learn.dataset.learn);
+      const choice = e.target.closest("[data-choice]");
+      if (choice && quizItem && !quizLocked) {
+        quizLocked = true;
+        quizAsked += 1;
+        const ok = choice.dataset.choice === quizItem.answer.name;
+        if (ok) { quizScore += 1; touchStreak(); if (!learned.has(quizItem.answer.name)) { learned.add(quizItem.answer.name); saveLearned(); } }
+        $("quiz-score").textContent = quizScore;
+        $("quiz-asked").textContent = quizAsked;
+        document.querySelectorAll("#quiz-choices .choice").forEach((btn) => {
+          btn.disabled = true;
+          if (btn.dataset.choice === quizItem.answer.name) btn.classList.add("correct");
+          else if (btn === choice && !ok) btn.classList.add("wrong");
+        });
+        $("quiz-feedback").textContent = ok
+          ? `Correct. In prod: ${quizItem.answer.symptom || ""}`
+          : `Answer: ${quizItem.answer.name}. ${quizItem.answer.symptom || ""}`;
+      }
+      const pick = e.target.closest("[data-scenario-pick]");
+      if (pick) {
+        const id = pick.dataset.scenarioPick;
+        const name = pick.dataset.concept;
+        const set = new Set(scenarioPicks[id] || []);
+        if (set.has(name)) set.delete(name);
+        else if (set.size < 3) set.add(name);
+        scenarioPicks[id] = [...set];
+        if (set.size === 3) {
+          const sc = scenarios.find((s) => s.id === id);
+          const exact = sc && sc.answers.length === 3 && sc.answers.every((a) => set.has(a));
+          if (exact) touchStreak();
+        }
+        renderScenarios();
+      }
+      const resetSc = e.target.closest("[data-scenario-reset]");
+      if (resetSc) { scenarioPicks[resetSc.dataset.scenarioReset] = []; renderScenarios(); }
     });
 
     $("q").addEventListener("input", renderSearch);
-    $("clear").addEventListener("click", () => {
-      $("q").value = "";
-      $("q").focus();
-      renderSearch();
-    });
+    $("clear").addEventListener("click", () => { $("q").value = ""; $("q").focus(); renderSearch(); });
 
-    const flip = () => {
-      flipped = !flipped;
-      renderFlash();
-    };
-
+    const flip = () => { flipped = !flipped; renderFlash(); };
     const nextCard = (markKnown) => {
-      const c = currentCard();
-      if (!c) return;
+      const c = deck[deckIndex]; if (!c) return;
       if (markKnown) {
-        learned.add(c.name);
-        saveLearned();
+        learned.add(c.name); saveLearned();
         deck.splice(deckIndex, 1);
         if (!deck.length) buildDeck();
         deckIndex = Math.min(deckIndex, Math.max(deck.length - 1, 0));
       } else {
-        // send to back
         deck.push(deck.splice(deckIndex, 1)[0]);
         if (deckIndex >= deck.length) deckIndex = 0;
       }
-      flipped = false;
-      renderFlash();
+      flipped = false; renderFlash();
     };
-
     $("flash-card").addEventListener("click", flip);
     $("flip-btn").addEventListener("click", flip);
     $("know-btn").addEventListener("click", () => nextCard(true));
     $("again-btn").addEventListener("click", () => nextCard(false));
     $("reset-btn").addEventListener("click", () => {
-      if (confirm("Reset learned progress in this browser?")) {
-        learned = new Set();
-        saveLearned();
-        buildDeck();
-        renderFlash();
-        renderMust();
-        renderSearch();
+      if (confirm("Reset learned progress and streak?")) {
+        learned = new Set(); streak = { count: 0, last: null };
+        localStorage.setItem(STREAK_KEY, JSON.stringify(streak));
+        saveLearned(); buildDeck(); renderFlash(); renderMust(); renderSearch(); updateProgress();
       }
     });
+    $("quiz-next").addEventListener("click", nextQuiz);
 
     document.addEventListener("keydown", (e) => {
       if (e.key === "/" && document.activeElement !== $("q") && mode === "search") {
-        e.preventDefault();
-        $("q").focus();
-        $("q").select();
+        e.preventDefault(); $("q").focus(); $("q").select();
       }
-      if (e.key === "Escape" && document.activeElement === $("q")) {
-        $("q").value = "";
-        renderSearch();
-      }
+      if (e.key === "Escape" && document.activeElement === $("q")) { $("q").value = ""; renderSearch(); }
       if (mode !== "flash") return;
-      if (["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) return;
+      if (["INPUT","TEXTAREA"].includes(document.activeElement.tagName)) return;
       if (e.key === " " || e.key === "Enter") { e.preventDefault(); flip(); }
       if (e.key === "ArrowRight") { e.preventDefault(); nextCard(false); }
       if (e.key === "1") { e.preventDefault(); nextCard(true); }
       if (e.key === "2") { e.preventDefault(); nextCard(false); }
     });
 
-    try {
-      concepts = JSON.parse($("concepts-data").textContent);
-    } catch {
-      concepts = [];
-    }
+    try { concepts = JSON.parse($("concepts-data").textContent); } catch { concepts = []; }
+    try { scenarios = JSON.parse($("scenarios-data").textContent); } catch { scenarios = []; }
     byName = new Map(concepts.map((c) => [c.name, c]));
-    renderChips();
-    renderTagChips();
-    updateProgress();
-    renderSearch();
+    renderWotd(); renderChips(); renderTagChips(); updateProgress(); renderSearch();
 
-    // Deep-link: ?tag=spark or #flash
     const params = new URLSearchParams(location.search);
-    if (params.get("tag")) {
-      activeTag = params.get("tag");
-      renderTagChips();
-      renderSearch();
-    }
-    if (params.get("mode") === "flash" || location.hash === "#flash") setMode("flash");
-    if (params.get("mode") === "must" || location.hash === "#must") setMode("must");
+    if (params.get("tag")) { activeTag = params.get("tag"); renderTagChips(); renderSearch(); }
+    if (params.get("mode")) setMode(params.get("mode"));
+    if (location.hash === "#flash") setMode("flash");
+    if (location.hash === "#quiz") setMode("quiz");
+    if (location.hash === "#scenarios") setMode("scenarios");
   </script>
 </body>
 </html>

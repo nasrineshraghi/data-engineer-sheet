@@ -2,236 +2,1809 @@
   "Cardinality": {
     "mustKnow": 1,
     "snippet": "SELECT COUNT(DISTINCT user_id) AS cardinality FROM events;",
-    "related": ["Selectivity", "Histograms", "Data Skew"],
+    "related": [
+      "Selectivity",
+      "Histograms",
+      "Data Skew"
+    ],
     "symptom": "Bad join strategy because NDV was underestimated."
   },
   "Granularity (Grain)": {
     "snippet": "-- State grain before modeling:\n-- one row per order_id + product_id (line item)",
-    "related": ["Grain", "Additive Facts", "Bridge Table"],
+    "related": [
+      "Grain",
+      "Additive Facts",
+      "Bridge Table"
+    ],
     "symptom": "Revenue doubles after joining order headers to line items."
   },
   "Grain": {
     "mustKnow": 2,
     "snippet": "-- Fact grain: 1 row = 1 completed checkout\n-- Always declare grain before designing the fact",
-    "related": ["Granularity (Grain)", "Snapshot Fact", "Additive Facts"],
+    "related": [
+      "Granularity (Grain)",
+      "Snapshot Fact",
+      "Additive Facts"
+    ],
     "symptom": "KPI doesn't match finance because grains differ."
   },
   "Predicate Pushdown": {
     "mustKnow": 3,
     "snippet": "df = spark.read.parquet(\"s3://lake/events\").filter(\"dt = '2024-01-01'\")\n# filter pushed into scan / partition prune",
-    "related": ["Partition Pruning", "Catalyst Optimizer", "Statistics"],
+    "related": [
+      "Partition Pruning",
+      "Catalyst Optimizer",
+      "Statistics"
+    ],
     "symptom": "Full scan of years of data for a one-day query."
   },
   "Partition Pruning": {
     "mustKnow": 4,
     "snippet": "SELECT * FROM sales WHERE dt BETWEEN '2024-01-01' AND '2024-01-07';\n-- only those partitions are read",
-    "related": ["Predicate Pushdown", "Dynamic Partition Pruning", "Small File Problem"],
+    "related": [
+      "Predicate Pushdown",
+      "Dynamic Partition Pruning",
+      "Small File Problem"
+    ],
     "symptom": "Query reads every partition folder despite a date filter."
   },
   "Shuffle": {
     "mustKnow": 5,
-    "snippet": "df.groupBy(\"user_id\").count()  # wide transform → shuffle\n# Spark UI: Shuffle Read/Write bytes",
-    "related": ["Wide vs Narrow Transformations", "Job → Stage → Task", "Data Skew"],
+    "snippet": "df.groupBy(\"user_id\").count()  # wide transform \u2192 shuffle\n# Spark UI: Shuffle Read/Write bytes",
+    "related": [
+      "Wide vs Narrow Transformations",
+      "Job \u2192 Stage \u2192 Task",
+      "Data Skew"
+    ],
     "symptom": "Stage stuck; network/disk dominated by shuffle."
   },
-  "Job → Stage → Task": {
+  "Job \u2192 Stage \u2192 Task": {
     "mustKnow": 6,
-    "snippet": "# action → job; shuffle boundary → stage; partition → task\ndf.write.parquet(path)  # triggers a job",
-    "related": ["DAG Scheduler", "Shuffle", "Lazy Evaluation"],
-    "symptom": "Confused debugging — looking at tasks without finding the slow stage."
+    "snippet": "# action \u2192 job; shuffle boundary \u2192 stage; partition \u2192 task\ndf.write.parquet(path)  # triggers a job",
+    "related": [
+      "DAG Scheduler",
+      "Shuffle",
+      "Lazy Evaluation"
+    ],
+    "symptom": "Confused debugging \u2014 looking at tasks without finding the slow stage."
   },
   "Lazy Evaluation": {
     "mustKnow": 7,
     "snippet": "f = df.filter(...).select(...)  # builds plan only\nf.count()                     # action runs the job",
-    "related": ["Catalyst Optimizer", "Lineage", "Job → Stage → Task"],
+    "related": [
+      "Catalyst Optimizer",
+      "Lineage",
+      "Job \u2192 Stage \u2192 Task"
+    ],
     "symptom": "Thinking transforms already ran; surprise cost on first action."
   },
   "Wide vs Narrow Transformations": {
     "mustKnow": 8,
     "snippet": "# narrow: map/filter (no shuffle)\n# wide: groupBy/join/repartition (shuffle)",
-    "related": ["Shuffle", "DAG Scheduler", "Broadcast Join"],
+    "related": [
+      "Shuffle",
+      "DAG Scheduler",
+      "Broadcast Join"
+    ],
     "symptom": "Extra wide transforms inflate runtime for little gain."
   },
   "Adaptive Query Execution (AQE)": {
     "mustKnow": 9,
     "snippet": "spark.conf.set(\"spark.sql.adaptive.enabled\", \"true\")\nspark.conf.set(\"spark.sql.adaptive.skewJoin.enabled\", \"true\")",
-    "related": ["Skew Join Optimization", "Broadcast Join", "Data Skew"],
+    "related": [
+      "Skew Join Optimization",
+      "Broadcast Join",
+      "Data Skew"
+    ],
     "symptom": "Static plan picks sort-merge when broadcast would win."
   },
   "Catalyst Optimizer": {
     "mustKnow": 10,
     "snippet": "df.explain(True)  # parsed/analyzed/optimized/physical plans",
-    "related": ["Tungsten Engine", "Predicate Pushdown", "Cost-Based Optimizer (CBO)"],
-    "symptom": "Python UDF blocks optimizations → slower than SQL expr."
+    "related": [
+      "Tungsten Engine",
+      "Predicate Pushdown",
+      "Cost-Based Optimizer (CBO)"
+    ],
+    "symptom": "Python UDF blocks optimizations \u2192 slower than SQL expr."
   },
   "Broadcast Join": {
     "mustKnow": 11,
     "snippet": "from pyspark.sql.functions import broadcast\nfact.join(broadcast(dim), \"id\")",
-    "related": ["Sort Merge Join", "Data Skew", "Adaptive Query Execution (AQE)"],
+    "related": [
+      "Sort Merge Join",
+      "Data Skew",
+      "Adaptive Query Execution (AQE)"
+    ],
     "symptom": "Shuffling a tiny dimension across the cluster."
   },
   "Sort Merge Join": {
     "mustKnow": 12,
     "snippet": "# default large-large join after shuffle+sort\nbig.join(other_big, \"user_id\")",
-    "related": ["Broadcast Join", "Shuffle", "Spill to Disk"],
+    "related": [
+      "Broadcast Join",
+      "Shuffle",
+      "Spill to Disk"
+    ],
     "symptom": "Join spills to disk; one key's partition is huge."
   },
   "Data Skew": {
     "mustKnow": 13,
     "snippet": "df.groupBy(\"key\").count().orderBy(desc(\"count\")).show(20)\n# then salt hot keys or enable AQE skew join",
-    "related": ["Salting", "Skew Join Optimization", "Shuffle"],
-    "symptom": "One task runs 10× longer than the rest of the stage."
+    "related": [
+      "Salting",
+      "Skew Join Optimization",
+      "Shuffle"
+    ],
+    "symptom": "One task runs 10\u00d7 longer than the rest of the stage."
   },
   "Small File Problem": {
     "mustKnow": 14,
     "snippet": "df.coalesce(64).write.mode(\"overwrite\").parquet(path)\n# or OPTIMIZE / compaction on lakehouse tables",
-    "related": ["Compaction", "Optimize", "Partition Sizing"],
+    "related": [
+      "Compaction",
+      "Optimize",
+      "Partition Sizing"
+    ],
     "symptom": "Driver spends ages listing; thousands of tiny tasks."
   },
   "Conformed Dimension": {
     "mustKnow": 15,
     "snippet": "-- same customer_key + attributes shared by sales & support facts",
-    "related": ["Role-Playing Dimension", "Grain", "Data Lineage"],
+    "related": [
+      "Role-Playing Dimension",
+      "Grain",
+      "Data Lineage"
+    ],
     "symptom": "Two marts define \"customer\" differently; dashboards disagree."
   },
   "Delta Lake": {
     "mustKnow": 16,
     "snippet": "MERGE INTO target t USING source s ON t.id = s.id\nWHEN MATCHED THEN UPDATE SET *\nWHEN NOT MATCHED THEN INSERT *;",
-    "related": ["Time Travel", "ACID Tables", "Apache Iceberg"],
+    "related": [
+      "Time Travel",
+      "ACID Tables",
+      "Apache Iceberg"
+    ],
     "symptom": "Concurrent jobs overwrite parquet folders; readers see partial data."
   },
   "Time Travel": {
     "mustKnow": 17,
     "snippet": "SELECT * FROM orders VERSION AS OF 120;\n-- or TIMESTAMP AS OF '2024-06-01'",
-    "related": ["Delta Lake", "Vacuum", "Checkpointing"],
+    "related": [
+      "Delta Lake",
+      "Vacuum",
+      "Checkpointing"
+    ],
     "symptom": "Can't reproduce yesterday's report after a bad overwrite."
   },
   "Schema Evolution": {
     "mustKnow": 18,
     "snippet": "df.write.format(\"delta\").option(\"mergeSchema\", \"true\").mode(\"append\").save(path)",
-    "related": ["Schema Enforcement", "Data Contracts", "Delta Lake"],
+    "related": [
+      "Schema Enforcement",
+      "Data Contracts",
+      "Delta Lake"
+    ],
     "symptom": "Producer adds a column; downstream jobs break or ignore it silently."
   },
   "CAP Theorem": {
     "mustKnow": 19,
     "snippet": "# In a partition: choose Consistency or Availability\n# Document the tradeoff for your store/queue",
-    "related": ["Eventual Consistency", "Strong Consistency", "High Availability (HA)"],
+    "related": [
+      "Eventual Consistency",
+      "Strong Consistency",
+      "High Availability (HA)"
+    ],
     "symptom": "Expecting strong reads from an AP system during a region blip."
   },
   "Event Time": {
     "mustKnow": 20,
     "snippet": "df.withWatermark(\"event_time\", \"10 minutes\") \\\n  .groupBy(window(\"event_time\", \"1 hour\")).count()",
-    "related": ["Watermarks", "Processing Time", "Late Data"],
+    "related": [
+      "Watermarks",
+      "Processing Time",
+      "Late Data"
+    ],
     "symptom": "Hourly metrics shift when late mobile events arrive."
   },
   "Watermarks": {
     "mustKnow": 21,
     "snippet": ".withWatermark(\"event_time\", \"15 minutes\")\n# closes windows; late data policy after this",
-    "related": ["Event Time", "Late Data", "Windowing"],
+    "related": [
+      "Event Time",
+      "Late Data",
+      "Windowing"
+    ],
     "symptom": "State grows forever, or late events are dropped too aggressively."
   },
   "Exactly Once": {
     "mustKnow": 22,
     "snippet": "# Need checkpointing + idempotent/transactional sink\nquery = df.writeStream.option(\"checkpointLocation\", ckpt).foreachBatch(...)",
-    "related": ["At Least Once", "Idempotency", "Checkpointing"],
+    "related": [
+      "At Least Once",
+      "Idempotency",
+      "Checkpointing"
+    ],
     "symptom": "Duplicates after restart even though processing \"felt\" safe."
   },
   "At Least Once": {
     "mustKnow": 23,
-    "snippet": "# retries may re-send — make sink upsert/idempotent\n# ON CONFLICT (id) DO UPDATE ...",
-    "related": ["Exactly Once", "Idempotency", "Dead Letter Queue (DLQ)"],
+    "snippet": "# retries may re-send \u2014 make sink upsert/idempotent\n# ON CONFLICT (id) DO UPDATE ...",
+    "related": [
+      "Exactly Once",
+      "Idempotency",
+      "Dead Letter Queue (DLQ)"
+    ],
     "symptom": "Counts inflate after every pipeline retry."
   },
   "Idempotency": {
     "mustKnow": 24,
     "snippet": "# overwrite a partition instead of blind append\ndf.write.mode(\"overwrite\").partitionBy(\"dt\").parquet(path)",
-    "related": ["Checkpointing", "Exactly Once", "Data Contracts"],
+    "related": [
+      "Checkpointing",
+      "Exactly Once",
+      "Data Contracts"
+    ],
     "symptom": "Re-running a failed day duplicates rows in the target."
   },
   "Checkpointing": {
     "mustKnow": 25,
     "snippet": "writeStream.option(\"checkpointLocation\", \"s3://ops/checkpoints/job_a\")",
-    "related": ["Idempotency", "Exactly Once", "Fault Tolerance"],
+    "related": [
+      "Idempotency",
+      "Exactly Once",
+      "Fault Tolerance"
+    ],
     "symptom": "Streaming job reprocesses from earliest offsets after path loss."
   },
   "Dead Letter Queue (DLQ)": {
     "mustKnow": 26,
     "snippet": "try:\n    process(record)\nexcept BadRecord as e:\n    dlq.send(record, error=str(e))",
-    "related": ["Retry Strategy", "Data Validation", "Data Contracts"],
+    "related": [
+      "Retry Strategy",
+      "Data Validation",
+      "Data Contracts"
+    ],
     "symptom": "One poison message blocks the whole consumer group."
   },
   "Data Contracts": {
     "mustKnow": 27,
     "snippet": "# CI: fail PR if producer schema breaks consumer contract\n# enforce required fields + types at write boundary",
-    "related": ["Schema Enforcement", "Schema Evolution", "Data Validation"],
+    "related": [
+      "Schema Enforcement",
+      "Schema Evolution",
+      "Data Validation"
+    ],
     "symptom": "Silent column rename breaks 12 downstream jobs overnight."
   },
   "Data Lineage": {
     "mustKnow": 28,
-    "snippet": "# raw.orders → stg_orders → fct_orders → BI KPI\n# track table + column lineage in the catalog",
-    "related": ["Metadata", "Data Catalog", "Observability"],
+    "snippet": "# raw.orders \u2192 stg_orders \u2192 fct_orders \u2192 BI KPI\n# track table + column lineage in the catalog",
+    "related": [
+      "Metadata",
+      "Data Catalog",
+      "Observability"
+    ],
     "symptom": "Can't tell which dashboard breaks if a source column is dropped."
   },
   "Freshness": {
     "mustKnow": 29,
     "snippet": "SELECT MAX(updated_at) FROM fct_orders;\n-- alert if now() - max_updated_at > SLA",
-    "related": ["Observability", "Completeness", "Pipeline Orchestration"],
+    "related": [
+      "Observability",
+      "Completeness",
+      "Pipeline Orchestration"
+    ],
     "symptom": "Job is green but data is 18 hours stale."
   },
   "Object Storage": {
     "mustKnow": 30,
     "snippet": "s3://lake/bronze/events/dt=2024-01-01/part-000.parquet\n# lake tables live as objects + metadata",
-    "related": ["Data Lake", "Delta Lake", "IAM"],
+    "related": [
+      "Data Lake",
+      "Delta Lake",
+      "IAM"
+    ],
     "symptom": "Treating S3 like a local FS; millions of tiny LIST requests."
   },
   "Explain Plan": {
     "snippet": "EXPLAIN ANALYZE SELECT ...;\n-- Spark: df.explain(\"cost\")",
-    "related": ["Execution Plan", "Cost-Based Optimizer (CBO)", "Statistics"],
+    "related": [
+      "Execution Plan",
+      "Cost-Based Optimizer (CBO)",
+      "Statistics"
+    ],
     "symptom": "Tuning blindly without reading the plan."
   },
   "Salting": {
     "snippet": "hot = df.withColumn(\"salt\", (rand()*N).cast(\"int\"))\n# join on key+salt, then drop salt",
-    "related": ["Data Skew", "Skew Join Optimization", "Broadcast Join"],
+    "related": [
+      "Data Skew",
+      "Skew Join Optimization",
+      "Broadcast Join"
+    ],
     "symptom": "AQE still leaves one monstrous partition on a hot key."
   },
   "Compaction": {
     "snippet": "OPTIMIZE delta.`/path/table`;  -- Delta\n-- Iceberg: rewrite_data_files",
-    "related": ["Small File Problem", "Optimize", "Z-Ordering"],
+    "related": [
+      "Small File Problem",
+      "Optimize",
+      "Z-Ordering"
+    ],
     "symptom": "Reads degrade daily as streaming adds tiny files."
   },
   "Z-Ordering": {
     "snippet": "OPTIMIZE sales ZORDER BY (customer_id, event_date);",
-    "related": ["Optimize", "Partition Pruning", "Delta Lake"],
+    "related": [
+      "Optimize",
+      "Partition Pruning",
+      "Delta Lake"
+    ],
     "symptom": "Selective filters on non-partition columns still scan everything."
   },
   "Circuit Breaker": {
-    "snippet": "# after N failures → open circuit → fail fast → half-open probe",
-    "related": ["Retry Strategy", "Backoff Strategy", "Dead Letter Queue (DLQ)"],
+    "snippet": "# after N failures \u2192 open circuit \u2192 fail fast \u2192 half-open probe",
+    "related": [
+      "Retry Strategy",
+      "Backoff Strategy",
+      "Dead Letter Queue (DLQ)"
+    ],
     "symptom": "Retries hammer a down warehouse and cascade timeouts."
   },
   "Caching": {
     "snippet": "df.cache()\ndf.count()  # materialize\n# ... reuse df ...\ndf.unpersist()",
-    "related": ["Persistence Levels", "Memory Management", "Lazy Evaluation"],
+    "related": [
+      "Persistence Levels",
+      "Memory Management",
+      "Lazy Evaluation"
+    ],
     "symptom": "Same expensive subtree recomputed on every action."
   },
   "IAM": {
     "snippet": "# job role: s3:GetObject on bronze/*, PutObject on silver/* only",
-    "related": ["Secrets Management", "KMS", "Private Endpoints"],
+    "related": [
+      "Secrets Management",
+      "KMS",
+      "Private Endpoints"
+    ],
     "symptom": "Long-lived access keys leaked from a notebook."
   },
   "Infrastructure as Code (IaC)": {
     "snippet": "terraform plan && terraform apply\n# buckets, IAM, warehouses versioned in Git",
-    "related": ["Terraform", "GitOps", "CI/CD"],
+    "related": [
+      "Terraform",
+      "GitOps",
+      "CI/CD"
+    ],
     "symptom": "Prod lake config drifts from staging; only one person knows clicks."
   },
   "Event Sourcing": {
     "snippet": "# append OrderPlaced, ItemAdded... rebuild state by replay",
-    "related": ["CQRS", "Exactly Once", "Idempotency"],
+    "related": [
+      "CQRS",
+      "Exactly Once",
+      "Idempotency"
+    ],
     "symptom": "Overwriting current state and losing audit history."
   },
   "BASE": {
     "snippet": "# Basically Available, Soft state, Eventually consistent",
-    "related": ["CAP Theorem", "Eventual Consistency", "Strong Consistency"],
+    "related": [
+      "CAP Theorem",
+      "Eventual Consistency",
+      "Strong Consistency"
+    ],
     "symptom": "Applying strict ACID expectations to a geo-replicated cache."
+  },
+  "Selectivity": {
+    "snippet": "-- inspect plan\nEXPLAIN ANALYZE SELECT ...;",
+    "related": [
+      "Data Distribution",
+      "Histograms",
+      "Cardinality"
+    ],
+    "symptom": "Slow query with no clear plan insight."
+  },
+  "Data Distribution": {
+    "snippet": "-- inspect plan\nEXPLAIN ANALYZE SELECT ...;",
+    "related": [
+      "Histograms",
+      "Cost-Based Optimizer (CBO)",
+      "Cardinality"
+    ],
+    "symptom": "Slow query with no clear plan insight."
+  },
+  "Histograms": {
+    "snippet": "-- inspect plan\nEXPLAIN ANALYZE SELECT ...;",
+    "related": [
+      "Cost-Based Optimizer (CBO)",
+      "Rule-Based Optimizer (RBO)",
+      "Cardinality"
+    ],
+    "symptom": "Slow query with no clear plan insight."
+  },
+  "Cost-Based Optimizer (CBO)": {
+    "snippet": "-- inspect plan\nEXPLAIN ANALYZE SELECT ...;",
+    "related": [
+      "Rule-Based Optimizer (RBO)",
+      "Execution Plan",
+      "Cardinality"
+    ],
+    "symptom": "Slow query with no clear plan insight."
+  },
+  "Rule-Based Optimizer (RBO)": {
+    "snippet": "-- inspect plan\nEXPLAIN ANALYZE SELECT ...;",
+    "related": [
+      "Execution Plan",
+      "Explain Plan",
+      "Cardinality"
+    ],
+    "symptom": "Slow query with no clear plan insight."
+  },
+  "Execution Plan": {
+    "snippet": "-- inspect plan\nEXPLAIN ANALYZE SELECT ...;",
+    "related": [
+      "Explain Plan",
+      "Composite Index",
+      "Cardinality"
+    ],
+    "symptom": "Slow query with no clear plan insight."
+  },
+  "Composite Index": {
+    "snippet": "-- inspect plan\nEXPLAIN ANALYZE SELECT ...;",
+    "related": [
+      "Covering Index",
+      "Clustered vs Non-Clustered Index",
+      "Cardinality"
+    ],
+    "symptom": "Slow query with no clear plan insight."
+  },
+  "Covering Index": {
+    "snippet": "-- inspect plan\nEXPLAIN ANALYZE SELECT ...;",
+    "related": [
+      "Clustered vs Non-Clustered Index",
+      "Bitmap Index",
+      "Cardinality"
+    ],
+    "symptom": "Slow query with no clear plan insight."
+  },
+  "Clustered vs Non-Clustered Index": {
+    "snippet": "-- inspect plan\nEXPLAIN ANALYZE SELECT ...;",
+    "related": [
+      "Bitmap Index",
+      "B-Tree Index",
+      "Cardinality"
+    ],
+    "symptom": "Slow query with no clear plan insight."
+  },
+  "Bitmap Index": {
+    "snippet": "-- inspect plan\nEXPLAIN ANALYZE SELECT ...;",
+    "related": [
+      "B-Tree Index",
+      "Predicate Pushdown",
+      "Cardinality"
+    ],
+    "symptom": "Slow query with no clear plan insight."
+  },
+  "B-Tree Index": {
+    "snippet": "-- inspect plan\nEXPLAIN ANALYZE SELECT ...;",
+    "related": [
+      "Predicate Pushdown",
+      "Partition Pruning",
+      "Cardinality"
+    ],
+    "symptom": "Slow query with no clear plan insight."
+  },
+  "Statistics": {
+    "snippet": "-- inspect plan\nEXPLAIN ANALYZE SELECT ...;",
+    "related": [
+      "Table Scan vs Index Scan",
+      "Seek vs Scan",
+      "Cardinality"
+    ],
+    "symptom": "Slow query with no clear plan insight."
+  },
+  "Table Scan vs Index Scan": {
+    "snippet": "-- inspect plan\nEXPLAIN ANALYZE SELECT ...;",
+    "related": [
+      "Seek vs Scan",
+      "Cardinality"
+    ],
+    "symptom": "Slow query with no clear plan insight."
+  },
+  "Seek vs Scan": {
+    "snippet": "-- inspect plan\nEXPLAIN ANALYZE SELECT ...;",
+    "related": [
+      "Cardinality",
+      "Granularity (Grain)"
+    ],
+    "symptom": "Slow query with no clear plan insight."
+  },
+  "DAG Scheduler": {
+    "snippet": "df.explain(True)  # check stages/shuffles",
+    "related": [
+      "Task Scheduler",
+      "Driver"
+    ],
+    "symptom": "Stage time dominated by unexpected work."
+  },
+  "Task Scheduler": {
+    "snippet": "df.explain(True)  # check stages/shuffles",
+    "related": [
+      "Driver",
+      "Executor",
+      "DAG Scheduler"
+    ],
+    "symptom": "Stage time dominated by unexpected work."
+  },
+  "Driver": {
+    "snippet": "df.explain(True)  # check stages/shuffles",
+    "related": [
+      "Executor",
+      "Worker",
+      "DAG Scheduler"
+    ],
+    "symptom": "Stage time dominated by unexpected work."
+  },
+  "Executor": {
+    "snippet": "df.explain(True)  # check stages/shuffles",
+    "related": [
+      "Worker",
+      "Cluster Manager",
+      "DAG Scheduler"
+    ],
+    "symptom": "Stage time dominated by unexpected work."
+  },
+  "Worker": {
+    "snippet": "df.explain(True)  # check stages/shuffles",
+    "related": [
+      "Cluster Manager",
+      "Job \u2192 Stage \u2192 Task",
+      "DAG Scheduler"
+    ],
+    "symptom": "Stage time dominated by unexpected work."
+  },
+  "Cluster Manager": {
+    "snippet": "df.explain(True)  # check stages/shuffles",
+    "related": [
+      "Job \u2192 Stage \u2192 Task",
+      "Lineage",
+      "DAG Scheduler"
+    ],
+    "symptom": "Stage time dominated by unexpected work."
+  },
+  "Lineage": {
+    "snippet": "df.explain(True)  # check stages/shuffles",
+    "related": [
+      "Lazy Evaluation",
+      "Shuffle",
+      "DAG Scheduler"
+    ],
+    "symptom": "Stage time dominated by unexpected work."
+  },
+  "Spill to Disk": {
+    "snippet": "df.explain(True)  # check stages/shuffles",
+    "related": [
+      "Memory Management",
+      "Serialization (Java/Kryo)",
+      "DAG Scheduler"
+    ],
+    "symptom": "Stage time dominated by unexpected work."
+  },
+  "Memory Management": {
+    "snippet": "df.explain(True)  # check stages/shuffles",
+    "related": [
+      "Serialization (Java/Kryo)",
+      "Broadcast Variables",
+      "DAG Scheduler"
+    ],
+    "symptom": "Stage time dominated by unexpected work."
+  },
+  "Serialization (Java/Kryo)": {
+    "snippet": "df.explain(True)  # check stages/shuffles",
+    "related": [
+      "Broadcast Variables",
+      "Accumulators",
+      "DAG Scheduler"
+    ],
+    "symptom": "Stage time dominated by unexpected work."
+  },
+  "Broadcast Variables": {
+    "snippet": "df.explain(True)  # check stages/shuffles",
+    "related": [
+      "Accumulators",
+      "Closure",
+      "DAG Scheduler"
+    ],
+    "symptom": "Stage time dominated by unexpected work."
+  },
+  "Accumulators": {
+    "snippet": "df.explain(True)  # check stages/shuffles",
+    "related": [
+      "Closure",
+      "Wide vs Narrow Transformations",
+      "DAG Scheduler"
+    ],
+    "symptom": "Stage time dominated by unexpected work."
+  },
+  "Closure": {
+    "snippet": "df.explain(True)  # check stages/shuffles",
+    "related": [
+      "Wide vs Narrow Transformations",
+      "Adaptive Query Execution (AQE)",
+      "DAG Scheduler"
+    ],
+    "symptom": "Stage time dominated by unexpected work."
+  },
+  "Tungsten Engine": {
+    "snippet": "df.explain(True)  # check stages/shuffles",
+    "related": [
+      "Dynamic Partition Pruning",
+      "Skew Join Optimization",
+      "DAG Scheduler"
+    ],
+    "symptom": "Stage time dominated by unexpected work."
+  },
+  "Dynamic Partition Pruning": {
+    "snippet": "df.explain(True)  # check stages/shuffles",
+    "related": [
+      "Skew Join Optimization",
+      "DAG Scheduler"
+    ],
+    "symptom": "Stage time dominated by unexpected work."
+  },
+  "Skew Join Optimization": {
+    "snippet": "df.explain(True)  # check stages/shuffles",
+    "related": [
+      "DAG Scheduler",
+      "Task Scheduler"
+    ],
+    "symptom": "Stage time dominated by unexpected work."
+  },
+  "Granularity": {
+    "snippet": "-- declare grain, then model facts/dims",
+    "related": [
+      "Additive Facts",
+      "Semi-Additive Facts",
+      "Grain"
+    ],
+    "symptom": "Metrics disagree across marts."
+  },
+  "Additive Facts": {
+    "snippet": "-- declare grain, then model facts/dims",
+    "related": [
+      "Semi-Additive Facts",
+      "Non-Additive Facts",
+      "Grain"
+    ],
+    "symptom": "Metrics disagree across marts."
+  },
+  "Semi-Additive Facts": {
+    "snippet": "-- declare grain, then model facts/dims",
+    "related": [
+      "Non-Additive Facts",
+      "Degenerate Dimension",
+      "Grain"
+    ],
+    "symptom": "Metrics disagree across marts."
+  },
+  "Non-Additive Facts": {
+    "snippet": "-- declare grain, then model facts/dims",
+    "related": [
+      "Degenerate Dimension",
+      "Junk Dimension",
+      "Grain"
+    ],
+    "symptom": "Metrics disagree across marts."
+  },
+  "Degenerate Dimension": {
+    "snippet": "-- declare grain, then model facts/dims",
+    "related": [
+      "Junk Dimension",
+      "Role-Playing Dimension",
+      "Grain"
+    ],
+    "symptom": "Metrics disagree across marts."
+  },
+  "Junk Dimension": {
+    "snippet": "-- declare grain, then model facts/dims",
+    "related": [
+      "Role-Playing Dimension",
+      "Conformed Dimension",
+      "Grain"
+    ],
+    "symptom": "Metrics disagree across marts."
+  },
+  "Role-Playing Dimension": {
+    "snippet": "-- declare grain, then model facts/dims",
+    "related": [
+      "Conformed Dimension",
+      "Mini Dimension",
+      "Grain"
+    ],
+    "symptom": "Metrics disagree across marts."
+  },
+  "Mini Dimension": {
+    "snippet": "-- declare grain, then model facts/dims",
+    "related": [
+      "Bridge Table",
+      "Factless Fact Table",
+      "Grain"
+    ],
+    "symptom": "Metrics disagree across marts."
+  },
+  "Bridge Table": {
+    "snippet": "-- declare grain, then model facts/dims",
+    "related": [
+      "Factless Fact Table",
+      "Snapshot Fact",
+      "Grain"
+    ],
+    "symptom": "Metrics disagree across marts."
+  },
+  "Factless Fact Table": {
+    "snippet": "-- declare grain, then model facts/dims",
+    "related": [
+      "Snapshot Fact",
+      "Accumulating Snapshot",
+      "Grain"
+    ],
+    "symptom": "Metrics disagree across marts."
+  },
+  "Snapshot Fact": {
+    "snippet": "-- declare grain, then model facts/dims",
+    "related": [
+      "Accumulating Snapshot",
+      "Periodic Snapshot",
+      "Grain"
+    ],
+    "symptom": "Metrics disagree across marts."
+  },
+  "Accumulating Snapshot": {
+    "snippet": "-- declare grain, then model facts/dims",
+    "related": [
+      "Periodic Snapshot",
+      "Grain"
+    ],
+    "symptom": "Metrics disagree across marts."
+  },
+  "Periodic Snapshot": {
+    "snippet": "-- declare grain, then model facts/dims",
+    "related": [
+      "Grain",
+      "Granularity"
+    ],
+    "symptom": "Metrics disagree across marts."
+  },
+  "Data Lake": {
+    "snippet": "-- prefer ACID table format ops (MERGE/OPTIMIZE)",
+    "related": [
+      "Data Lakehouse",
+      "Delta Lake"
+    ],
+    "symptom": "Readers see partial or inconsistent files."
+  },
+  "Data Lakehouse": {
+    "snippet": "-- prefer ACID table format ops (MERGE/OPTIMIZE)",
+    "related": [
+      "Delta Lake",
+      "Apache Iceberg",
+      "Data Lake"
+    ],
+    "symptom": "Readers see partial or inconsistent files."
+  },
+  "Apache Iceberg": {
+    "snippet": "-- prefer ACID table format ops (MERGE/OPTIMIZE)",
+    "related": [
+      "Apache Hudi",
+      "Time Travel",
+      "Data Lake"
+    ],
+    "symptom": "Readers see partial or inconsistent files."
+  },
+  "Apache Hudi": {
+    "snippet": "-- prefer ACID table format ops (MERGE/OPTIMIZE)",
+    "related": [
+      "Time Travel",
+      "Schema Evolution",
+      "Data Lake"
+    ],
+    "symptom": "Readers see partial or inconsistent files."
+  },
+  "Schema Enforcement": {
+    "snippet": "-- prefer ACID table format ops (MERGE/OPTIMIZE)",
+    "related": [
+      "ACID Tables",
+      "Compaction",
+      "Data Lake"
+    ],
+    "symptom": "Readers see partial or inconsistent files."
+  },
+  "ACID Tables": {
+    "snippet": "-- prefer ACID table format ops (MERGE/OPTIMIZE)",
+    "related": [
+      "Compaction",
+      "Vacuum",
+      "Data Lake"
+    ],
+    "symptom": "Readers see partial or inconsistent files."
+  },
+  "Vacuum": {
+    "snippet": "-- prefer ACID table format ops (MERGE/OPTIMIZE)",
+    "related": [
+      "Optimize",
+      "Z-Ordering",
+      "Data Lake"
+    ],
+    "symptom": "Readers see partial or inconsistent files."
+  },
+  "Optimize": {
+    "snippet": "-- prefer ACID table format ops (MERGE/OPTIMIZE)",
+    "related": [
+      "Z-Ordering",
+      "Data Lake"
+    ],
+    "symptom": "Readers see partial or inconsistent files."
+  },
+  "Eventual Consistency": {
+    "snippet": "# document C/A tradeoff for this store",
+    "related": [
+      "Strong Consistency",
+      "Replication",
+      "CAP Theorem"
+    ],
+    "symptom": "Surprising behavior under node/network failure."
+  },
+  "Strong Consistency": {
+    "snippet": "# document C/A tradeoff for this store",
+    "related": [
+      "Replication",
+      "Leader Election",
+      "CAP Theorem"
+    ],
+    "symptom": "Surprising behavior under node/network failure."
+  },
+  "Replication": {
+    "snippet": "# document C/A tradeoff for this store",
+    "related": [
+      "Leader Election",
+      "Consensus",
+      "CAP Theorem"
+    ],
+    "symptom": "Surprising behavior under node/network failure."
+  },
+  "Leader Election": {
+    "snippet": "# document C/A tradeoff for this store",
+    "related": [
+      "Consensus",
+      "Raft",
+      "CAP Theorem"
+    ],
+    "symptom": "Surprising behavior under node/network failure."
+  },
+  "Consensus": {
+    "snippet": "# document C/A tradeoff for this store",
+    "related": [
+      "Raft",
+      "Paxos",
+      "CAP Theorem"
+    ],
+    "symptom": "Surprising behavior under node/network failure."
+  },
+  "Raft": {
+    "snippet": "# document C/A tradeoff for this store",
+    "related": [
+      "Paxos",
+      "Fault Tolerance",
+      "CAP Theorem"
+    ],
+    "symptom": "Surprising behavior under node/network failure."
+  },
+  "Paxos": {
+    "snippet": "# document C/A tradeoff for this store",
+    "related": [
+      "Fault Tolerance",
+      "High Availability (HA)",
+      "CAP Theorem"
+    ],
+    "symptom": "Surprising behavior under node/network failure."
+  },
+  "Fault Tolerance": {
+    "snippet": "# document C/A tradeoff for this store",
+    "related": [
+      "High Availability (HA)",
+      "Horizontal Scaling",
+      "CAP Theorem"
+    ],
+    "symptom": "Surprising behavior under node/network failure."
+  },
+  "High Availability (HA)": {
+    "snippet": "# document C/A tradeoff for this store",
+    "related": [
+      "Horizontal Scaling",
+      "Vertical Scaling",
+      "CAP Theorem"
+    ],
+    "symptom": "Surprising behavior under node/network failure."
+  },
+  "Horizontal Scaling": {
+    "snippet": "# document C/A tradeoff for this store",
+    "related": [
+      "Vertical Scaling",
+      "CAP Theorem"
+    ],
+    "symptom": "Surprising behavior under node/network failure."
+  },
+  "Vertical Scaling": {
+    "snippet": "# document C/A tradeoff for this store",
+    "related": [
+      "CAP Theorem",
+      "BASE"
+    ],
+    "symptom": "Surprising behavior under node/network failure."
+  },
+  "Processing Time": {
+    "snippet": ".withWatermark('event_time', '10 minutes')",
+    "related": [
+      "Ingestion Time",
+      "Watermarks",
+      "Event Time"
+    ],
+    "symptom": "Results change as late events arrive."
+  },
+  "Ingestion Time": {
+    "snippet": ".withWatermark('event_time', '10 minutes')",
+    "related": [
+      "Watermarks",
+      "Windowing",
+      "Event Time"
+    ],
+    "symptom": "Results change as late events arrive."
+  },
+  "Windowing": {
+    "snippet": ".withWatermark('event_time', '10 minutes')",
+    "related": [
+      "Late Data",
+      "Stateful Processing",
+      "Event Time"
+    ],
+    "symptom": "Results change as late events arrive."
+  },
+  "Late Data": {
+    "snippet": ".withWatermark('event_time', '10 minutes')",
+    "related": [
+      "Stateful Processing",
+      "Stateless Processing",
+      "Event Time"
+    ],
+    "symptom": "Results change as late events arrive."
+  },
+  "Stateful Processing": {
+    "snippet": ".withWatermark('event_time', '10 minutes')",
+    "related": [
+      "Stateless Processing",
+      "Exactly Once",
+      "Event Time"
+    ],
+    "symptom": "Results change as late events arrive."
+  },
+  "Stateless Processing": {
+    "snippet": ".withWatermark('event_time', '10 minutes')",
+    "related": [
+      "Exactly Once",
+      "At Least Once",
+      "Event Time"
+    ],
+    "symptom": "Results change as late events arrive."
+  },
+  "At Most Once": {
+    "snippet": ".withWatermark('event_time', '10 minutes')",
+    "related": [
+      "Event Sourcing",
+      "CQRS",
+      "Event Time"
+    ],
+    "symptom": "Results change as late events arrive."
+  },
+  "CQRS": {
+    "snippet": ".withWatermark('event_time', '10 minutes')",
+    "related": [
+      "Event Time",
+      "Processing Time"
+    ],
+    "symptom": "Results change as late events arrive."
+  },
+  "Retry Strategy": {
+    "snippet": "# make reruns safe: upsert / partition overwrite",
+    "related": [
+      "Backoff Strategy",
+      "Circuit Breaker",
+      "Idempotency"
+    ],
+    "symptom": "Reruns corrupt or duplicate outputs."
+  },
+  "Backoff Strategy": {
+    "snippet": "# make reruns safe: upsert / partition overwrite",
+    "related": [
+      "Circuit Breaker",
+      "Dead Letter Queue (DLQ)",
+      "Idempotency"
+    ],
+    "symptom": "Reruns corrupt or duplicate outputs."
+  },
+  "Pipeline Orchestration": {
+    "snippet": "# make reruns safe: upsert / partition overwrite",
+    "related": [
+      "Metadata-Driven Pipelines",
+      "Idempotency"
+    ],
+    "symptom": "Reruns corrupt or duplicate outputs."
+  },
+  "Metadata-Driven Pipelines": {
+    "snippet": "# make reruns safe: upsert / partition overwrite",
+    "related": [
+      "Idempotency",
+      "Checkpointing"
+    ],
+    "symptom": "Reruns corrupt or duplicate outputs."
+  },
+  "Shuffle Join": {
+    "snippet": "# check Spark UI: skew, spill, shuffle",
+    "related": [
+      "Sort Merge Join",
+      "Hash Join",
+      "Data Skew"
+    ],
+    "symptom": "Job runtime much worse than data size suggests."
+  },
+  "Hash Join": {
+    "snippet": "# check Spark UI: skew, spill, shuffle",
+    "related": [
+      "Bucket Join",
+      "Salting",
+      "Data Skew"
+    ],
+    "symptom": "Job runtime much worse than data size suggests."
+  },
+  "Bucket Join": {
+    "snippet": "# check Spark UI: skew, spill, shuffle",
+    "related": [
+      "Salting",
+      "Caching",
+      "Data Skew"
+    ],
+    "symptom": "Job runtime much worse than data size suggests."
+  },
+  "Persistence Levels": {
+    "snippet": "# check Spark UI: skew, spill, shuffle",
+    "related": [
+      "Parallelism",
+      "Partition Sizing",
+      "Data Skew"
+    ],
+    "symptom": "Job runtime much worse than data size suggests."
+  },
+  "Parallelism": {
+    "snippet": "# check Spark UI: skew, spill, shuffle",
+    "related": [
+      "Partition Sizing",
+      "Small File Problem",
+      "Data Skew"
+    ],
+    "symptom": "Job runtime much worse than data size suggests."
+  },
+  "Partition Sizing": {
+    "snippet": "# check Spark UI: skew, spill, shuffle",
+    "related": [
+      "Small File Problem",
+      "Data Skew"
+    ],
+    "symptom": "Job runtime much worse than data size suggests."
+  },
+  "Data Profiling": {
+    "snippet": "# assert freshness + uniqueness before publish",
+    "related": [
+      "Data Validation",
+      "Data Lineage"
+    ],
+    "symptom": "Consumers distrust the numbers."
+  },
+  "Data Validation": {
+    "snippet": "# assert freshness + uniqueness before publish",
+    "related": [
+      "Data Lineage",
+      "Metadata",
+      "Data Profiling"
+    ],
+    "symptom": "Consumers distrust the numbers."
+  },
+  "Metadata": {
+    "snippet": "# assert freshness + uniqueness before publish",
+    "related": [
+      "Data Catalog",
+      "Master Data Management (MDM)",
+      "Data Profiling"
+    ],
+    "symptom": "Consumers distrust the numbers."
+  },
+  "Data Catalog": {
+    "snippet": "# assert freshness + uniqueness before publish",
+    "related": [
+      "Master Data Management (MDM)",
+      "Data Governance",
+      "Data Profiling"
+    ],
+    "symptom": "Consumers distrust the numbers."
+  },
+  "Master Data Management (MDM)": {
+    "snippet": "# assert freshness + uniqueness before publish",
+    "related": [
+      "Data Governance",
+      "Data Stewardship",
+      "Data Profiling"
+    ],
+    "symptom": "Consumers distrust the numbers."
+  },
+  "Data Governance": {
+    "snippet": "# assert freshness + uniqueness before publish",
+    "related": [
+      "Data Stewardship",
+      "Observability",
+      "Data Profiling"
+    ],
+    "symptom": "Consumers distrust the numbers."
+  },
+  "Data Stewardship": {
+    "snippet": "# assert freshness + uniqueness before publish",
+    "related": [
+      "Observability",
+      "Freshness",
+      "Data Profiling"
+    ],
+    "symptom": "Consumers distrust the numbers."
+  },
+  "Observability": {
+    "snippet": "# assert freshness + uniqueness before publish",
+    "related": [
+      "Freshness",
+      "Completeness",
+      "Data Profiling"
+    ],
+    "symptom": "Consumers distrust the numbers."
+  },
+  "Completeness": {
+    "snippet": "# assert freshness + uniqueness before publish",
+    "related": [
+      "Accuracy",
+      "Consistency",
+      "Data Profiling"
+    ],
+    "symptom": "Consumers distrust the numbers."
+  },
+  "Accuracy": {
+    "snippet": "# assert freshness + uniqueness before publish",
+    "related": [
+      "Consistency",
+      "Data Profiling"
+    ],
+    "symptom": "Consumers distrust the numbers."
+  },
+  "Consistency": {
+    "snippet": "# assert freshness + uniqueness before publish",
+    "related": [
+      "Data Profiling",
+      "Data Validation"
+    ],
+    "symptom": "Consumers distrust the numbers."
+  },
+  "Block Storage": {
+    "snippet": "# least-privilege IAM on lake prefixes",
+    "related": [
+      "Lifecycle Policies",
+      "IAM",
+      "Object Storage"
+    ],
+    "symptom": "Access or cost issues around lake storage."
+  },
+  "Lifecycle Policies": {
+    "snippet": "# least-privilege IAM on lake prefixes",
+    "related": [
+      "IAM",
+      "Secrets Management",
+      "Object Storage"
+    ],
+    "symptom": "Access or cost issues around lake storage."
+  },
+  "Secrets Management": {
+    "snippet": "# least-privilege IAM on lake prefixes",
+    "related": [
+      "KMS",
+      "Encryption at Rest",
+      "Object Storage"
+    ],
+    "symptom": "Access or cost issues around lake storage."
+  },
+  "KMS": {
+    "snippet": "# least-privilege IAM on lake prefixes",
+    "related": [
+      "Encryption at Rest",
+      "Encryption in Transit",
+      "Object Storage"
+    ],
+    "symptom": "Access or cost issues around lake storage."
+  },
+  "Encryption at Rest": {
+    "snippet": "# least-privilege IAM on lake prefixes",
+    "related": [
+      "Encryption in Transit",
+      "VPC",
+      "Object Storage"
+    ],
+    "symptom": "Access or cost issues around lake storage."
+  },
+  "Encryption in Transit": {
+    "snippet": "# least-privilege IAM on lake prefixes",
+    "related": [
+      "VPC",
+      "Private Endpoints",
+      "Object Storage"
+    ],
+    "symptom": "Access or cost issues around lake storage."
+  },
+  "VPC": {
+    "snippet": "# least-privilege IAM on lake prefixes",
+    "related": [
+      "Private Endpoints",
+      "Object Storage"
+    ],
+    "symptom": "Access or cost issues around lake storage."
+  },
+  "Private Endpoints": {
+    "snippet": "# least-privilege IAM on lake prefixes",
+    "related": [
+      "Object Storage",
+      "Block Storage"
+    ],
+    "symptom": "Access or cost issues around lake storage."
+  },
+  "Docker": {
+    "snippet": "# infra change via PR + plan/apply",
+    "related": [
+      "Kubernetes",
+      "CI/CD"
+    ],
+    "symptom": "Environment drift between staging and prod."
+  },
+  "Kubernetes": {
+    "snippet": "# infra change via PR + plan/apply",
+    "related": [
+      "CI/CD",
+      "GitOps",
+      "Docker"
+    ],
+    "symptom": "Environment drift between staging and prod."
+  },
+  "CI/CD": {
+    "snippet": "# infra change via PR + plan/apply",
+    "related": [
+      "GitOps",
+      "Terraform",
+      "Docker"
+    ],
+    "symptom": "Environment drift between staging and prod."
+  },
+  "GitOps": {
+    "snippet": "# infra change via PR + plan/apply",
+    "related": [
+      "Terraform",
+      "Helm",
+      "Docker"
+    ],
+    "symptom": "Environment drift between staging and prod."
+  },
+  "Terraform": {
+    "snippet": "# infra change via PR + plan/apply",
+    "related": [
+      "Helm",
+      "Infrastructure as Code (IaC)",
+      "Docker"
+    ],
+    "symptom": "Environment drift between staging and prod."
+  },
+  "Helm": {
+    "snippet": "# infra change via PR + plan/apply",
+    "related": [
+      "Infrastructure as Code (IaC)",
+      "Docker"
+    ],
+    "symptom": "Environment drift between staging and prod."
+  },
+  "Change Data Capture (CDC)": {
+    "snippet": "# Debezium/Postgres example topic\n# orders.Customer \u2192 apply MERGE into lake table by PK",
+    "related": [
+      "Log-Based CDC",
+      "SCD Type 2",
+      "Idempotency"
+    ],
+    "symptom": "Nightly full reloads thrash the source DB and miss deletes."
+  },
+  "Log-Based CDC": {
+    "snippet": "# Debezium connector \u2192 Kafka topic with op=c/u/d\n# before/after payload for each change",
+    "related": [
+      "Change Data Capture (CDC)",
+      "Soft Delete vs Hard Delete",
+      "Schema Registry"
+    ],
+    "symptom": "Query-based CDC misses hard deletes and under-loads the warehouse."
+  },
+  "Query-Based CDC": {
+    "snippet": "SELECT * FROM orders\nWHERE updated_at > :watermark - INTERVAL '5 minutes';",
+    "related": [
+      "Change Data Capture (CDC)",
+      "Log-Based CDC",
+      "Checkpointing"
+    ],
+    "symptom": "Gaps appear when updated_at doesn't move on some updates."
+  },
+  "Soft Delete vs Hard Delete": {
+    "snippet": "-- soft: UPDATE SET is_deleted=true\n-- CDC hard delete: op='d' tombstone \u2192 target delete/flag",
+    "related": [
+      "Change Data Capture (CDC)",
+      "SCD Type 2",
+      "Data Validation"
+    ],
+    "symptom": "Deleted customers still appear in dashboards."
+  },
+  "SCD Type 1": {
+    "snippet": "MERGE INTO dim_customer t USING staging s ON t.nk=s.nk\nWHEN MATCHED THEN UPDATE SET *;",
+    "related": [
+      "SCD Type 2",
+      "Surrogate Key",
+      "Natural Key"
+    ],
+    "symptom": "You needed yesterday's attribute value but type-1 overwrote it."
+  },
+  "SCD Type 2": {
+    "snippet": "-- close current row, insert new version\nUPDATE dim SET end_date=CURRENT_DATE, is_current=false WHERE nk=? AND is_current;\nINSERT ... is_current=true;",
+    "related": [
+      "Effective Dating",
+      "Surrogate Key",
+      "Late-Arriving Dimension"
+    ],
+    "symptom": "Historical facts show today's attributes after a customer change."
+  },
+  "SCD Type 3": {
+    "snippet": "UPDATE dim_customer SET prior_segment=segment, segment=:new WHERE customer_nk=:nk;",
+    "related": [
+      "SCD Type 1",
+      "SCD Type 2",
+      "Mini Dimension"
+    ],
+    "symptom": "Need more than one prior value but only type-3 columns exist."
+  },
+  "Surrogate Key": {
+    "snippet": "-- dim_customer(customer_sk, customer_nk, ...)\n-- fact_orders.customer_sk \u2192 type-2 version at order time",
+    "related": [
+      "Natural Key",
+      "SCD Type 2",
+      "Effective Dating"
+    ],
+    "symptom": "Joining facts on natural keys picks the wrong type-2 version."
+  },
+  "Natural Key": {
+    "snippet": "-- match CDC on source business key\nON target.order_id = source.order_id",
+    "related": [
+      "Surrogate Key",
+      "Change Data Capture (CDC)",
+      "Master Data Management (MDM)"
+    ],
+    "symptom": "Two source systems reuse the same ID for different entities."
+  },
+  "Effective Dating": {
+    "snippet": "JOIN dim d ON f.customer_sk = d.customer_sk\n-- or: d.nk=f.nk AND f.ts >= d.start AND f.ts < d.end",
+    "related": [
+      "SCD Type 2",
+      "Surrogate Key",
+      "Grain"
+    ],
+    "symptom": "Overlapping effective ranges double-count dimension matches."
+  },
+  "Late-Arriving Dimension": {
+    "snippet": "-- insert unknown member sk=-1, then re-key facts when dim arrives",
+    "related": [
+      "Late-Arriving Fact",
+      "SCD Type 2",
+      "Surrogate Key"
+    ],
+    "symptom": "Orders land with NULL customer attributes until CDC catches up."
+  },
+  "Late-Arriving Fact": {
+    "snippet": "MERGE INTO fct_orders t USING late_arrivals s ON t.order_id=s.order_id\nWHEN MATCHED THEN UPDATE SET * WHEN NOT MATCHED THEN INSERT *;",
+    "related": [
+      "Idempotency",
+      "Late Data",
+      "Partition Pruning"
+    ],
+    "symptom": "Yesterday's partition is wrong after late POS uploads."
+  },
+  "dbt Model": {
+    "snippet": "-- models/marts/fct_orders.sql\nselect * from {{ ref('stg_orders') }}",
+    "related": [
+      "ref()",
+      "Materialization",
+      "Tests (dbt)"
+    ],
+    "symptom": "Copy-pasted SQL across notebooks with no DAG or tests."
+  },
+  "Materialization": {
+    "snippet": "{{ config(materialized='table') }}\n-- or view | incremental | ephemeral",
+    "related": [
+      "Incremental Model",
+      "dbt Model",
+      "Cost Observability"
+    ],
+    "symptom": "Huge table rebuilt as a view scanned repeatedly by BI."
+  },
+  "Incremental Model": {
+    "snippet": "{{ config(materialized='incremental', unique_key='order_id') }}\n{% if is_incremental() %}\nwhere updated_at > (select max(updated_at) from {{ this }})\n{% endif %}",
+    "related": [
+      "Materialization",
+      "Idempotency",
+      "Late-Arriving Fact"
+    ],
+    "symptom": "Incremental run duplicates keys or misses late updates."
+  },
+  "Sources": {
+    "snippet": "select * from {{ source('raw', 'orders') }}",
+    "related": [
+      "Seeds",
+      "Freshness",
+      "Data Contracts"
+    ],
+    "symptom": "Staging reads a renamed raw table nobody declared."
+  },
+  "Seeds": {
+    "snippet": "# seeds/country_codes.csv then:\nselect * from {{ ref('country_codes') }}",
+    "related": [
+      "Sources",
+      "dbt Model",
+      "Conformed Dimension"
+    ],
+    "symptom": "Mapping CSV lives only on someone's laptop."
+  },
+  "ref()": {
+    "snippet": "select * from {{ ref('stg_orders') }} o\njoin {{ ref('dim_customers') }} c using (customer_id)",
+    "related": [
+      "dbt Model",
+      "Sources",
+      "Data Lineage"
+    ],
+    "symptom": "Hard-coded prod schema names break in CI."
+  },
+  "Tests (dbt)": {
+    "snippet": "# schema.yml\n- name: order_id\n  tests: [unique, not_null]",
+    "related": [
+      "Data Validation",
+      "Data Contracts",
+      "Exposures"
+    ],
+    "symptom": "Duplicate order_ids ship to finance before anyone notices."
+  },
+  "Exposures": {
+    "snippet": "exposures:\n  - name: exec_revenue_dash\n    depends_on: [ref('fct_orders')]",
+    "related": [
+      "Data Lineage",
+      "Documentation / Docs Site",
+      "Freshness"
+    ],
+    "symptom": "Changing a mart silently breaks a C-level dashboard."
+  },
+  "Documentation / Docs Site": {
+    "snippet": "dbt docs generate && dbt docs serve",
+    "related": [
+      "Exposures",
+      "Metadata",
+      "Data Catalog"
+    ],
+    "symptom": "Nobody knows which column is the revenue definition of record."
+  },
+  "Slim CI / State Defer": {
+    "snippet": "dbt test --select state:modified+ --defer --state path/to/prod/manifest",
+    "related": [
+      "CI/CD",
+      "Tests (dbt)",
+      "dbt Model"
+    ],
+    "symptom": "Every PR runs the entire 400-model project."
+  },
+  "Topic": {
+    "snippet": "kafka-topics.sh --create --topic payments.completed --partitions 12 --replication-factor 3",
+    "related": [
+      "Partition",
+      "Consumer Group",
+      "Schema Registry"
+    ],
+    "symptom": "One mega-topic mixes unrelated event types and confuses ownership."
+  },
+  "Partition": {
+    "snippet": "# key by customer_id for per-customer ordering\nproducer.send(topic, key=customer_id, value=event)",
+    "related": [
+      "Topic",
+      "Consumer Group",
+      "Offset"
+    ],
+    "symptom": "Global ordering assumed, but only partitions are ordered."
+  },
+  "Offset": {
+    "snippet": "consumer.commit_sync()  # after successful sink write",
+    "related": [
+      "Consumer Group",
+      "At Least Once",
+      "Checkpointing"
+    ],
+    "symptom": "Commit-before-write loses records on crash; write-before-commit duplicates."
+  },
+  "Consumer Group": {
+    "snippet": "# group.id=billing-service\n# N consumers share topic partitions",
+    "related": [
+      "Partition",
+      "Offset",
+      "Dead Letter Topic"
+    ],
+    "symptom": "Scaling to 20 consumers on 6 partitions leaves 14 idle."
+  },
+  "Producer / Consumer": {
+    "snippet": "acks=all\nenable.idempotence=true\nenable.auto.commit=false",
+    "related": [
+      "Exactly-Once Semantics (EOS)",
+      "Offset",
+      "Replication Factor"
+    ],
+    "symptom": "Default acks=1 + auto-commit causes silent loss/dupes under failure."
+  },
+  "Replication Factor": {
+    "snippet": "# production topics: replication.factor=3, min.insync.replicas=2",
+    "related": [
+      "ISR (In-Sync Replicas)",
+      "Fault Tolerance",
+      "High Availability (HA)"
+    ],
+    "symptom": "RF=1 topic loses data when a single broker dies."
+  },
+  "ISR (In-Sync Replicas)": {
+    "snippet": "# alert when under-replicated-partitions > 0",
+    "related": [
+      "Replication Factor",
+      "High Availability (HA)",
+      "Fault Tolerance"
+    ],
+    "symptom": "Produces hang or fail when ISR shrinks below min.insync.replicas."
+  },
+  "Exactly-Once Semantics (EOS)": {
+    "snippet": "# idempotent producer + transactional produce/consume\n# still make external sinks idempotent",
+    "related": [
+      "Exactly Once",
+      "Idempotency",
+      "Offset"
+    ],
+    "symptom": "Assuming Kafka EOS alone dedupes warehouse inserts."
+  },
+  "Compaction (Kafka)": {
+    "snippet": "# cleanup.policy=compact for changelog topics\n# key=customer_id keeps latest profile",
+    "related": [
+      "Change Data Capture (CDC)",
+      "Topic",
+      "Soft Delete vs Hard Delete"
+    ],
+    "symptom": "Using compaction on high-volume click streams deletes needed history."
+  },
+  "Dead Letter Topic": {
+    "snippet": "# after retries \u2192 produce to orders.dlq with error headers",
+    "related": [
+      "Dead Letter Queue (DLQ)",
+      "Schema Registry",
+      "Retry Strategy"
+    ],
+    "symptom": "Poison message blocks the whole consumer group forever."
+  },
+  "Schema Registry": {
+    "snippet": "# BACKWARD compatibility on orders-value\n# CI fails incompatible schema evolve",
+    "related": [
+      "Schema Evolution",
+      "Data Contracts",
+      "Schema Enforcement"
+    ],
+    "symptom": "Producer ships a breaking Avro change; all consumers crash."
+  },
+  "DAG": {
+    "snippet": "extract >> transform >> test >> publish",
+    "related": [
+      "Task / Operator",
+      "Schedule / Timetable",
+      "Backfill"
+    ],
+    "symptom": "Cron scripts race with no dependency graph."
+  },
+  "Task / Operator": {
+    "snippet": "BashOperator(task_id='dbt_run', bash_command='dbt run --select fct_orders')",
+    "related": [
+      "DAG",
+      "Pool / Slot",
+      "Sensor"
+    ],
+    "symptom": "Heavy Spark submit runs on the scheduler host and OOMs it."
+  },
+  "Sensor": {
+    "snippet": "S3KeySensor(bucket_key=f'lake/bronze/dt={ds}/_SUCCESS', mode='reschedule')",
+    "related": [
+      "Dataset Scheduling",
+      "Freshness",
+      "DAG"
+    ],
+    "symptom": "Poke sensors hog worker slots all morning waiting for files."
+  },
+  "Schedule / Timetable": {
+    "snippet": "schedule='@daily'  # or dataset-triggered",
+    "related": [
+      "Execution Date / Data Interval",
+      "Catchup",
+      "Dataset Scheduling"
+    ],
+    "symptom": "Job runs before upstream partition exists every day."
+  },
+  "Execution Date / Data Interval": {
+    "snippet": "# write partition for logical date\npath = f'silver/orders/dt={ds}'",
+    "related": [
+      "Schedule / Timetable",
+      "Idempotency",
+      "Backfill"
+    ],
+    "symptom": "Using wall-clock 'today' writes the wrong partition on late runs."
+  },
+  "XCom": {
+    "snippet": "ti.xcom_push(key='out_path', value='s3://lake/tmp/xyz')\n# NOT the dataframe itself",
+    "related": [
+      "Task / Operator",
+      "Object Storage",
+      "DAG"
+    ],
+    "symptom": "Giant XCom blows up the metadata DB."
+  },
+  "Pool / Slot": {
+    "snippet": "# pool='snowflake_heavy', slots=4",
+    "related": [
+      "Task / Operator",
+      "Autoscaling / Autosuspend",
+      "Cost Observability"
+    ],
+    "symptom": "50 parallel heavy queries melt the warehouse."
+  },
+  "Backfill": {
+    "snippet": "airflow dags backfill -s 2024-01-01 -e 2024-01-31 dag_id",
+    "related": [
+      "Catchup",
+      "Idempotency",
+      "Execution Date / Data Interval"
+    ],
+    "symptom": "Backfill appends duplicates into historical partitions."
+  },
+  "Catchup": {
+    "snippet": "DAG(..., start_date=..., catchup=False)",
+    "related": [
+      "Backfill",
+      "Schedule / Timetable",
+      "Pool / Slot"
+    ],
+    "symptom": "Deploying with catchup=True schedules hundreds of historical runs."
+  },
+  "SLA / Callback": {
+    "snippet": "default_args={'sla': timedelta(hours=2), 'on_failure_callback': notify}",
+    "related": [
+      "Freshness",
+      "Observability",
+      "Pipeline Orchestration"
+    ],
+    "symptom": "Team learns data is late from executives, not alerts."
+  },
+  "Dataset Scheduling": {
+    "snippet": "# outlets=[Dataset('s3://lake/silver/orders')]\n# downstream schedule=[Dataset(...)]",
+    "related": [
+      "Sensor",
+      "DAG",
+      "Freshness"
+    ],
+    "symptom": "Fixed cron drifts from actual upstream readiness."
+  },
+  "Scan Pruning / Partitioning": {
+    "snippet": "SELECT ... FROM fact WHERE dt BETWEEN '2024-01-01' AND '2024-01-07'",
+    "related": [
+      "Partition Pruning",
+      "Column Pruning",
+      "Predicate Pushdown"
+    ],
+    "symptom": "Dashboard scans years of data for a week filter."
+  },
+  "Column Pruning": {
+    "snippet": "df.select('user_id', 'amount')  # not select *",
+    "related": [
+      "Scan Pruning / Partitioning",
+      "Predicate Pushdown",
+      "Cost Observability"
+    ],
+    "symptom": "SELECT * on a 400-column wide table doubles the bill."
+  },
+  "File Size Tuning": {
+    "snippet": "df.coalesce(100).write.parquet(path)\n# target ~128-512MB files",
+    "related": [
+      "Small File Problem",
+      "Compaction",
+      "Optimize"
+    ],
+    "symptom": "Millions of 2MB files make listing slower than scanning."
+  },
+  "Spot / Preemptible Workers": {
+    "snippet": "# executors on spot; driver on-demand; idempotent job",
+    "related": [
+      "Fault Tolerance",
+      "Idempotency",
+      "Autoscaling / Autosuspend"
+    ],
+    "symptom": "Non-idempotent spot jobs corrupt outputs on preemption."
+  },
+  "Autoscaling / Autosuspend": {
+    "snippet": "# warehouse auto-suspend 60s; Spark dynamic allocation on",
+    "related": [
+      "Right-Sizing Warehouses",
+      "Cost Observability",
+      "Pool / Slot"
+    ],
+    "symptom": "Dev warehouse sits XL 24/7 with no queries."
+  },
+  "Storage Tiering": {
+    "snippet": "# lifecycle: Standard \u2192 IA 30d \u2192 Glacier 180d",
+    "related": [
+      "Lifecycle Policies",
+      "Object Storage",
+      "Vacuum"
+    ],
+    "symptom": "Hot tier stores seven years of raw logs nobody reads."
+  },
+  "Result Caching": {
+    "snippet": "-- identical dashboard SQL hits warehouse result cache",
+    "related": [
+      "Caching",
+      "Right-Sizing Warehouses",
+      "Cost Observability"
+    ],
+    "symptom": "Fifty users refresh the same extract every minute."
+  },
+  "Right-Sizing Warehouses": {
+    "snippet": "-- fix partitioning first, then step down warehouse size",
+    "related": [
+      "Scan Pruning / Partitioning",
+      "Cost Observability",
+      "Autoscaling / Autosuspend"
+    ],
+    "symptom": "Scaling to 4XL to paper over a missing partition filter."
+  },
+  "Cost Observability": {
+    "snippet": "# tag jobs: team=payments, dag=orders_daily\n# alert on $/day anomalies",
+    "related": [
+      "Right-Sizing Warehouses",
+      "Observability",
+      "IAM"
+    ],
+    "symptom": "Finance asks who spent $20k on compute; nobody knows."
+  },
+  "Incremental vs Full Refresh": {
+    "snippet": "MERGE daily deltas; full-refresh weekly for drift repair",
+    "related": [
+      "Incremental Model",
+      "Idempotency",
+      "Cost Observability"
+    ],
+    "symptom": "Multi-TB fact rebuilds every hour 'just to be safe'."
   }
 }
