@@ -140,8 +140,8 @@
       box-shadow: 0 8px 16px rgba(13,148,136,.22);
     }
     .progress-pill strong { color: #fef08a; }
-    .panel { display: none !important; }
-    .panel.active { display: block !important; }
+    .panel[hidden] { display: none; }
+    .panel { display: block; }
     .search-shell { margin-bottom: 1rem; }
     .search-box {
       display: flex;
@@ -627,6 +627,25 @@
     <a href="?mode=prod" style="color:#fff;text-decoration:underline">Prod</a>
     <a href="app.html?tag=api" style="color:#fff;text-decoration:underline">API</a>
   </div>
+
+  <div id="always-visible" style="max-width:760px;margin:1rem auto;padding:0 1rem;font:16px/1.5 system-ui,sans-serif;color:#12202e;background:#fff;border-radius:12px;border:2px solid #0f766e">
+    <p style="margin:0.75rem 0;font-weight:800;color:#0f766e">Essentials (always visible)</p>
+    <ol style="margin:0 0 0.75rem 1.2rem;padding:0">
+      <li><strong>Grain</strong> — know what one row means</li>
+      <li><strong>Idempotency</strong> — safe to retry</li>
+      <li><strong>Shuffle</strong> — moving data is expensive</li>
+      <li><strong>Partition Pruning</strong> — skip folders with filters</li>
+      <li><strong>Predicate Pushdown</strong> — filter early</li>
+      <li><strong>Cardinality</strong> — distinct counts drive cost</li>
+      <li><strong>Lazy Evaluation</strong> — actions run the plan</li>
+      <li><strong>Job → Stage → Task</strong> — Spark UI shape</li>
+      <li><strong>At Least Once</strong> — duplicates after failure</li>
+      <li><strong>Freshness</strong> — green job ≠ fresh data</li>
+    </ol>
+    <p style="margin:0 0 0.75rem"><a href="table.html" style="font-weight:800;color:#ea580c">Open summary table</a> ·
+    <a href="index.html" style="font-weight:800;color:#0f766e">Home</a></p>
+  </div>
+
   <main class="wrap">
     <h1 class="brand">Data Engineer<br /><span>Sheet</span></h1>
     <p class="lede">A calm place to learn DE concepts — one idea at a time.</p>
@@ -655,7 +674,7 @@
       </div>
     </div>
 
-    <section id="panel-essentials" class="panel active" style="display:block">
+    <section id="panel-essentials" class="panel">
       <div class="must-intro">
         <strong>Only these 10 matter first.</strong> Ignore Browse until you can explain each in one sentence.
         Then learn <button type="button" data-goto="prod" style="all:unset;color:var(--sky);font-weight:700;cursor:pointer;text-decoration:underline">when to use them in Prod</button>.
@@ -678,7 +697,7 @@
       <div class="results" id="essentials-results" style="margin-top:1rem"></div>
     </section>
 
-    <section id="panel-prod" class="panel">
+    <section id="panel-prod" class="panel" hidden>
       <div class="must-intro">
         <strong>Don’t start from the topic list.</strong> Start from what you see in production, then click the concepts.
         Practice with <button type="button" data-goto="scenarios" style="all:unset;color:var(--sky);font-weight:700;cursor:pointer;text-decoration:underline">Stories</button>.
@@ -699,7 +718,7 @@
       <div id="playbook-list"></div>
     </section>
 
-    <section id="panel-search" class="panel">
+    <section id="panel-search" class="panel" hidden>
       <div class="search-shell">
         <label class="search-box" for="q">
           <input id="q" type="search" placeholder="What do you want to understand?" autocomplete="off" />
@@ -725,7 +744,7 @@
       <div class="results" id="results"></div>
     </section>
 
-    <section id="panel-must" class="panel">
+    <section id="panel-must" class="panel" hidden>
       <div class="must-intro">
         <strong>Next layer: Must-know 30.</strong> Do this after Essentials.
         · <button type="button" data-goto="essentials" style="all:unset;color:var(--sky);font-weight:700;cursor:pointer;text-decoration:underline">Back to Essentials</button>
@@ -735,7 +754,7 @@
       <div class="results" id="must-results"></div>
     </section>
 
-    <section id="panel-flash" class="panel">
+    <section id="panel-flash" class="panel" hidden>
       <div class="must-intro">Tap a card to reveal. <kbd>Space</kbd> flip · <kbd>1</kbd> know · <kbd>2</kbd> again.</div>
       <div class="filter-block" style="margin-bottom:.75rem">
         <div class="filter-label">Deck</div>
@@ -751,7 +770,7 @@
       <div class="hint" id="flash-hint"></div>
     </section>
 
-    <section id="panel-quiz" class="panel">
+    <section id="panel-quiz" class="panel" hidden>
       <div class="must-intro"><strong>Quick quiz.</strong> Read the definition, pick the concept.</div>
       <div class="filter-block" style="margin-bottom:.75rem">
         <div class="filter-label">Quiz pool</div>
@@ -764,7 +783,7 @@
       </div>
     </section>
 
-    <section id="panel-scenarios" class="panel">
+    <section id="panel-scenarios" class="panel" hidden>
       <div class="must-intro"><strong>Practice being a good DE.</strong> Read the incident → pick the 3 concepts. Then check <button type="button" data-goto="prod" style="all:unset;color:var(--sky);font-weight:700;cursor:pointer;text-decoration:underline">Prod</button>.</div>
       <div class="scenario-list" id="scenario-list"></div>
     </section>
@@ -877,7 +896,7 @@
 
     const renderSnippet = (snippet) => snippet ? `<div><div class="label">Snippet</div><pre>${escapeHtml(snippet)}</pre></div>` : "";
     const renderRelated = (related) => {
-      if (!related?.length) return "";
+      if (!(related && related.length)) return "";
       return `<div><div class="label">See also</div><div class="related">${related.map((r) =>
         `<button type="button" data-jump="${escapeHtml(r)}">${escapeHtml(r)}</button>`).join("")}</div></div>`;
     };
@@ -1133,10 +1152,12 @@
       ["essentials","prod","search","must","flash","quiz","scenarios"].forEach((m) => {
         const panel = $(`panel-${m}`);
         if (!panel) return;
-        panel.classList.toggle("active", m === mode);
+        const on = m === mode;
+        panel.classList.toggle("active", on);
+        panel.hidden = !on;
       });
       if (mode === "essentials") renderEssentials();
-      if (mode === "prod") { renderPlaybook(); $("prod-q")?.focus(); }
+      if (mode === "prod") { renderPlaybook(); var _pq=$("prod-q"); if(_pq)_pq.focus(); }
       if (mode === "must") renderMust();
       if (mode === "flash") { buildDeck(); renderFlash(); $("flash-card").focus(); }
       if (mode === "quiz") { $("quiz-score").textContent = quizScore; $("quiz-asked").textContent = quizAsked; nextQuiz(); }
@@ -1237,7 +1258,7 @@
 
     $("q").addEventListener("input", renderSearch);
     $("clear").addEventListener("click", () => { $("q").value = ""; $("q").focus(); renderSearch(); });
-    $("prod-q")?.addEventListener("input", renderPlaybook);
+    var _prodQ = $("prod-q"); if (_prodQ) _prodQ.addEventListener("input", renderPlaybook);
 
     const flip = () => { flipped = !flipped; renderFlash(); };
     const nextCard = (markKnown) => {
@@ -1294,13 +1315,29 @@
 
     const startApp = () => {
       byName = new Map(concepts.map((c) => [c.name, c]));
-      renderWotd(); renderChips(); renderTagChips(); updateProgress(); renderSearch();
-      renderEssentials(); renderMustSummaryTable(); renderPlaybook();
-
       const params = new URLSearchParams(location.search);
-      if (params.get("tag")) { activeTag = params.get("tag"); renderTagChips(); renderSearch(); }
-      if (params.get("mode")) setMode(params.get("mode"));
-      else setMode("essentials");
+      // Show a panel FIRST so a later render error cannot leave the UI blank
+      let initial = params.get("mode") || "essentials";
+      if (initial === "table") { location.href = "table.html"; return; }
+      if (params.get("tag") && !params.get("mode")) initial = "search";
+      try { setMode(initial); } catch (e) { console.error(e); setMode("essentials"); }
+
+      const run = (fn) => { try { fn(); } catch (e) { console.error(e); } };
+      run(renderWotd);
+      run(renderChips);
+      run(renderTagChips);
+      run(updateProgress);
+      run(renderSearch);
+      run(renderEssentials);
+      run(renderMustSummaryTable);
+      run(renderPlaybook);
+
+      if (params.get("tag")) {
+        activeTag = params.get("tag");
+        run(renderTagChips);
+        run(renderSearch);
+        if (!params.get("mode")) try { setMode("search"); } catch (_) {}
+      }
       if (location.hash === "#path" || location.hash === "#essentials") setMode("essentials");
       if (location.hash === "#prod") setMode("prod");
       if (location.hash === "#flash") setMode("flash");
