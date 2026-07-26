@@ -54,17 +54,23 @@
       line-height: 1.02;
       letter-spacing: -0.03em;
       margin: 0 0 .6rem;
+      color: var(--teal-deep);
       background: linear-gradient(120deg, #0f766e 0%, #0284c7 45%, #e11d48 100%);
       -webkit-background-clip: text;
       background-clip: text;
-      color: transparent;
+    }
+    @supports ((-webkit-background-clip: text) or (background-clip: text)) {
+      .brand { color: transparent; }
     }
     .brand span {
       display: block;
+      color: var(--orange);
       background: linear-gradient(100deg, #ea580c, #ca8a04 55%, #65a30d);
       -webkit-background-clip: text;
       background-clip: text;
-      color: transparent;
+    }
+    @supports ((-webkit-background-clip: text) or (background-clip: text)) {
+      .brand span { color: transparent; }
     }
     .lede {
       margin: 0 0 1.35rem;
@@ -647,11 +653,11 @@
         Then learn <button type="button" data-goto="prod" style="all:unset;color:var(--sky);font-weight:700;cursor:pointer;text-decoration:underline">when to use them in Prod</button>
         · or <button type="button" data-goto="must" style="all:unset;color:var(--sky);font-weight:700;cursor:pointer;text-decoration:underline">Must 30</button>.
       </div>
-      <div class="mini-table-wrap" id="essentials-table"></div>
+      <div class="mini-table-wrap" id="essentials-table"><p class="hint" style="padding:1rem">Loading essentials…</p></div>
       <div class="results" id="essentials-results" style="margin-top:1rem"></div>
     </section>
 
-    <section id="panel-prod" class="panel" hidden>
+    <section id="panel-prod" class="panel">
       <div class="must-intro">
         <strong>Don’t start from the topic list.</strong> Start from what you see in production, then click the concepts.
         Practice with <button type="button" data-goto="scenarios" style="all:unset;color:var(--sky);font-weight:700;cursor:pointer;text-decoration:underline">Stories</button>.
@@ -672,7 +678,7 @@
       <div id="playbook-list"></div>
     </section>
 
-    <section id="panel-search" class="panel" hidden>
+    <section id="panel-search" class="panel">
       <div class="search-shell">
         <label class="search-box" for="q">
           <input id="q" type="search" placeholder="What do you want to understand?" autocomplete="off" />
@@ -698,7 +704,7 @@
       <div class="results" id="results"></div>
     </section>
 
-    <section id="panel-must" class="panel" hidden>
+    <section id="panel-must" class="panel">
       <div class="must-intro">
         <strong>Next layer: Must-know 30.</strong> Do this after Essentials.
         · <button type="button" data-goto="essentials" style="all:unset;color:var(--sky);font-weight:700;cursor:pointer;text-decoration:underline">Back to Essentials</button>
@@ -708,7 +714,7 @@
       <div class="results" id="must-results"></div>
     </section>
 
-    <section id="panel-flash" class="panel" hidden>
+    <section id="panel-flash" class="panel">
       <div class="must-intro">Tap a card to reveal. <kbd>Space</kbd> flip · <kbd>1</kbd> know · <kbd>2</kbd> again.</div>
       <div class="filter-block" style="margin-bottom:.75rem">
         <div class="filter-label">Deck</div>
@@ -724,7 +730,7 @@
       <div class="hint" id="flash-hint"></div>
     </section>
 
-    <section id="panel-quiz" class="panel" hidden>
+    <section id="panel-quiz" class="panel">
       <div class="must-intro"><strong>Quick quiz.</strong> Read the definition, pick the concept.</div>
       <div class="filter-block" style="margin-bottom:.75rem">
         <div class="filter-label">Quiz pool</div>
@@ -737,7 +743,7 @@
       </div>
     </section>
 
-    <section id="panel-scenarios" class="panel" hidden>
+    <section id="panel-scenarios" class="panel">
       <div class="must-intro"><strong>Practice being a good DE.</strong> Read the incident → pick the 3 concepts. Then check <button type="button" data-goto="prod" style="all:unset;color:var(--sky);font-weight:700;cursor:pointer;text-decoration:underline">Prod</button>.</div>
       <div class="scenario-list" id="scenario-list"></div>
     </section>
@@ -752,9 +758,6 @@
     </footer>
   </main>
 
-  <script type="application/json" id="concepts-data">__CONCEPTS_JSON__</script>
-  <script type="application/json" id="scenarios-data">__SCENARIOS_JSON__</script>
-  <script type="application/json" id="playbook-data">__PLAYBOOK_JSON__</script>
   <script>
     const $ = (id) => document.getElementById(id);
     const LEARN_KEY = "de-sheet-learned-v1";
@@ -763,11 +766,27 @@
 
     let concepts = [], scenarios = [], playbook = [], byName = new Map();
     let activeCategory = "All", activeTag = "All", flashTag = "essentials", quizTag = "essentials";
-    let mode = "essentials", learned = new Set(JSON.parse(localStorage.getItem(LEARN_KEY) || "[]"));
-    let streak = JSON.parse(localStorage.getItem(STREAK_KEY) || '{"count":0,"last":null}');
+    let mode = "essentials";
+    let learned = new Set();
+    let streak = { count: 0, last: null };
+    try { learned = new Set(JSON.parse(localStorage.getItem(LEARN_KEY) || "[]")); } catch (_) {}
+    try { streak = JSON.parse(localStorage.getItem(STREAK_KEY) || '{"count":0,"last":null}') || streak; } catch (_) {}
     let deck = [], deckIndex = 0, flipped = false;
     let quizPool = [], quizItem = null, quizScore = 0, quizAsked = 0, quizLocked = false;
     let scenarioPicks = {};
+
+    const ESSENTIALS = [
+      ["Grain", "Know what one row means before you join or aggregate"],
+      ["Idempotency", "Safe to retry = no duplicate mess"],
+      ["Shuffle", "Moving data across the network is usually the expensive part"],
+      ["Partition Pruning", "Date (or key) filters should skip whole folders of data"],
+      ["Predicate Pushdown", "Filter early so you read less"],
+      ["Cardinality", "Distinct counts drive join and group-by cost"],
+      ["Lazy Evaluation", "Spark builds a plan; an action runs it"],
+      ["Job → Stage → Task", "How to read the Spark UI when something is slow"],
+      ["At Least Once", "Failures often mean duplicates unless you dedupe"],
+      ["Freshness", "Green pipeline ≠ data is recent enough"],
+    ];
 
     const escapeHtml = (s) => String(s)
       .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
@@ -910,19 +929,6 @@
       }
       $("results").innerHTML = list.map(({ c }, i) => cardHtml(c, terms, terms.length > 0 && i === 0)).join("");
     };
-
-    const ESSENTIALS = [
-      ["Grain", "Know what one row means before you join or aggregate"],
-      ["Idempotency", "Safe to retry = no duplicate mess"],
-      ["Shuffle", "Moving data across the network is usually the expensive part"],
-      ["Partition Pruning", "Date (or key) filters should skip whole folders of data"],
-      ["Predicate Pushdown", "Filter early so you read less"],
-      ["Cardinality", "Distinct counts drive join and group-by cost"],
-      ["Lazy Evaluation", "Spark builds a plan; an action runs it"],
-      ["Job → Stage → Task", "How to read the Spark UI when something is slow"],
-      ["At Least Once", "Failures often mean duplicates unless you dedupe"],
-      ["Freshness", "Green pipeline ≠ data is recent enough"],
-    ];
 
     const miniTableHtml = (rows, cols) => {
       const head = cols.map((c) => `<th>${escapeHtml(c)}</th>`).join("");
@@ -1096,9 +1102,7 @@
       ["essentials","prod","search","must","flash","quiz","scenarios"].forEach((m) => {
         const panel = $(`panel-${m}`);
         if (!panel) return;
-        const on = m === mode;
-        panel.classList.toggle("active", on);
-        panel.hidden = !on;
+        panel.classList.toggle("active", m === mode);
       });
       if (mode === "essentials") renderEssentials();
       if (mode === "prod") { renderPlaybook(); $("prod-q")?.focus(); }
@@ -1244,22 +1248,44 @@
       if (e.key === "2") { e.preventDefault(); nextCard(false); }
     });
 
-    try { concepts = JSON.parse($("concepts-data").textContent); } catch { concepts = []; }
-    try { scenarios = JSON.parse($("scenarios-data").textContent); } catch { scenarios = []; }
-    try { playbook = JSON.parse($("playbook-data").textContent); } catch { playbook = []; }
-    byName = new Map(concepts.map((c) => [c.name, c]));
-    renderWotd(); renderChips(); renderTagChips(); updateProgress(); renderSearch();
-    renderEssentials(); renderMustSummaryTable(); renderPlaybook();
+    const showBootError = (msg) => {
+      const el = $("essentials-table");
+      if (el) el.innerHTML = `<p class="hint" style="padding:1rem;color:var(--bad)">${escapeHtml(msg)}</p>`;
+    };
 
-    const params = new URLSearchParams(location.search);
-    if (params.get("tag")) { activeTag = params.get("tag"); renderTagChips(); renderSearch(); }
-    if (params.get("mode")) setMode(params.get("mode"));
-    else setMode("essentials");
-    if (location.hash === "#path" || location.hash === "#essentials") setMode("essentials");
-    if (location.hash === "#prod") setMode("prod");
-    if (location.hash === "#flash") setMode("flash");
-    if (location.hash === "#quiz") setMode("quiz");
-    if (location.hash === "#scenarios") setMode("scenarios");
+    const boot = async () => {
+      try {
+        const base = new URL(".", location.href);
+        const [cRes, sRes, pRes] = await Promise.all([
+          fetch(new URL("concepts.json", base)),
+          fetch(new URL("scenarios.json", base)),
+          fetch(new URL("playbook.json", base)),
+        ]);
+        if (!cRes.ok) throw new Error("Could not load concepts.json (" + cRes.status + "). Open via http://127.0.0.1:8765/ not as a raw file.");
+        concepts = await cRes.json();
+        scenarios = sRes.ok ? await sRes.json() : [];
+        playbook = pRes.ok ? await pRes.json() : [];
+      } catch (err) {
+        console.error(err);
+        showBootError(String(err.message || err));
+        return;
+      }
+      byName = new Map(concepts.map((c) => [c.name, c]));
+      renderWotd(); renderChips(); renderTagChips(); updateProgress(); renderSearch();
+      renderEssentials(); renderMustSummaryTable(); renderPlaybook();
+
+      const params = new URLSearchParams(location.search);
+      if (params.get("tag")) { activeTag = params.get("tag"); renderTagChips(); renderSearch(); }
+      if (params.get("mode")) setMode(params.get("mode"));
+      else setMode("essentials");
+      if (location.hash === "#path" || location.hash === "#essentials") setMode("essentials");
+      if (location.hash === "#prod") setMode("prod");
+      if (location.hash === "#flash") setMode("flash");
+      if (location.hash === "#quiz") setMode("quiz");
+      if (location.hash === "#scenarios") setMode("scenarios");
+    };
+
+    boot();
   </script>
 </body>
 </html>

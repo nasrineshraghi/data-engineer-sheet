@@ -22,7 +22,7 @@ jobs:
       - name: Prepare publish folder
         run: |
           mkdir -p _site
-          cp docs/index.html docs/table.html docs/concepts.json docs/scenarios.json docs/.nojekyll _site/
+          cp docs/index.html docs/table.html docs/concepts.json docs/scenarios.json docs/playbook.json docs/.nojekyll _site/
           # don't publish templates / enrichment source
 
       - name: Deploy to gh-pages

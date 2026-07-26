@@ -212,13 +212,8 @@ def main() -> None:
     template_path = DOCS / "index.template.html"
     html_path = DOCS / "index.html"
     if template_path.exists():
-        html = (
-            template_path.read_text()
-            .replace("__CONCEPTS_JSON__", payload)
-            .replace("__SCENARIOS_JSON__", scenarios_payload)
-            .replace("__PLAYBOOK_JSON__", playbook_payload)
-        )
-        html_path.write_text(html)
+        # Data loads via fetch(concepts.json / scenarios.json / playbook.json)
+        html_path.write_text(template_path.read_text())
 
     with_snip = sum(1 for c in all_concepts if c.get("snippet"))
     with_sym = sum(1 for c in all_concepts if c.get("symptom"))
