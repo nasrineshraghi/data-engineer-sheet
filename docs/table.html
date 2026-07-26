@@ -43,8 +43,26 @@ h1 {
   color: var(--muted);
   font-size: .95rem;
 }
-.sub a { color: var(--sky); font-weight: 600; text-decoration: none; }
-.sub a:hover { text-decoration: underline; }
+.nav-links {
+  margin: .65rem 0 0;
+  font-size: .92rem;
+  color: var(--muted);
+}
+.nav-links a {
+  color: var(--sky);
+  font-weight: 600;
+  text-decoration: none;
+}
+.nav-links a:hover { text-decoration: underline; }
+.nav-links a.back {
+  display: inline-block;
+  background: #0f766e;
+  color: #fff !important;
+  padding: .4rem .85rem;
+  border-radius: 999px;
+  text-decoration: none !important;
+}
+.nav-links a.back:hover { background: #0d9488; }
 
 .toolbar {
   position: sticky;
@@ -196,7 +214,14 @@ select {
 <main class="wrap">
   <header class="page">
     <h1>Summary table</h1>
-    <p class="sub">257 keywords · search + filter by section · <a href="index.html">← Back to study app</a></p>
+    <p class="sub"><strong id="total-label">257</strong> keywords · search + filter by section</p>
+    <p class="nav-links">
+      <a class="back" href="https://nasrineshraghi.github.io/data-engineer-sheet/">← Back to study app</a>
+      · <a href="https://nasrineshraghi.github.io/data-engineer-sheet/?mode=essentials">Essentials</a>
+      · <a href="https://nasrineshraghi.github.io/data-engineer-sheet/?tag=api">APIs</a>
+      · <a href="https://nasrineshraghi.github.io/data-engineer-sheet/?tag=clinical">Clinical</a>
+      · <a href="./index.html" id="local-back">Local app</a>
+    </p>
   </header>
 
   <div class="toolbar">
@@ -559,6 +584,19 @@ function filter() {
 }
 q.addEventListener('input', filter);
 sec.addEventListener('change', filter);
+
+// Fix back link for local vs GitHub Pages
+(function () {
+  const local = document.getElementById('local-back');
+  const back = document.querySelector('a.back');
+  const onPages = /github\.io$/i.test(location.hostname);
+  if (onPages) {
+    if (local) local.style.display = 'none';
+  } else if (back) {
+    back.href = './index.html';
+    if (local) local.style.display = 'none';
+  }
+})();
 </script>
 </body>
 </html>
