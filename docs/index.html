@@ -6165,19 +6165,13 @@
       if (activeTag !== "All") list = list.filter((x) => (x.c.tags || []).includes(activeTag));
       list.sort((a, b) => b.s - a.s || a.c.name.localeCompare(b.c.name));
       $("shown").textContent = String(list.length);
-      $("total").textContent = String(concepts.length);
+      if ($("total")) $("total").textContent = String(concepts.length);
       if (!list.length) {
-        const parts = [];
-        if (activeTag !== "All") parts.push(`tag <em>${escapeHtml(activeTag)}</em>`);
-        if (activeCategory !== "All") parts.push(`category <em>${escapeHtml(activeCategory)}</em>`);
-        if (terms.length) parts.push(`search <em>${escapeHtml(terms.join(" "))}</em>`);
-        const why = parts.length
-          ? `No concepts match ${parts.join(" + ")}.`
-          : `No matches.`;
-        const tip = (activeTag !== "All" && activeCategory !== "All")
-          ? ` Filters combine with <strong>AND</strong> — Snowflake is under tag <em>snowflake</em>, not <em>lakehouse</em>.`
-          : ` Try tag <em>snowflake</em>, <em>kafka</em>, or <em>cdc</em>.`;
-        $("results").innerHTML = `<div class="empty">${why}${tip}<br /><button type="button" class="mark-btn" id="clear-filters" style="margin-top:.85rem">Clear filters</button></div>`;
+        const bits = [];
+        if (activeTag !== "All") bits.push(`“${escapeHtml(activeTag)}”`);
+        if (activeCategory !== "All") bits.push(`“${escapeHtml(activeCategory)}”`);
+        const combo = bits.length ? ` for ${bits.join(" + ")}` : "";
+        $("results").innerHTML = `<div class="empty">Nothing here${combo}.<br/>Try one filter at a time — e.g. <em>snowflake</em>.<br/><button type="button" class="mark-btn" id="clear-filters" style="margin-top:.9rem">Clear filters</button></div>`;
         return;
       }
       $("results").innerHTML = list.map(({ c }, i) => cardHtml(c, terms, terms.length > 0 && i === 0)).join("");
