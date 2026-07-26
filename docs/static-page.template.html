@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<title>__TITLE__</title>
+<style>
+:root { --ink:#152033; --muted:#5a6b7d; --line:#e2e8f0; --bg:#f4f7fb; --teal:#0f766e; --orange:#ea580c; --sky:#0369a1; }
+* { box-sizing: border-box; }
+body { margin:0; color:var(--ink); font-family:system-ui,-apple-system,Segoe UI,sans-serif; background:var(--bg); line-height:1.5; }
+.wrap { width:min(820px, calc(100% - 2rem)); margin:0 auto; padding:1.5rem 0 3rem; }
+.banner { background:__BANNER__; color:#fff; padding:.85rem 1rem; font-weight:800; font-size:1rem; }
+nav.bar { display:flex; flex-wrap:wrap; gap:.5rem; padding:.75rem 0 1rem; }
+nav.bar a { text-decoration:none; font-weight:700; font-size:.9rem; padding:.4rem .75rem; border-radius:999px; background:#fff; color:var(--teal); border:1px solid var(--line); }
+nav.bar a.on { background:var(--teal); color:#fff; border-color:var(--teal); }
+nav.bar a.table { background:var(--orange); color:#fff; border-color:var(--orange); }
+h1 { font-family:Georgia,serif; font-size:clamp(1.7rem,4vw,2.3rem); margin:0 0 .35rem; }
+.sub { color:var(--muted); margin:0 0 1.25rem; }
+.card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:1rem 1.1rem; margin:0 0 .75rem; }
+.card h2 { margin:0 0 .35rem; font-size:1.1rem; color:var(--teal); }
+.card .why { color:var(--orange); font-weight:700; font-size:.92rem; margin:.35rem 0; }
+.card .def, .card .do, .card .see { margin:.25rem 0; }
+.card .habit { margin:.4rem 0 0; padding:.5rem .65rem; background:#f0fdfa; border-radius:8px; font-size:.9rem; }
+.card .concepts { margin:.5rem 0 0; font-size:.9rem; color:var(--sky); font-weight:600; }
+table { width:100%; border-collapse:collapse; background:#fff; border-radius:12px; overflow:hidden; border:1px solid var(--line); }
+th, td { text-align:left; padding:.65rem .75rem; border-bottom:1px solid var(--line); vertical-align:top; font-size:.92rem; }
+th { background:#0f766e; color:#fff; font-size:.8rem; text-transform:uppercase; letter-spacing:.03em; }
+td.n { width:2rem; color:var(--muted); font-weight:700; }
+td.kw { font-weight:800; color:var(--teal); white-space:nowrap; }
+.foot { margin-top:1.5rem; color:var(--muted); font-size:.9rem; }
+.foot a { color:var(--sky); font-weight:700; }
+</style>
+</head>
+<body>
+<div class="banner">__BANNER_TEXT__</div>
+<div class="wrap">
+<nav class="bar">
+  <a href="index.html">Home</a>
+  <a href="essentials.html" class="__ON_ESSENTIALS__">Essentials</a>
+  <a href="prod.html" class="__ON_PROD__">Prod</a>
+  <a href="must.html" class="__ON_MUST__">Must 30</a>
+  <a href="table.html" class="table">Summary table</a>
+</nav>
+<h1>__H1__</h1>
+<p class="sub">__SUB__</p>
+__BODY__
+<p class="foot">Different pages = different content. If a link looks the same, hard-refresh (<code>Cmd+Shift+R</code>).</p>
+</div>
+</body>
+</html>

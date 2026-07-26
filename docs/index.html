@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>DE Sheet Home v4</title>
+  <title>DE Sheet Home v5</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -37,17 +36,26 @@
     }
     a.btn {
       display: block;
-      text-align: center;
+      text-align: left;
       text-decoration: none;
       font-weight: 800;
-      padding: 0.9rem 1rem;
+      padding: 0.95rem 1rem;
       border-radius: 12px;
       margin: 0.55rem 0;
       color: #fff;
     }
+    a.btn span {
+      display: block;
+      font-weight: 600;
+      font-size: 0.85rem;
+      opacity: 0.92;
+      margin-top: 0.2rem;
+    }
     .orange { background: #ea580c; }
     .teal { background: #0f766e; }
     .blue { background: #0284c7; }
+    .gold { background: #ca8a04; }
+    .purple { background: #7c3aed; }
     .warn {
       margin-top: 1rem;
       padding: 0.75rem;
@@ -62,25 +70,30 @@
 </head>
 <body>
   <div class="box">
-    <div class="ok">SITE WORKS · home v4</div>
+    <div class="ok">SITE WORKS · home v5</div>
     <h1>Data Engineer Sheet</h1>
-    <p>If you see this green page with white cards, GitHub Pages is fine. Pick a button:</p>
+    <p>Each button opens a <strong>different HTML page</strong> (no shared blank app). Pick one:</p>
 
-    <a class="btn orange" href="table.html">1) Summary table (all keywords)</a>
-    <a class="btn teal" href="app.html">2) Study app (Essentials / Prod / Quiz)</a>
-    <a class="btn blue" href="app.html?tag=parquet">3) File formats / Parquet</a>
-    <a class="btn blue" href="app.html?tag=clinical">4) Clinical meds &amp; labs</a>
-    <a class="btn blue" href="app.html?tag=api">5) APIs</a>
+    <a class="btn orange" href="essentials.html">1) Essentials (10)
+      <span>Grain, Idempotency, Shuffle… — learn these first</span>
+    </a>
+    <a class="btn teal" href="prod.html">2) Prod playbook
+      <span>Symptom → what to do → which concepts</span>
+    </a>
+    <a class="btn gold" href="must.html">3) Must-know 30
+      <span>Next layer after Essentials</span>
+    </a>
+    <a class="btn blue" href="table.html">4) Summary table (all keywords)
+      <span>Full searchable glossary — always works</span>
+    </a>
+    <a class="btn purple" href="app.html?mode=essentials">5) Study app (quiz / cards)
+      <span>Optional interactive mode — use 1–4 if this fails</span>
+    </a>
 
     <div class="warn">
-      <strong>Wrong URL = empty page.</strong><br />
-      Use:
-      <code>https://nasrineshraghi.github.io/data-engineer-sheet/</code><br />
-      Not only <code>nasrineshraghi.github.io</code><br /><br />
-      Still seeing a blank pastel page? Hard refresh:
-      Mac <code>Cmd+Shift+R</code> · Windows <code>Ctrl+Shift+R</code>
-      or open the table directly:
-      <code>https://nasrineshraghi.github.io/data-engineer-sheet/table.html</code>
+      <strong>Use the full URL:</strong><br />
+      <code>https://nasrineshraghi.github.io/data-engineer-sheet/</code><br /><br />
+      Hard refresh if stuck: Mac <code>Cmd+Shift+R</code> · Windows <code>Ctrl+Shift+R</code>
     </div>
   </div>
 </body>

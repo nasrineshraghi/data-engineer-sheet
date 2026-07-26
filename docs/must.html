@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<title>DE Sheet — Must-know 30</title>
+<style>
+:root { --ink:#152033; --muted:#5a6b7d; --line:#e2e8f0; --bg:#f4f7fb; --teal:#0f766e; --orange:#ea580c; --sky:#0369a1; }
+* { box-sizing: border-box; }
+body { margin:0; color:var(--ink); font-family:system-ui,-apple-system,Segoe UI,sans-serif; background:var(--bg); line-height:1.5; }
+.wrap { width:min(820px, calc(100% - 2rem)); margin:0 auto; padding:1.5rem 0 3rem; }
+.banner { background:#ca8a04; color:#fff; padding:.85rem 1rem; font-weight:800; font-size:1rem; }
+nav.bar { display:flex; flex-wrap:wrap; gap:.5rem; padding:.75rem 0 1rem; }
+nav.bar a { text-decoration:none; font-weight:700; font-size:.9rem; padding:.4rem .75rem; border-radius:999px; background:#fff; color:var(--teal); border:1px solid var(--line); }
+nav.bar a.on { background:var(--teal); color:#fff; border-color:var(--teal); }
+nav.bar a.table { background:var(--orange); color:#fff; border-color:var(--orange); }
+h1 { font-family:Georgia,serif; font-size:clamp(1.7rem,4vw,2.3rem); margin:0 0 .35rem; }
+.sub { color:var(--muted); margin:0 0 1.25rem; }
+.card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:1rem 1.1rem; margin:0 0 .75rem; }
+.card h2 { margin:0 0 .35rem; font-size:1.1rem; color:var(--teal); }
+.card .why { color:var(--orange); font-weight:700; font-size:.92rem; margin:.35rem 0; }
+.card .def, .card .do, .card .see { margin:.25rem 0; }
+.card .habit { margin:.4rem 0 0; padding:.5rem .65rem; background:#f0fdfa; border-radius:8px; font-size:.9rem; }
+.card .concepts { margin:.5rem 0 0; font-size:.9rem; color:var(--sky); font-weight:600; }
+table { width:100%; border-collapse:collapse; background:#fff; border-radius:12px; overflow:hidden; border:1px solid var(--line); }
+th, td { text-align:left; padding:.65rem .75rem; border-bottom:1px solid var(--line); vertical-align:top; font-size:.92rem; }
+th { background:#0f766e; color:#fff; font-size:.8rem; text-transform:uppercase; letter-spacing:.03em; }
+td.n { width:2rem; color:var(--muted); font-weight:700; }
+td.kw { font-weight:800; color:var(--teal); white-space:nowrap; }
+.foot { margin-top:1.5rem; color:var(--muted); font-size:.9rem; }
+.foot a { color:var(--sky); font-weight:700; }
+</style>
+</head>
+<body>
+<div class="banner">MUST 30 · next layer after Essentials</div>
+<div class="wrap">
+<nav class="bar">
+  <a href="index.html">Home</a>
+  <a href="essentials.html" class="">Essentials</a>
+  <a href="prod.html" class="">Prod</a>
+  <a href="must.html" class="on">Must 30</a>
+  <a href="table.html" class="table">Summary table</a>
+</nav>
+<h1>Must-know 30</h1>
+<p class="sub">Do Essentials first. These 30 are the next layer.</p>
+<article class="card"><h2>1. Cardinality</h2><p class="def">Number of distinct values in a column (or relation size: number of rows).</p><p class="why">Bad join strategy because NDV was underestimated.</p></article><article class="card"><h2>2. Grain</h2><p class="def">Exact meaning of one fact row (business level of detail).</p><p class="why">KPI doesn&#x27;t match finance because grains differ.</p></article><article class="card"><h2>3. Predicate Pushdown</h2><p class="def">Move filters as close as possible to the data source so less data is read/shuffled.</p><p class="why">Full scan of years of data for a one-day query.</p></article><article class="card"><h2>4. Partition Pruning</h2><p class="def">Skip reading partitions that cannot match the query filter.</p><p class="why">Query reads every partition folder despite a date filter.</p></article><article class="card"><h2>5. Shuffle</h2><p class="def">Redistribute data across partitions by key (network + sort/hash).</p><p class="why">Stage stuck; network/disk dominated by shuffle.</p></article><article class="card"><h2>6. Job → Stage → Task</h2><p class="def">- **Job:** triggered by an action (`count`, `write`, `collect`) - **Stage:** set of tasks with narrow deps between shuffles - **Task:** unit of work on one partition</p><p class="why">Confused debugging — looking at tasks without finding the slow stage.</p></article><article class="card"><h2>7. Lazy Evaluation</h2><p class="def">Transformations build a plan; work runs only on actions.</p><p class="why">Thinking transforms already ran; surprise cost on first action.</p></article><article class="card"><h2>8. Wide vs Narrow Transformations</h2><p class="def">- **Narrow:** each input partition maps to ≤1 output partition (`map`, `filter`) — no shuffle - **Wide:** input partitions contribute to many outputs (`groupByKey`, `join`) — shuffle</p><p class="why">Extra wide transforms inflate runtime for little gain.</p></article><article class="card"><h2>9. Adaptive Query Execution (AQE)</h2><p class="def">Spark SQL re-optimizes the plan at runtime using size stats after shuffles (Spark 3+).</p><p class="why">Static plan picks sort-merge when broadcast would win.</p></article><article class="card"><h2>10. Catalyst Optimizer</h2><p class="def">Spark SQL&#x27;s rule + cost optimizer: analysis → logical optimization → physical planning.</p><p class="why">Python UDF blocks optimizations → slower than SQL expr.</p></article><article class="card"><h2>11. Broadcast Join</h2><p class="def">Replicate the small side to all executors; join locally (map-side).</p><p class="why">Shuffling a tiny dimension across the cluster.</p></article><article class="card"><h2>12. Sort Merge Join</h2><p class="def">Shuffle both sides by key, sort, then merge — Spark&#x27;s common large-large join.</p><p class="why">Join spills to disk; one key&#x27;s partition is huge.</p></article><article class="card"><h2>13. Data Skew</h2><p class="def">Uneven key/partition sizes so a few tasks do most of the work.</p><p class="why">One task runs 10× longer than the rest of the stage.</p></article><article class="card"><h2>14. Small File Problem</h2><p class="def">Too many tiny files → heavy listing, task overhead, slow queries.</p><p class="why">Driver spends ages listing; thousands of tiny tasks.</p></article><article class="card"><h2>15. Conformed Dimension</h2><p class="def">Shared dimension with consistent keys and attributes across facts/marts.</p><p class="why">Two marts define &quot;customer&quot; differently; dashboards disagree.</p></article><article class="card"><h2>16. Delta Lake</h2><p class="def">Open table format (Databricks-origin) with transaction log (`_delta_log`) for ACID on files.</p><p class="why">Concurrent jobs overwrite parquet folders; readers see partial data.</p></article><article class="card"><h2>17. Time Travel</h2><p class="def">Query table as of a past version/timestamp via snapshots/logs.</p><p class="why">Can&#x27;t reproduce yesterday&#x27;s report after a bad overwrite.</p></article><article class="card"><h2>18. Schema Evolution</h2><p class="def">Safely change table schema (add/rename/drop columns) without full reload when supported.</p><p class="why">Producer adds a column; downstream jobs break or ignore it silently.</p></article><article class="card"><h2>19. CAP Theorem</h2><p class="def">In a network partition, a system can provide Consistency or Availability, not both (Partition tolerance assumed in distributed DBs).</p><p class="why">Expecting strong reads from an AP system during a region blip.</p></article><article class="card"><h2>20. Event Time</h2><p class="def">Timestamp when the event actually occurred in the real world.</p><p class="why">Hourly metrics shift when late mobile events arrive.</p></article><article class="card"><h2>21. Watermarks</h2><p class="def">Engine&#x27;s notion of how far event time has advanced; used to close windows.</p><p class="why">State grows forever, or late events are dropped too aggressively.</p></article><article class="card"><h2>22. Exactly Once</h2><p class="def">Effect of each record applied once end-to-end (despite retries).</p><p class="why">Duplicates after restart even though processing &quot;felt&quot; safe.</p></article><article class="card"><h2>23. At Least Once</h2><p class="def">Every record processed ≥1 time; duplicates possible on retry.</p><p class="why">Counts inflate after every pipeline retry.</p></article><article class="card"><h2>24. Idempotency</h2><p class="def">Running the same operation multiple times yields the same result as running once.</p><p class="why">Re-running a failed day duplicates rows in the target.</p></article><article class="card"><h2>25. Checkpointing</h2><p class="def">Persist progress (offsets/state) so recovery resumes cleanly.</p><p class="why">Streaming job reprocesses from earliest offsets after path loss.</p></article><article class="card"><h2>26. Dead Letter Queue (DLQ)</h2><p class="def">Side channel for records that fail processing after retries.</p><p class="why">One poison message blocks the whole consumer group.</p></article><article class="card"><h2>27. Data Contracts</h2><p class="def">Explicit agreement on schema, semantics, SLAs, and ownership between producers and consumers.</p><p class="why">Silent column rename breaks 12 downstream jobs overnight.</p></article><article class="card"><h2>28. Data Lineage</h2><p class="def">Trace where data came from and where it flows (table/column/job level).</p><p class="why">Can&#x27;t tell which dashboard breaks if a source column is dropped.</p></article><article class="card"><h2>29. Freshness</h2><p class="def">How up-to-date the data is vs expectation (SLA/SLO).</p><p class="why">Job is green but data is 18 hours stale.</p></article><article class="card"><h2>30. Object Storage</h2><p class="def">Store immutable objects (files) addressed by key in buckets; virtually infinite scale.</p><p class="why">Treating S3 like a local FS; millions of tiny LIST requests.</p></article>
+<p class="foot">Different pages = different content. If a link looks the same, hard-refresh (<code>Cmd+Shift+R</code>).</p>
+</div>
+</body>
+</html>

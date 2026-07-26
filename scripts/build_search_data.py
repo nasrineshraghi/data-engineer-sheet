@@ -230,6 +230,9 @@ def main() -> None:
     if home_template.exists():
         (DOCS / "index.html").write_text(home_template.read_text())
 
+    # Static section pages (no JS) — Essentials / Prod / Must
+    write_static_section_pages(all_concepts, must, playbook)
+
     # Interactive study app
     app_template = DOCS / "index.template.html"
     if app_template.exists():
@@ -242,7 +245,136 @@ def main() -> None:
         f"Wrote {len(all_concepts)} concepts ({len(must)} must-know, "
         f"{with_snip} snippets, {with_sym} symptoms, {with_rel} related, "
         f"{len(scenarios)} scenarios, {len(playbook)} playbook); "
-        f"pages: index.html (home) + app.html + table.html"
+        f"pages: index + essentials + prod + must + table + app"
+    )
+
+
+def write_static_section_pages(
+    all_concepts: list[dict], must: list[dict], playbook: list[dict]
+) -> None:
+    from html import escape as html_escape
+
+    tpl_path = DOCS / "static-page.template.html"
+    if not tpl_path.exists():
+        return
+    tpl = tpl_path.read_text()
+
+    by_name = {c["name"]: c for c in all_concepts}
+    essentials_names = [
+        "Grain",
+        "Idempotency",
+        "Shuffle",
+        "Partition Pruning",
+        "Predicate Pushdown",
+        "Cardinality",
+        "Lazy Evaluation",
+        "Job → Stage → Task",
+        "At Least Once",
+        "Freshness",
+    ]
+    why = {
+        "Grain": "Know what one row means before you join or aggregate",
+        "Idempotency": "Safe to retry = no duplicate mess",
+        "Shuffle": "Moving data across the network is usually the expensive part",
+        "Partition Pruning": "Date (or key) filters should skip whole folders of data",
+        "Predicate Pushdown": "Filter early so you read less",
+        "Cardinality": "Distinct counts drive join and group-by cost",
+        "Lazy Evaluation": "Spark builds a plan; an action runs it",
+        "Job → Stage → Task": "How to read the Spark UI when something is slow",
+        "At Least Once": "Failures often mean duplicates unless you dedupe",
+        "Freshness": "Green pipeline ≠ data is recent enough",
+    }
+
+    def render(page: str, **fields: str) -> None:
+        html = tpl
+        flags = {
+            "essentials": "",
+            "prod": "",
+            "must": "",
+        }
+        flags[page] = "on"
+        html = (
+            html.replace("__ON_ESSENTIALS__", flags["essentials"])
+            .replace("__ON_PROD__", flags["prod"])
+            .replace("__ON_MUST__", flags["must"])
+        )
+        for k, v in fields.items():
+            html = html.replace(f"__{k}__", v)
+        (DOCS / f"{page}.html").write_text(html)
+
+    # Essentials
+    rows = []
+    for i, name in enumerate(essentials_names, 1):
+        c = by_name.get(name) or {}
+        rows.append(
+            "<tr>"
+            f'<td class="n">{i}</td>'
+            f'<td class="kw">{html_escape(name)}</td>'
+            f"<td>{html_escape(c.get('definition') or '')}</td>"
+            f"<td>{html_escape(why.get(name, c.get('why') or ''))}</td>"
+            "</tr>"
+        )
+    essentials_body = (
+        "<table><thead><tr><th>#</th><th>Concept</th><th>Definition</th>"
+        "<th>Remember</th></tr></thead><tbody>"
+        + "".join(rows)
+        + "</tbody></table>"
+    )
+    render(
+        "essentials",
+        TITLE="DE Sheet — Essentials (10)",
+        BANNER="#ea580c",
+        BANNER_TEXT="ESSENTIALS · the only 10 to learn first",
+        H1="Essentials (10)",
+        SUB="Ignore the rest of the glossary until you can explain each of these in one sentence.",
+        BODY=essentials_body,
+    )
+
+    # Prod playbook
+    cards = []
+    for item in playbook:
+        concepts = ", ".join(html_escape(x) for x in item.get("concepts") or [])
+        cards.append(
+            '<article class="card">'
+            f'<h2>See: {html_escape(item.get("see") or "")}</h2>'
+            f'<p class="do"><strong>Do:</strong> {html_escape(item.get("do") or "")}</p>'
+            f'<p class="concepts">Concepts: {concepts}</p>'
+            f'<p class="habit"><strong>Habit:</strong> {html_escape(item.get("habit") or "")}</p>'
+            "</article>"
+        )
+    render(
+        "prod",
+        TITLE="DE Sheet — Prod playbook",
+        BANNER="#0f766e",
+        BANNER_TEXT="PROD · symptom → action → concepts",
+        H1="Prod playbook",
+        SUB="Start from what you see in production, not from the topic list.",
+        BODY="".join(cards) or "<p>No playbook entries.</p>",
+    )
+
+    # Must 30
+    must_cards = []
+    for c in must:
+        symptom = (
+            f'<p class="why">{html_escape(c.get("symptom") or "")}</p>'
+            if c.get("symptom")
+            else ""
+        )
+        must_cards.append(
+            '<article class="card">'
+            f'<h2>{c.get("mustKnow")}. {html_escape(c.get("name") or "")}</h2>'
+            f'<p class="def">{html_escape(c.get("definition") or "")}</p>'
+            f"{symptom}"
+            "</article>"
+        )
+    render(
+        "must",
+        TITLE="DE Sheet — Must-know 30",
+        BANNER="#ca8a04",
+        BANNER_TEXT="MUST 30 · next layer after Essentials",
+        H1="Must-know 30",
+        SUB="Do Essentials first. These 30 are the next layer.",
+        BODY="".join(must_cards) or "<p>No must-know entries.</p>",
     )
 
 
