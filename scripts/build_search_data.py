@@ -112,21 +112,28 @@ def main() -> None:
         [c for c in all_concepts if c.get("mustKnow")],
         key=lambda x: x["mustKnow"],
     )
-    must_md = ["# Must-know 30", "", "Start here. Learn these before the long tail.", ""]
+    must_md = [
+        "# Must-know 30",
+        "",
+        "Start here before the long tail. Each item: **what** · snippet · prod symptom.",
+        "",
+        "Readable UI: [docs/index.html](docs/index.html) → **Must-know** tab · or [docs/table.html](docs/table.html)",
+        "",
+    ]
     for c in must:
-        tags = ", ".join(f"`{t}`" for t in c.get("tags", []))
-        must_md.append(f"{c['mustKnow']}. **{c['name']}** — {c['definition']}")
-        if tags:
-            must_md.append("")
-            must_md.append(f"Tags: {tags}")
+        must_md.append(f"## {c['mustKnow']}. {c['name']}")
+        must_md.append("")
+        must_md.append(c["definition"])
+        must_md.append("")
         if c.get("snippet"):
-            must_md.append("")
             must_md.append("```")
             must_md.append(c["snippet"])
             must_md.append("```")
-        if c.get("symptom"):
             must_md.append("")
-            must_md.append(f"*In prod:* {c['symptom']}")
+        if c.get("symptom"):
+            must_md.append(f"**In prod:** {c['symptom']}")
+            must_md.append("")
+        must_md.append("---")
         must_md.append("")
     (ROOT / "MUST_KNOW_30.md").write_text("\n".join(must_md))
 
@@ -157,15 +164,30 @@ def main() -> None:
     (ROOT / "QUICK_REF.md").write_text("\n".join(md_lines) + "\n")
 
     rows_html = []
+    current_cat = None
     for c in ordered:
+        if c["category"] != current_cat:
+            if current_cat is not None:
+                rows_html.append("</section>")
+            current_cat = c["category"]
+            rows_html.append(
+                f'<section class="section" data-section-block="{html_escape(current_cat)}">'
+                f'<h2 class="section-title">{html_escape(current_cat)}</h2>'
+            )
+        example = (c.get("example") or "").strip()
         rows_html.append(
-            "<tr>"
-            f'<td class="kw">{html_escape(c["name"])}</td>'
-            f'<td class="sec"><span class="pill">{html_escape(c["category"])}</span></td>'
-            f"<td>{html_escape(c.get('definition') or '')}</td>"
-            f'<td class="ex">{html_escape(" ".join((c.get("example") or "").split()))}</td>'
-            "</tr>"
+            f'<article class="card" data-section="{html_escape(c["category"])}">'
+            f'<div class="card-top">'
+            f'<h3 class="kw">{html_escape(c["name"])}</h3>'
+            f'<span class="pill">{html_escape(c["category"])}</span>'
+            f"</div>"
+            f'<p class="def">{html_escape(c.get("definition") or "")}</p>'
+            f'<div class="ex-label">Example</div>'
+            f'<pre class="ex">{html_escape(example)}</pre>'
+            f"</article>"
         )
+    if current_cat is not None:
+        rows_html.append("</section>")
     cats = sorted({c["category"] for c in ordered})
     cat_opts = "\n".join(
         f'<option value="{html_escape(c)}">{html_escape(c)}</option>' for c in cats

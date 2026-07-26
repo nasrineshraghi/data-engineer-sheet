@@ -3,112 +3,242 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>DE Sheet — Quick table</title>
+<title>DE Sheet — Quick reference</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Sora:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Sora:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
 :root {
-  --ink:#0f1c2e; --muted:#3d5368; --sky:#0284c7; --teal:#0d9488; --coral:#e11d48; --gold:#ca8a04;
+  --ink: #152033;
+  --muted: #5a6b7d;
+  --line: #e2e8f0;
+  --paper: #ffffff;
+  --bg: #f4f7fb;
+  --sky: #0369a1;
+  --teal: #0f766e;
+  --accent: #0e7490;
 }
-* { box-sizing:border-box; }
+* { box-sizing: border-box; }
 body {
-  margin:0; color:var(--ink); font-family:"Sora",sans-serif;
-  background:
-    radial-gradient(800px 400px at 0% 0%, rgba(2,132,199,.22), transparent 55%),
-    radial-gradient(700px 380px at 100% 0%, rgba(225,29,72,.14), transparent 50%),
-    linear-gradient(160deg,#e0f2fe,#fdf2f8 45%,#ecfdf5);
+  margin: 0;
+  color: var(--ink);
+  font-family: "Sora", sans-serif;
+  background: var(--bg);
+  line-height: 1.5;
 }
-.wrap { width:min(1200px, calc(100% - 1.5rem)); margin:0 auto; padding:1.5rem 0 3rem; }
+.wrap {
+  width: min(820px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0 4rem;
+}
+header.page {
+  margin-bottom: 1.25rem;
+}
 h1 {
-  font-family:"Fraunces",Georgia,serif; font-size:clamp(1.8rem,4vw,2.6rem); margin:0 0 .35rem;
-  background:linear-gradient(120deg,#0f766e,#0284c7,#e11d48); -webkit-background-clip:text; background-clip:text; color:transparent;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: clamp(1.9rem, 4vw, 2.5rem);
+  margin: 0 0 .4rem;
+  letter-spacing: -0.02em;
+  color: var(--ink);
 }
-.sub { color:var(--muted); margin:0 0 1rem; }
-.sub a { color:var(--sky); font-weight:600; }
+.sub {
+  margin: 0;
+  color: var(--muted);
+  font-size: .95rem;
+}
+.sub a { color: var(--sky); font-weight: 600; text-decoration: none; }
+.sub a:hover { text-decoration: underline; }
+
 .toolbar {
-  display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; margin-bottom:1rem;
-  position:sticky; top:.4rem; z-index:5; padding:.65rem .8rem; border-radius:16px;
-  background:rgba(255,255,255,.88); backdrop-filter:blur(10px);
-  border:2px solid transparent;
-  background-image:linear-gradient(#fff,#fff), linear-gradient(90deg,#0d9488,#0284c7,#e11d48);
-  background-origin:border-box; background-clip:padding-box,border-box;
-  box-shadow:0 10px 30px rgba(2,132,199,.12);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  align-items: center;
+  margin: 1rem 0 1.5rem;
+  padding: .75rem .9rem;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(21,32,51,.06);
 }
 #q {
-  flex:1; min-width:180px; border:0; outline:0; font:inherit; font-size:.95rem; background:transparent;
+  flex: 1;
+  min-width: 200px;
+  border: 0;
+  outline: 0;
+  font: inherit;
+  font-size: 1rem;
+  background: transparent;
+  color: var(--ink);
 }
+#q::placeholder { color: #94a3b8; }
 select {
-  border:1.5px solid #67e8f9; border-radius:999px; padding:.4rem .7rem; font:inherit; background:#ecfeff; color:#0e7490; font-weight:600;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: .45rem .75rem;
+  font: inherit;
+  background: #f8fafc;
+  color: var(--ink);
+  max-width: 100%;
 }
-.count { font-size:.82rem; color:var(--muted); font-weight:600; }
-.count strong { color:var(--coral); }
-.table-wrap {
-  overflow:auto; border-radius:18px; background:#fff;
-  box-shadow:0 16px 40px rgba(15,28,46,.08);
-  border:1px solid rgba(2,132,199,.15);
+.count {
+  font-size: .8rem;
+  color: var(--muted);
+  font-weight: 600;
+  white-space: nowrap;
 }
-table { width:100%; border-collapse:collapse; font-size:.84rem; }
-th {
-  position:sticky; top:0; text-align:left; padding:.75rem .7rem; font-size:.72rem; letter-spacing:.05em;
-  text-transform:uppercase; color:#fff;
-  background:linear-gradient(90deg,#0d9488,#0284c7,#7c3aed);
+.count strong { color: var(--teal); }
+
+.section {
+  margin: 0 0 2rem;
 }
-td { padding:.65rem .7rem; vertical-align:top; border-top:1px solid #e2e8f0; line-height:1.4; }
-tr:nth-child(even) td { background:#f8fafc; }
-tr:hover td { background:#ecfeff; }
-.kw { font-weight:700; color:#0f766e; white-space:nowrap; min-width:10rem; }
-.sec { min-width:9rem; }
+.section-title {
+  position: sticky;
+  top: 4.2rem;
+  z-index: 5;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 1.15rem;
+  margin: 0 0 .75rem;
+  padding: .55rem .8rem;
+  background: #e0f2fe;
+  color: #0c4a6e;
+  border-radius: 10px;
+  border-left: 4px solid var(--sky);
+}
+
+.card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1.1rem 1.2rem 1.15rem;
+  margin-bottom: .7rem;
+  box-shadow: 0 1px 2px rgba(21,32,51,.04);
+}
+.card:hover {
+  border-color: #bae6fd;
+  box-shadow: 0 8px 20px rgba(3,105,161,.08);
+}
+.card-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem .75rem;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: .45rem;
+}
+.kw {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.015em;
+  color: var(--teal);
+}
 .pill {
-  display:inline-block; padding:.15rem .45rem; border-radius:999px; font-size:.68rem; font-weight:700;
-  background:#e0f2fe; color:#0369a1; white-space:normal;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  color: #0369a1;
+  background: #e0f2fe;
+  padding: .2rem .5rem;
+  border-radius: 999px;
 }
-.ex { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.76rem; color:#334155; max-width:28rem; }
+.def {
+  margin: 0 0 .75rem;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: #1e293b;
+}
+.ex-label {
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: .3rem;
+}
+.ex {
+  margin: 0;
+  padding: .75rem .85rem;
+  border-radius: 10px;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: .82rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+.empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 2.5rem 1rem;
+  display: none;
+}
+.section.hidden, .card.hidden { display: none; }
+
+@media (max-width: 640px) {
+  .section-title { top: 5.2rem; }
+  .kw { font-size: 1.1rem; }
+  .def { font-size: 1rem; }
+}
 @media print {
-  body { background:#fff; }
-  .toolbar { position:static; box-shadow:none; }
-  th { background:#0d9488 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .toolbar { position: static; box-shadow: none; }
+  .section-title { position: static; }
+  .card { break-inside: avoid; box-shadow: none; }
 }
 </style>
 </head>
 <body>
 <main class="wrap">
-  <h1>Quick reference table</h1>
-  <p class="sub">__COUNT__ keywords · definition · example · section · <a href="index.html">Study app</a> · <a href="../QUICK_REF.md">Markdown</a></p>
+  <header class="page">
+    <h1>Quick reference</h1>
+    <p class="sub">__COUNT__ keywords · easy scan by section · <a href="index.html">Study app</a> · <a href="../QUICK_REF.md">Markdown</a></p>
+  </header>
+
   <div class="toolbar">
-    <input id="q" type="search" placeholder="Filter keywords, definitions, examples…" />
+    <input id="q" type="search" placeholder="Filter by keyword or definition…" autofocus />
     <select id="sec"><option value="">All sections</option>__CAT_OPTS__</select>
     <div class="count"><strong id="shown">__COUNT__</strong> / __COUNT__</div>
   </div>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr><th>Keyword</th><th>Section</th><th>Definition</th><th>Example</th></tr>
-      </thead>
-      <tbody id="tbody">
+
+  <div id="list">
 __ROWS__
-      </tbody>
-    </table>
   </div>
+  <div class="empty" id="empty">No matches. Try another keyword or section.</div>
 </main>
 <script>
 const q = document.getElementById('q');
 const sec = document.getElementById('sec');
 const shown = document.getElementById('shown');
-const rows = [...document.querySelectorAll('#tbody tr')];
+const empty = document.getElementById('empty');
+const cards = [...document.querySelectorAll('.card')];
+const sections = [...document.querySelectorAll('.section')];
+
 function filter() {
   const term = q.value.trim().toLowerCase();
   const section = sec.value;
   let n = 0;
-  for (const row of rows) {
-    const text = row.innerText.toLowerCase();
+  for (const card of cards) {
+    const text = card.innerText.toLowerCase();
     const okTerm = !term || text.includes(term);
-    const okSec = !section || row.querySelector('.pill').textContent === section;
+    const okSec = !section || card.dataset.section === section;
     const show = okTerm && okSec;
-    row.style.display = show ? '' : 'none';
+    card.classList.toggle('hidden', !show);
     if (show) n++;
   }
+  for (const block of sections) {
+    const visible = [...block.querySelectorAll('.card')].some((c) => !c.classList.contains('hidden'));
+    block.classList.toggle('hidden', !visible);
+  }
   shown.textContent = String(n);
+  empty.style.display = n ? 'none' : 'block';
 }
 q.addEventListener('input', filter);
 sec.addEventListener('change', filter);
