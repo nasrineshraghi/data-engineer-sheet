@@ -2,17 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Data Engineer Sheet — Study App</title>
-  <script>
-  (function () {
-    if (location.hostname.endsWith("github.io")) {
-      var b = document.createElement("base");
-      b.href = "/data-engineer-sheet/";
-      document.head.insertBefore(b, document.head.firstChild);
-    }
-  })();
-  </script>
   <meta name="description" content="Searchable DE glossary with flashcards, quiz, scenarios, and word of the day." />
   <style>
     :root {
@@ -46,7 +38,6 @@
         radial-gradient(800px 480px at 100% 5%, rgba(225,29,72,.16), transparent 50%),
         radial-gradient(700px 420px at 50% 100%, rgba(202,138,4,.14), transparent 55%),
         linear-gradient(160deg, #e0f2fe 0%, #fdf2f8 42%, #ecfdf5 100%);
-      background-attachment: fixed;
     }
     .wrap {
       width: min(760px, calc(100% - 2rem));
@@ -622,10 +613,11 @@
 </head>
 <body>
     <div id="top-links" style="position:sticky;top:0;z-index:9999;background:#0f766e;color:#fff;padding:.75rem 1rem;font:600 15px/1.4 system-ui,sans-serif;display:flex;flex-wrap:wrap;gap:.75rem;align-items:center">
-    <a href="table.html" style="color:#fff;text-decoration:underline">Summary table</a>
-    <a href="index.html?mode=essentials" style="color:#fff;text-decoration:underline">Essentials</a>
-    <a href="index.html?mode=prod" style="color:#fff;text-decoration:underline">Prod playbook</a>
-    <span style="opacity:.85;font-weight:500">If the page looks empty, use these links.</span>
+    <a href="https://nasrineshraghi.github.io/data-engineer-sheet/table.html" style="color:#fff;background:#ea580c;padding:.35rem .7rem;border-radius:999px;text-decoration:none">Summary table</a>
+    <a href="https://nasrineshraghi.github.io/data-engineer-sheet/?mode=essentials" style="color:#fff;text-decoration:underline">Essentials</a>
+    <a href="https://nasrineshraghi.github.io/data-engineer-sheet/?mode=prod" style="color:#fff;text-decoration:underline">Prod</a>
+    <a href="https://nasrineshraghi.github.io/data-engineer-sheet/?tag=clinical" style="color:#fff;text-decoration:underline">Clinical</a>
+    <span style="opacity:.9;font-weight:500">Green bar always works — even if the rest is loading.</span>
   </div>
   <main class="wrap">
     <h1 class="brand">Data Engineer<br /><span>Sheet</span></h1>
@@ -661,7 +653,20 @@
         Then learn <button type="button" data-goto="prod" style="all:unset;color:var(--sky);font-weight:700;cursor:pointer;text-decoration:underline">when to use them in Prod</button>.
         Need every keyword? Open the <a href="table.html" style="color:var(--sky);font-weight:700">summary table</a>.
       </div>
-      <div class="mini-table-wrap" id="essentials-table"><p class="hint" style="padding:1rem">Loading essentials…</p></div>
+      <div class="mini-table-wrap" id="essentials-table">
+        <table class="mini-table"><thead><tr><th>#</th><th>Concept</th><th>Definition</th><th>The one thing to remember</th></tr></thead><tbody>
+        <tr><td>1</td><td class="kw">Grain</td><td>Exact meaning of one fact row (business level of detail).</td><td class="why">Know what one row means before you join or aggregate</td></tr>
+        <tr><td>2</td><td class="kw">Idempotency</td><td>Running the same operation multiple times yields the same result as running once.</td><td class="why">Safe to retry = no duplicate mess</td></tr>
+        <tr><td>3</td><td class="kw">Shuffle</td><td>Redistribute data across partitions by key (network + sort/hash).</td><td class="why">Moving data across the network is usually the expensive part</td></tr>
+        <tr><td>4</td><td class="kw">Partition Pruning</td><td>Skip reading partitions that cannot match the query filter.</td><td class="why">Date (or key) filters should skip whole folders of data</td></tr>
+        <tr><td>5</td><td class="kw">Predicate Pushdown</td><td>Move filters as close as possible to the data source so less data is read/shuffled.</td><td class="why">Filter early so you read less</td></tr>
+        <tr><td>6</td><td class="kw">Cardinality</td><td>Number of distinct values in a column (or relation size: number of rows).</td><td class="why">Distinct counts drive join and group-by cost</td></tr>
+        <tr><td>7</td><td class="kw">Lazy Evaluation</td><td>Transformations build a plan; work runs only on actions.</td><td class="why">Spark builds a plan; an action runs it</td></tr>
+        <tr><td>8</td><td class="kw">Job → Stage → Task</td><td>- **Job:** triggered by an action (`count`, `write`, `collect`) - **Stage:** set of tasks with narrow deps between shuffles - **Task:** unit of work on one partition</td><td class="why">How to read the Spark UI when something is slow</td></tr>
+        <tr><td>9</td><td class="kw">At Least Once</td><td>Every record processed ≥1 time; duplicates possible on retry.</td><td class="why">Failures often mean duplicates unless you dedupe</td></tr>
+        <tr><td>10</td><td class="kw">Freshness</td><td>How up-to-date the data is vs expectation (SLA/SLO).</td><td class="why">Green pipeline ≠ data is recent enough</td></tr>
+        </tbody></table>
+      </div>
       <div class="results" id="essentials-results" style="margin-top:1rem"></div>
     </section>
 
@@ -767,6 +772,22 @@
   </main>
 
   <script>
+  (function () {
+    var onPages = /github\.io$/i.test(location.hostname);
+    var src = (onPages ? "/data-engineer-sheet/" : "") + "data.js?v=236";
+    var xhr = new XMLHttpRequest();
+    try {
+      xhr.open("GET", src, false); // sync — guarantees data before app script
+      xhr.send(null);
+      if (xhr.status >= 200 && xhr.status < 300) {
+        (0, eval)(xhr.responseText);
+      }
+    } catch (e) {
+      console.warn("sync data load failed", e);
+    }
+  })();
+  </script>
+  <script>
     const $ = (id) => document.getElementById(id);
     const LEARN_KEY = "de-sheet-learned-v1";
     const STREAK_KEY = "de-sheet-streak-v1";
@@ -784,16 +805,16 @@
     let scenarioPicks = {};
 
     const ESSENTIALS = [
-      ["Grain", "Know what one row means before you join or aggregate"],
-      ["Idempotency", "Safe to retry = no duplicate mess"],
-      ["Shuffle", "Moving data across the network is usually the expensive part"],
-      ["Partition Pruning", "Date (or key) filters should skip whole folders of data"],
-      ["Predicate Pushdown", "Filter early so you read less"],
-      ["Cardinality", "Distinct counts drive join and group-by cost"],
-      ["Lazy Evaluation", "Spark builds a plan; an action runs it"],
-      ["Job → Stage → Task", "How to read the Spark UI when something is slow"],
-      ["At Least Once", "Failures often mean duplicates unless you dedupe"],
-      ["Freshness", "Green pipeline ≠ data is recent enough"],
+      ["Grain", "Know what one row means before you join or aggregate", "Exact meaning of one fact row (business level of detail)."],
+      ["Idempotency", "Safe to retry = no duplicate mess", "Running the same operation multiple times yields the same result as running once."],
+      ["Shuffle", "Moving data across the network is usually the expensive part", "Redistribute data across partitions by key (network + sort/hash)."],
+      ["Partition Pruning", "Date (or key) filters should skip whole folders of data", "Skip reading partitions that cannot match the query filter."],
+      ["Predicate Pushdown", "Filter early so you read less", "Move filters as close as possible to the data source so less data is read/shuffled."],
+      ["Cardinality", "Distinct counts drive join and group-by cost", "Number of distinct values in a column (or relation size: number of rows)."],
+      ["Lazy Evaluation", "Spark builds a plan; an action runs it", "Transformations build a plan; work runs only on actions."],
+      ["Job → Stage → Task", "How to read the Spark UI when something is slow", "- **Job:** triggered by an action (`count`, `write`, `collect`) - **Stage:** set of tasks with narrow deps between shuffles - **Task:** unit of work on one partition"],
+      ["At Least Once", "Failures often mean duplicates unless you dedupe", "Every record processed ≥1 time; duplicates possible on retry."],
+      ["Freshness", "Green pipeline ≠ data is recent enough", "How up-to-date the data is vs expectation (SLA/SLO)."]
     ];
 
     const escapeHtml = (s) => String(s)
@@ -952,9 +973,9 @@
     const renderEssentials = () => {
       const table = $("essentials-table");
       if (table) {
-        const rows = ESSENTIALS.map(([name, point], i) => {
+        const rows = ESSENTIALS.map(([name, point, defn], i) => {
           const c = byName.get(name);
-          const def = c ? escapeHtml(c.definition) : "";
+          const def = escapeHtml((c && c.definition) || defn || "");
           return {
             jump: name,
             cells: [String(i + 1), escapeHtml(name), def, escapeHtml(point)],
@@ -964,7 +985,13 @@
       }
       const list = $("essentials-results");
       if (list) {
-        list.innerHTML = ESSENTIALS.map(([name]) => byName.get(name)).filter(Boolean).map((c) => cardHtml(c)).join("");
+        list.innerHTML = ESSENTIALS.map(([name, point, defn]) => {
+          const c = byName.get(name) || {
+            name, definition: defn || point, why: point, example: "", category: "Essentials",
+            remember: [], snippet: "", symptom: "", related: [], tags: ["interview"]
+          };
+          return cardHtml(c);
+        }).join("");
       }
     };
 
@@ -1261,8 +1288,16 @@
     });
 
     const showBootError = (msg) => {
-      const el = $("essentials-table");
-      if (el) el.innerHTML = `<p class="hint" style="padding:1rem;color:var(--bad)">${escapeHtml(msg)}</p>`;
+      let el = $("boot-error");
+      if (!el) {
+        el = document.createElement("div");
+        el.id = "boot-error";
+        el.style.cssText = "margin:0.75rem 0;padding:0.75rem 1rem;background:#fef2f2;color:#b91c1c;border-radius:12px;font:600 14px system-ui,sans-serif";
+        const host = $("essentials-table");
+        if (host && host.parentNode) host.parentNode.insertBefore(el, host);
+        else document.body.prepend(el);
+      }
+      el.textContent = msg;
     };
 
     const startApp = () => {
@@ -1281,54 +1316,55 @@
       if (location.hash === "#scenarios") setMode("scenarios");
     };
 
-    const dataUrl = (name) => {
-      try {
-        const scripts = document.getElementsByTagName("script");
-        // Prefer same directory as this page
-        return new URL(name, document.baseURI).href;
-      } catch (_) {
-        return name;
-      }
+    const asset = (name) => {
+      if (/github\.io$/i.test(location.hostname)) return "/data-engineer-sheet/" + name;
+      return name;
     };
 
-    const loadScript = (src) => new Promise((resolve, reject) => {
-      const s = document.createElement("script");
-      s.src = src;
-      s.async = true;
-      s.onload = () => resolve();
-      s.onerror = () => reject(new Error("Failed to load " + src));
-      document.head.appendChild(s);
+    const loadDataScript = () => new Promise((resolve, reject) => {
+      if (Array.isArray(window.DE_CONCEPTS) && window.DE_CONCEPTS.length) { resolve(); return; }
+      const trySrc = (src, next) => {
+        const s = document.createElement("script");
+        s.src = src;
+        s.onload = () => resolve();
+        s.onerror = () => next ? next() : reject(new Error("data.js failed"));
+        document.head.appendChild(s);
+      };
+      trySrc(asset("data.js") + "?v=236", () => trySrc("data.js?v=236"));
     });
 
+    const essentialsOnlyFallback = () => {
+      concepts = ESSENTIALS.map(([n, point, defn], i) => ({
+        name: n, definition: defn, why: point, example: "", category: "Essentials",
+        remember: [], snippet: "", symptom: "", related: [], tags: ["interview"], mustKnow: i + 1
+      }));
+      scenarios = [];
+      playbook = [];
+      byName = new Map(concepts.map((c) => [c.name, c]));
+      updateProgress();
+      renderEssentials();
+      setMode("essentials");
+    };
+
     const boot = async () => {
+      updateProgress();
       try {
+        await loadDataScript();
         if (!(Array.isArray(window.DE_CONCEPTS) && window.DE_CONCEPTS.length)) {
-          await loadScript(dataUrl("data.js"));
+          throw new Error("DE_CONCEPTS empty after load");
         }
-        if (Array.isArray(window.DE_CONCEPTS) && window.DE_CONCEPTS.length) {
-          concepts = window.DE_CONCEPTS;
-          scenarios = Array.isArray(window.DE_SCENARIOS) ? window.DE_SCENARIOS : [];
-          playbook = Array.isArray(window.DE_PLAYBOOK) ? window.DE_PLAYBOOK : [];
-          startApp();
-          return;
-        }
-        const [cRes, sRes, pRes] = await Promise.all([
-          fetch(dataUrl("concepts.json")),
-          fetch(dataUrl("scenarios.json")),
-          fetch(dataUrl("playbook.json")),
-        ]);
-        if (!cRes.ok) throw new Error("Could not load concepts.json (" + cRes.status + ")");
-        concepts = await cRes.json();
-        scenarios = sRes.ok ? await sRes.json() : [];
-        playbook = pRes.ok ? await pRes.json() : [];
+        concepts = window.DE_CONCEPTS;
+        scenarios = Array.isArray(window.DE_SCENARIOS) ? window.DE_SCENARIOS : [];
+        playbook = Array.isArray(window.DE_PLAYBOOK) ? window.DE_PLAYBOOK : [];
         startApp();
       } catch (err) {
         console.error(err);
-        showBootError("Could not load data.js. Try the Summary table link above, or hard-refresh.");
+        essentialsOnlyFallback();
+        showBootError("Full catalog did not load — Essentials table above still works. Use Summary table in the green bar.");
       }
     };
 
-    // Paint chrome first, then load data (avoids blank page while data.js parses)
+    // Sync script tags also in HTML below as primary path for Pages
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", () => setTimeout(boot, 0));
     } else {
