@@ -3,117 +3,85 @@
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Data Engineer Sheet</title>
+  <title>DE Sheet Home v4</title>
   <style>
+    * { box-sizing: border-box; }
     body {
       margin: 0;
-      min-height: 100vh;
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-      color: #12202e;
-      background: linear-gradient(160deg, #e0f2fe 0%, #fdf2f8 42%, #ecfdf5 100%);
-    }
-    .bar {
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
       background: #0f766e;
       color: #fff;
-      padding: 0.85rem 1.1rem;
-      font-weight: 700;
-      font-size: 1rem;
+      min-height: 100vh;
+      padding: 1.25rem;
     }
-    .bar a { color: #fff; margin-right: 1rem; }
-    .wrap {
-      width: min(640px, calc(100% - 2rem));
-      margin: 0 auto;
-      padding: 2.5rem 0 4rem;
-    }
-    h1 {
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(2rem, 6vw, 2.8rem);
-      line-height: 1.1;
-      margin: 0 0 0.75rem;
-      color: #0f766e;
-    }
-    h1 span { display: block; color: #ea580c; }
-    .lede { color: #4a5d72; font-size: 1.05rem; line-height: 1.55; margin: 0 0 1.5rem; }
-    .card {
+    .box {
+      max-width: 640px;
+      margin: 1rem auto;
       background: #fff;
+      color: #12202e;
       border-radius: 16px;
-      padding: 1.1rem 1.2rem;
-      margin: 0 0 0.85rem;
-      border: 1px solid #dbe3ea;
-      box-shadow: 0 8px 24px rgba(15, 118, 110, 0.08);
+      padding: 1.25rem 1.35rem;
     }
-    .card h2 {
-      margin: 0 0 0.35rem;
-      font-size: 1.15rem;
-      color: #0f766e;
-    }
-    .card p { margin: 0 0 0.75rem; color: #4a5d72; font-size: 0.95rem; line-height: 1.45; }
-    .btn {
+    h1 { margin: 0 0 0.5rem; font-size: 1.75rem; color: #0f766e; }
+    p { line-height: 1.5; color: #334155; }
+    .ok {
       display: inline-block;
-      background: #0f766e;
-      color: #fff !important;
-      text-decoration: none;
-      font-weight: 700;
-      padding: 0.55rem 0.95rem;
+      background: #16a34a;
+      color: #fff;
+      font-weight: 800;
+      padding: 0.4rem 0.75rem;
       border-radius: 999px;
-      margin: 0 0.35rem 0.35rem 0;
+      margin-bottom: 0.75rem;
     }
-    .btn.orange { background: #ea580c; }
-    .btn.blue { background: #0284c7; }
-    .btn.ghost {
-      background: #fff;
-      color: #0f766e !important;
-      border: 1.5px solid #0f766e;
+    a.btn {
+      display: block;
+      text-align: center;
+      text-decoration: none;
+      font-weight: 800;
+      padding: 0.9rem 1rem;
+      border-radius: 12px;
+      margin: 0.55rem 0;
+      color: #fff;
     }
-    .note {
-      margin-top: 1.25rem;
-      font-size: 0.88rem;
-      color: #4a5d72;
-      line-height: 1.45;
+    .orange { background: #ea580c; }
+    .teal { background: #0f766e; }
+    .blue { background: #0284c7; }
+    .warn {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background: #fff7ed;
+      border: 1px solid #fdba74;
+      border-radius: 10px;
+      color: #9a3412;
+      font-size: 0.92rem;
     }
-    code { background: #f1f5f9; padding: 0.1rem 0.35rem; border-radius: 6px; }
+    code { background: #f1f5f9; padding: 0.15rem 0.35rem; border-radius: 4px; color: #0f172a; }
   </style>
 </head>
 <body>
-  <div class="bar">
-    Data Engineer Sheet ·
-    <a href="table.html">Summary table</a>
-    <a href="app.html">Study app</a>
-  </div>
-  <main class="wrap">
-    <h1>Data Engineer<br /><span>Sheet</span></h1>
-    <p class="lede">Glossary + study tools for data engineers. This homepage needs no JavaScript — if you can read this, the site works.</p>
+  <div class="box">
+    <div class="ok">SITE WORKS · home v4</div>
+    <h1>Data Engineer Sheet</h1>
+    <p>If you see this green page with white cards, GitHub Pages is fine. Pick a button:</p>
 
-    <section class="card">
-      <h2>1. Summary table (all keywords)</h2>
-      <p>Searchable definitions and examples for every concept.</p>
-      <a class="btn orange" href="table.html">Open summary table</a>
-    </section>
+    <a class="btn orange" href="table.html">1) Summary table (all keywords)</a>
+    <a class="btn teal" href="app.html">2) Study app (Essentials / Prod / Quiz)</a>
+    <a class="btn blue" href="app.html?tag=parquet">3) File formats / Parquet</a>
+    <a class="btn blue" href="app.html?tag=clinical">4) Clinical meds &amp; labs</a>
+    <a class="btn blue" href="app.html?tag=api">5) APIs</a>
 
-    <section class="card">
-      <h2>2. Study app</h2>
-      <p>Essentials, Prod playbook, flashcards, quiz, clinical &amp; API topics.</p>
-      <a class="btn" href="app.html">Open study app</a>
-      <a class="btn blue" href="app.html?mode=essentials">Essentials (10)</a>
-      <a class="btn ghost" href="app.html?mode=prod">Prod playbook</a>
-    </section>
-
-    <section class="card">
-      <h2>3. Topic shortcuts</h2>
-      <p>Jump into newer sections.</p>
-      <a class="btn ghost" href="app.html?tag=clinical">Clinical (meds &amp; labs)</a>
-      <a class="btn ghost" href="app.html?tag=api">APIs</a>
-      <a class="btn ghost" href="app.html?tag=kafka">Kafka</a>
-      <a class="btn ghost" href="app.html?tag=dbt">dbt</a>
-      <a class="btn ghost" href="app.html?tag=parquet">Parquet / files</a>
-    </section>
-
-    <p class="note">
-      Bookmark the full URL (include the repo name):<br />
+    <div class="warn">
+      <strong>Wrong URL = empty page.</strong><br />
+      Use:
       <code>https://nasrineshraghi.github.io/data-engineer-sheet/</code><br />
-      Not just <code>nasrineshraghi.github.io</code> — that root is a different page.
-    </p>
-  </main>
+      Not only <code>nasrineshraghi.github.io</code><br /><br />
+      Still seeing a blank pastel page? Hard refresh:
+      Mac <code>Cmd+Shift+R</code> · Windows <code>Ctrl+Shift+R</code>
+      or open the table directly:
+      <code>https://nasrineshraghi.github.io/data-engineer-sheet/table.html</code>
+    </div>
+  </div>
 </body>
 </html>
