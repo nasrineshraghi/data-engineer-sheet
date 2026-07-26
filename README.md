@@ -2,21 +2,26 @@
 
 A practical glossary of techniques, keywords, and concepts every data engineer should know — with short definitions and examples. Not deep dives; enough to recall, interview, and apply.
 
-## Search
+## Search · Must-know 30 · Flashcards
 
-**[Open the searchable glossary →](docs/index.html)**
+**[Open the study app →](docs/index.html)**
 
-Type any keyword (e.g. `shuffle`, `watermark`, `AQE`). Filter by category. Press `/` to focus search.
+Three modes in one page:
+1. **Search** — filter all 146 concepts (snippets + prod symptoms where available)
+2. **Must-know 30** — shortest learning path ([markdown version](MUST_KNOW_30.md))
+3. **Flashcards** — flip cards, mark *Know it* / *Again* (progress saved in your browser)
 
-> After enabling **GitHub Pages** (Settings → Pages → Source: Deploy from branch → `/docs`), the live URL is:  
+Shortcuts: `/` search · Flashcards: `Space` flip · `1` know · `2` again
+
+> Enable **GitHub Pages** (Settings → Pages → branch `main` → `/docs`) for:  
 > `https://nasrineshraghi.github.io/data-engineer-sheet/`
 
 ## How to use
 
-- **Search UI:** [docs/index.html](docs/index.html)
-- Browse keywords below → open the category file for **Definition · Why it matters · Example · Remember**
+- **Study app:** [docs/index.html](docs/index.html)
+- Browse keywords below → category files for full write-ups
 - A–Z lookup: [INDEX.md](INDEX.md)
-- Search the repo (`Ctrl/Cmd + Shift + F`) by keyword
+- Rebuild search data after edits: `python3 scripts/build_search_data.py`
 
 ## Categories
 

@@ -10,7 +10,15 @@
     "remember": [
       "Low cardinality \u2192 bitmap indexes / dictionaries often help",
       "Wrong cardinality estimates \u2192 bad plans"
-    ]
+    ],
+    "mustKnow": 1,
+    "snippet": "SELECT COUNT(DISTINCT user_id) AS cardinality FROM events;",
+    "related": [
+      "Selectivity",
+      "Histograms",
+      "Data Skew"
+    ],
+    "symptom": "Bad join strategy because NDV was underestimated."
   },
   {
     "name": "Granularity (Grain)",
@@ -23,7 +31,15 @@
     "remember": [
       "Always state grain before modeling",
       "Never mix grains in one fact without care"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "-- State grain before modeling:\n-- one row per order_id + product_id (line item)",
+    "related": [
+      "Grain",
+      "Additive Facts",
+      "Bridge Table"
+    ],
+    "symptom": "Revenue doubles after joining order headers to line items."
   },
   {
     "name": "Selectivity",
@@ -36,7 +52,11 @@
     "remember": [
       "Selectivity \u2248 matching_rows / total_rows",
       "Indexes help most on selective filters"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Data Distribution",
@@ -49,7 +69,11 @@
     "remember": [
       "Check histograms / approx_percentile for skew",
       "Salting and AQE help with skew"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Histograms",
@@ -62,7 +86,11 @@
     "remember": [
       "Stale histograms \u2192 bad plans",
       "Refresh stats after large loads"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Cost-Based Optimizer (CBO)",
@@ -75,7 +103,11 @@
     "remember": [
       "Collect/analyze stats regularly",
       "No stats \u2248 guessing"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Rule-Based Optimizer (RBO)",
@@ -88,7 +120,11 @@
     "remember": [
       "Spark Catalyst uses both rules and cost",
       "RBO alone can miss better join strategies"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Execution Plan",
@@ -101,7 +137,11 @@
     "remember": [
       "Read bottom-up or follow arrows depending on engine",
       "Look for scans, shuffles, spills"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Explain Plan",
@@ -114,7 +154,15 @@
     "remember": [
       "`ANALYZE` / actual metrics beat estimated-only plans",
       "Compare before vs after rewrite"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "EXPLAIN ANALYZE SELECT ...;\n-- Spark: df.explain(\"cost\")",
+    "related": [
+      "Execution Plan",
+      "Cost-Based Optimizer (CBO)",
+      "Statistics"
+    ],
+    "symptom": "Tuning blindly without reading the plan."
   },
   {
     "name": "Composite Index",
@@ -127,7 +175,11 @@
     "remember": [
       "Column order matters (leftmost prefix)",
       "Don't over-index; writes get slower"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Covering Index",
@@ -140,7 +192,11 @@
     "remember": [
       "Great for hot read paths",
       "Wider indexes cost more storage/write amp"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Clustered vs Non-Clustered Index",
@@ -153,7 +209,11 @@
     "remember": [
       "InnoDB PK is clustered; SQL Server similar",
       "Choose clustered key for common access pattern"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Bitmap Index",
@@ -166,7 +226,11 @@
     "remember": [
       "Low cardinality + analytics",
       "Avoid on frequently updated columns"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "B-Tree Index",
@@ -179,7 +243,11 @@
     "remember": [
       "Equality + ranges",
       "Not ideal alone for very low cardinality"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Predicate Pushdown",
@@ -192,7 +260,15 @@
     "remember": [
       "Prefer partition columns and columnar formats",
       "UDFs often block pushdown"
-    ]
+    ],
+    "mustKnow": 3,
+    "snippet": "df = spark.read.parquet(\"s3://lake/events\").filter(\"dt = '2024-01-01'\")\n# filter pushed into scan / partition prune",
+    "related": [
+      "Partition Pruning",
+      "Catalyst Optimizer",
+      "Statistics"
+    ],
+    "symptom": "Full scan of years of data for a one-day query."
   },
   {
     "name": "Partition Pruning",
@@ -205,7 +281,15 @@
     "remember": [
       "Filter on partition columns explicitly",
       "Dynamic partition pruning helps joins"
-    ]
+    ],
+    "mustKnow": 4,
+    "snippet": "SELECT * FROM sales WHERE dt BETWEEN '2024-01-01' AND '2024-01-07';\n-- only those partitions are read",
+    "related": [
+      "Predicate Pushdown",
+      "Dynamic Partition Pruning",
+      "Small File Problem"
+    ],
+    "symptom": "Query reads every partition folder despite a date filter."
   },
   {
     "name": "Statistics",
@@ -218,7 +302,11 @@
     "remember": [
       "Refresh after bulk loads/deletes",
       "Missing stats \u2192 conservative/bad plans"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Table Scan vs Index Scan",
@@ -231,7 +319,11 @@
     "remember": [
       "Optimizer picks based on selectivity + cost",
       "\"Index scan\" \u2260 cheap if it returns most of the table"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Seek vs Scan",
@@ -244,7 +336,11 @@
     "remember": [
       "Seek + few rows = ideal",
       "Large range scan can rival table scan"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "DAG Scheduler",
@@ -257,7 +353,11 @@
     "remember": [
       "Stages split at wide dependencies (shuffles)",
       "Failed tasks recompute from lineage"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Task Scheduler",
@@ -270,7 +370,11 @@
     "remember": [
       "One task \u2248 one partition",
       "Speculation helps slow stragglers"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Driver",
@@ -283,7 +387,11 @@
     "remember": [
       "Keep driver light",
       "Avoid large `collect` / broadcast of huge objects"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Executor",
@@ -296,7 +404,11 @@
     "remember": [
       "Tune `executor-memory` and cores together",
       "Watch spill and GC"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Worker",
@@ -309,7 +421,11 @@
     "remember": [
       "Worker \u2260 executor",
       "YARN/K8s abstract workers differently"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Cluster Manager",
@@ -322,7 +438,11 @@
     "remember": [
       "Dynamic allocation needs external shuffle service (classic YARN)",
       "K8s common in modern platforms"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Job \u2192 Stage \u2192 Task",
@@ -336,7 +456,15 @@
       "Actions create jobs",
       "Shuffles create stages",
       "Partitions create tasks"
-    ]
+    ],
+    "mustKnow": 6,
+    "snippet": "# action \u2192 job; shuffle boundary \u2192 stage; partition \u2192 task\ndf.write.parquet(path)  # triggers a job",
+    "related": [
+      "DAG Scheduler",
+      "Shuffle",
+      "Lazy Evaluation"
+    ],
+    "symptom": "Confused debugging \u2014 looking at tasks without finding the slow stage."
   },
   {
     "name": "Lineage",
@@ -349,7 +477,11 @@
     "remember": [
       "Checkpoint breaks long lineages",
       "Lineage is logical, not always stored data"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Lazy Evaluation",
@@ -362,7 +494,15 @@
     "remember": [
       "Chain transforms freely",
       "Actions trigger compute (and cost)"
-    ]
+    ],
+    "mustKnow": 7,
+    "snippet": "f = df.filter(...).select(...)  # builds plan only\nf.count()                     # action runs the job",
+    "related": [
+      "Catalyst Optimizer",
+      "Lineage",
+      "Job \u2192 Stage \u2192 Task"
+    ],
+    "symptom": "Thinking transforms already ran; surprise cost on first action."
   },
   {
     "name": "Shuffle",
@@ -375,7 +515,15 @@
     "remember": [
       "Minimize shuffles",
       "Watch shuffle read/write in Spark UI"
-    ]
+    ],
+    "mustKnow": 5,
+    "snippet": "df.groupBy(\"user_id\").count()  # wide transform \u2192 shuffle\n# Spark UI: Shuffle Read/Write bytes",
+    "related": [
+      "Wide vs Narrow Transformations",
+      "Job \u2192 Stage \u2192 Task",
+      "Data Skew"
+    ],
+    "symptom": "Stage stuck; network/disk dominated by shuffle."
   },
   {
     "name": "Spill to Disk",
@@ -388,7 +536,11 @@
     "remember": [
       "Spill \u2260 failure; it's a warning sign",
       "Increase memory, reduce partition size, or fix skew"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Memory Management",
@@ -401,7 +553,11 @@
     "remember": [
       "Don't cache everything",
       "Tune fraction only after measuring"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Serialization (Java/Kryo)",
@@ -414,7 +570,11 @@
     "remember": [
       "Prefer DataFrames (Catalyst/Tungsten) over RDDs of custom objects",
       "Kryo helps RDD/custom types"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Broadcast Variables",
@@ -427,7 +587,11 @@
     "remember": [
       "Size must fit executor memory",
       "Default auto-broadcast threshold exists in Spark SQL"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Accumulators",
@@ -440,7 +604,11 @@
     "remember": [
       "Updates inside transforms may be recomputed on retry \u2014 use carefully",
       "Prefer built-in Spark metrics when possible"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Closure",
@@ -453,7 +621,11 @@
     "remember": [
       "Don't capture huge objects",
       "Prefer broadcast for shared lookups"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Wide vs Narrow Transformations",
@@ -466,7 +638,15 @@
     "remember": [
       "Pipeline narrow transforms in one stage",
       "Wide transforms need justification"
-    ]
+    ],
+    "mustKnow": 8,
+    "snippet": "# narrow: map/filter (no shuffle)\n# wide: groupBy/join/repartition (shuffle)",
+    "related": [
+      "Shuffle",
+      "DAG Scheduler",
+      "Broadcast Join"
+    ],
+    "symptom": "Extra wide transforms inflate runtime for little gain."
   },
   {
     "name": "Adaptive Query Execution (AQE)",
@@ -479,7 +659,15 @@
     "remember": [
       "Enable AQE in modern Spark (`spark.sql.adaptive.enabled`)",
       "Helps skew join and partition coalescing"
-    ]
+    ],
+    "mustKnow": 9,
+    "snippet": "spark.conf.set(\"spark.sql.adaptive.enabled\", \"true\")\nspark.conf.set(\"spark.sql.adaptive.skewJoin.enabled\", \"true\")",
+    "related": [
+      "Skew Join Optimization",
+      "Broadcast Join",
+      "Data Skew"
+    ],
+    "symptom": "Static plan picks sort-merge when broadcast would win."
   },
   {
     "name": "Catalyst Optimizer",
@@ -492,7 +680,15 @@
     "remember": [
       "Prefer DataFrame/Dataset API",
       "UDFs limit Catalyst optimizations"
-    ]
+    ],
+    "mustKnow": 10,
+    "snippet": "df.explain(True)  # parsed/analyzed/optimized/physical plans",
+    "related": [
+      "Tungsten Engine",
+      "Predicate Pushdown",
+      "Cost-Based Optimizer (CBO)"
+    ],
+    "symptom": "Python UDF blocks optimizations \u2192 slower than SQL expr."
   },
   {
     "name": "Tungsten Engine",
@@ -505,7 +701,11 @@
     "remember": [
       "Works best with native expressions (not Python UDFs)",
       "Columnar formats amplify gains"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Dynamic Partition Pruning",
@@ -518,7 +718,11 @@
     "remember": [
       "Needs partitioned fact + filter on dimension",
       "Related to AQE / DPP features"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Skew Join Optimization",
@@ -531,7 +735,11 @@
     "remember": [
       "Check Spark UI for straggler tasks",
       "Salting is the manual fallback"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Grain",
@@ -544,7 +752,15 @@
     "remember": [
       "Declare grain in one sentence before designing",
       "All measures must match that grain"
-    ]
+    ],
+    "mustKnow": 2,
+    "snippet": "-- Fact grain: 1 row = 1 completed checkout\n-- Always declare grain before designing the fact",
+    "related": [
+      "Granularity (Grain)",
+      "Snapshot Fact",
+      "Additive Facts"
+    ],
+    "symptom": "KPI doesn't match finance because grains differ."
   },
   {
     "name": "Granularity",
@@ -557,7 +773,11 @@
     "remember": [
       "Finer grain \u2192 more rows, more flexibility",
       "Coarser \u2192 faster reports, less detail"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Additive Facts",
@@ -570,7 +790,11 @@
     "remember": [
       "Prefer additive measures when possible",
       "Document additivity of each measure"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Semi-Additive Facts",
@@ -583,7 +807,11 @@
     "remember": [
       "Inventory and balances are classic semi-additive",
       "Use snapshot patterns carefully"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Non-Additive Facts",
@@ -596,7 +824,11 @@
     "remember": [
       "Store additive components",
       "Aggregate then compute ratio"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Degenerate Dimension",
@@ -609,7 +841,11 @@
     "remember": [
       "Common for transaction numbers",
       "Still useful for drill-to-detail"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Junk Dimension",
@@ -622,7 +858,11 @@
     "remember": [
       "Keep cardinality manageable",
       "Good for yes/no and small enums"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Role-Playing Dimension",
@@ -635,7 +875,11 @@
     "remember": [
       "Views/aliases per role in BI tools",
       "Don't duplicate date tables"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Conformed Dimension",
@@ -648,7 +892,15 @@
     "remember": [
       "Enterprise consistency",
       "Owned by a shared data team/process"
-    ]
+    ],
+    "mustKnow": 15,
+    "snippet": "-- same customer_key + attributes shared by sales & support facts",
+    "related": [
+      "Role-Playing Dimension",
+      "Grain",
+      "Data Lineage"
+    ],
+    "symptom": "Two marts define \"customer\" differently; dashboards disagree."
   },
   {
     "name": "Mini Dimension",
@@ -661,7 +913,11 @@
     "remember": [
       "Use when type-2 history would explode",
       "Fact points to both keys when needed"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Bridge Table",
@@ -674,7 +930,11 @@
     "remember": [
       "Watch double-counting; use weights",
       "Common for multi-valued dims (diagnoses, tags)"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Factless Fact Table",
@@ -687,7 +947,11 @@
     "remember": [
       "Event tracking and coverage/eligibility",
       "Measures are often counts of rows"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Snapshot Fact",
@@ -700,7 +964,11 @@
     "remember": [
       "Semi-additive measures common",
       "Choose periodic vs accumulating pattern"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Accumulating Snapshot",
@@ -713,7 +981,11 @@
     "remember": [
       "Fixed known milestones",
       "Lag metrics between dates"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Periodic Snapshot",
@@ -726,7 +998,11 @@
     "remember": [
       "Dense over time",
       "Storage heavy but query-friendly for trends"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Data Lake",
@@ -739,7 +1015,11 @@
     "remember": [
       "Storage \u2260 warehouse",
       "Needs catalog, quality, and access control"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Data Lakehouse",
@@ -752,7 +1032,11 @@
     "remember": [
       "Open table formats are the core",
       "Combines lake cost with warehouse reliability"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Delta Lake",
@@ -765,7 +1049,15 @@
     "remember": [
       "Transaction log is source of truth",
       "`OPTIMIZE` + `VACUUM` for maintenance"
-    ]
+    ],
+    "mustKnow": 16,
+    "snippet": "MERGE INTO target t USING source s ON t.id = s.id\nWHEN MATCHED THEN UPDATE SET *\nWHEN NOT MATCHED THEN INSERT *;",
+    "related": [
+      "Time Travel",
+      "ACID Tables",
+      "Apache Iceberg"
+    ],
+    "symptom": "Concurrent jobs overwrite parquet folders; readers see partial data."
   },
   {
     "name": "Apache Iceberg",
@@ -778,7 +1070,11 @@
     "remember": [
       "Snapshots + manifests",
       "Hidden partitioning is a key feature"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Apache Hudi",
@@ -791,7 +1087,11 @@
     "remember": [
       "COW vs MOR tradeoffs (write vs read cost)",
       "Strong for CDC / incremental pipelines"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Time Travel",
@@ -804,7 +1104,15 @@
     "remember": [
       "Retention limited by vacuum/expire settings",
       "Great for \"what did we have yesterday?\""
-    ]
+    ],
+    "mustKnow": 17,
+    "snippet": "SELECT * FROM orders VERSION AS OF 120;\n-- or TIMESTAMP AS OF '2024-06-01'",
+    "related": [
+      "Delta Lake",
+      "Vacuum",
+      "Checkpointing"
+    ],
+    "symptom": "Can't reproduce yesterday's report after a bad overwrite."
   },
   {
     "name": "Schema Evolution",
@@ -817,7 +1125,15 @@
     "remember": [
       "Additive changes are safest",
       "Breaking changes need contracts + migration"
-    ]
+    ],
+    "mustKnow": 18,
+    "snippet": "df.write.format(\"delta\").option(\"mergeSchema\", \"true\").mode(\"append\").save(path)",
+    "related": [
+      "Schema Enforcement",
+      "Data Contracts",
+      "Delta Lake"
+    ],
+    "symptom": "Producer adds a column; downstream jobs break or ignore it silently."
   },
   {
     "name": "Schema Enforcement",
@@ -830,7 +1146,11 @@
     "remember": [
       "Enforce at write boundary",
       "Pair with data contracts"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "ACID Tables",
@@ -843,7 +1163,11 @@
     "remember": [
       "File formats alone aren't ACID \u2014 table formats add it",
       "Isolation level still matters for readers"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Compaction",
@@ -856,7 +1180,15 @@
     "remember": [
       "Schedule regularly on hot tables",
       "Trade compute now for faster reads later"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "OPTIMIZE delta.`/path/table`;  -- Delta\n-- Iceberg: rewrite_data_files",
+    "related": [
+      "Small File Problem",
+      "Optimize",
+      "Z-Ordering"
+    ],
+    "symptom": "Reads degrade daily as streaming adds tiny files."
   },
   {
     "name": "Vacuum",
@@ -869,7 +1201,11 @@
     "remember": [
       "Too aggressive vacuum breaks time travel / long readers",
       "Coordinate retention with consumers"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Optimize",
@@ -882,7 +1218,11 @@
     "remember": [
       "Run on tables with heavy small-file ingest",
       "Not free \u2014 schedule off-peak"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Z-Ordering",
@@ -895,7 +1235,15 @@
     "remember": [
       "Complement to partitioning, not a replacement",
       "Best for selective multi-column filters"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "OPTIMIZE sales ZORDER BY (customer_id, event_date);",
+    "related": [
+      "Optimize",
+      "Partition Pruning",
+      "Delta Lake"
+    ],
+    "symptom": "Selective filters on non-partition columns still scan everything."
   },
   {
     "name": "CAP Theorem",
@@ -908,7 +1256,15 @@
     "remember": [
       "Real systems tune the C/A tradeoff",
       "\"CA without P\" isn't realistic for multi-node"
-    ]
+    ],
+    "mustKnow": 19,
+    "snippet": "# In a partition: choose Consistency or Availability\n# Document the tradeoff for your store/queue",
+    "related": [
+      "Eventual Consistency",
+      "Strong Consistency",
+      "High Availability (HA)"
+    ],
+    "symptom": "Expecting strong reads from an AP system during a region blip."
   },
   {
     "name": "BASE",
@@ -921,7 +1277,15 @@
     "remember": [
       "Soft state may change without input (anti-entropy)",
       "Pair with application-level conflict handling"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "# Basically Available, Soft state, Eventually consistent",
+    "related": [
+      "CAP Theorem",
+      "Eventual Consistency",
+      "Strong Consistency"
+    ],
+    "symptom": "Applying strict ACID expectations to a geo-replicated cache."
   },
   {
     "name": "Eventual Consistency",
@@ -934,7 +1298,11 @@
     "remember": [
       "Document staleness windows for consumers",
       "Use stronger reads when needed (quorum/linearizable APIs)"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Strong Consistency",
@@ -947,7 +1315,11 @@
     "remember": [
       "Costs latency and availability under partitions",
       "Use where correctness > availability"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Replication",
@@ -960,7 +1332,11 @@
     "remember": [
       "Sync vs async replication tradeoffs",
       "Replica lag affects read-your-writes"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Leader Election",
@@ -973,7 +1349,11 @@
     "remember": [
       "Fencing tokens prevent old leaders writing",
       "Elections add brief unavailability"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Consensus",
@@ -986,7 +1366,11 @@
     "remember": [
       "Quorum majority required",
       "Expensive; keep consensus sets small"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Raft",
@@ -999,7 +1383,11 @@
     "remember": [
       "Strong leader model",
       "Majority of voters must ack"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Paxos",
@@ -1012,7 +1400,11 @@
     "remember": [
       "Harder to implement correctly than Raft",
       "Same goal: agree under failures"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Fault Tolerance",
@@ -1025,7 +1417,11 @@
     "remember": [
       "Detect, isolate, recover",
       "Design for failure, not perfection"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "High Availability (HA)",
@@ -1038,7 +1434,11 @@
     "remember": [
       "HA \u2260 zero data loss (depends on durability config)",
       "Measure MTTR and availability %"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Horizontal Scaling",
@@ -1051,7 +1451,11 @@
     "remember": [
       "Needs partitionable workloads",
       "Shuffle/network can become bottleneck"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Vertical Scaling",
@@ -1064,7 +1468,11 @@
     "remember": [
       "Ceiling exists; single point of failure risk",
       "Mix: scale out data plane, scale up hot coordinators carefully"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Event Time",
@@ -1077,7 +1485,15 @@
     "remember": [
       "Prefer event time for analytics windows",
       "Requires watermarks for progress"
-    ]
+    ],
+    "mustKnow": 20,
+    "snippet": "df.withWatermark(\"event_time\", \"10 minutes\") \\\n  .groupBy(window(\"event_time\", \"1 hour\")).count()",
+    "related": [
+      "Watermarks",
+      "Processing Time",
+      "Late Data"
+    ],
+    "symptom": "Hourly metrics shift when late mobile events arrive."
   },
   {
     "name": "Processing Time",
@@ -1090,7 +1506,11 @@
     "remember": [
       "OK for monitoring ops latency",
       "Bad for business \"hourly sales\""
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Ingestion Time",
@@ -1103,7 +1523,11 @@
     "remember": [
       "Better than processing time for some cases",
       "Still not true business event time"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Watermarks",
@@ -1116,7 +1540,15 @@
     "remember": [
       "Too tight \u2192 drop late events",
       "Too loose \u2192 high latency/state"
-    ]
+    ],
+    "mustKnow": 21,
+    "snippet": ".withWatermark(\"event_time\", \"15 minutes\")\n# closes windows; late data policy after this",
+    "related": [
+      "Event Time",
+      "Late Data",
+      "Windowing"
+    ],
+    "symptom": "State grows forever, or late events are dropped too aggressively."
   },
   {
     "name": "Windowing",
@@ -1129,7 +1561,11 @@
     "remember": [
       "Tumbling: fixed, non-overlap",
       "Sliding: overlap; session: activity-based"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Late Data",
@@ -1142,7 +1578,11 @@
     "remember": [
       "Side outputs / allowed lateness / update previous results",
       "Decide drop vs correct"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Stateful Processing",
@@ -1155,7 +1595,11 @@
     "remember": [
       "State grows \u2014 set TTL",
       "Checkpoint state for exactly-once"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Stateless Processing",
@@ -1168,7 +1612,11 @@
     "remember": [
       "Prefer when possible",
       "Filter/map/flatMap style ops"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Exactly Once",
@@ -1181,7 +1629,15 @@
     "remember": [
       "Needs idempotent or transactional sinks",
       "\"Exactly once\" is end-to-end, not just processing"
-    ]
+    ],
+    "mustKnow": 22,
+    "snippet": "# Need checkpointing + idempotent/transactional sink\nquery = df.writeStream.option(\"checkpointLocation\", ckpt).foreachBatch(...)",
+    "related": [
+      "At Least Once",
+      "Idempotency",
+      "Checkpointing"
+    ],
+    "symptom": "Duplicates after restart even though processing \"felt\" safe."
   },
   {
     "name": "At Least Once",
@@ -1194,7 +1650,15 @@
     "remember": [
       "Pair with idempotent writes",
       "Often \"good enough\" with dedupe keys"
-    ]
+    ],
+    "mustKnow": 23,
+    "snippet": "# retries may re-send \u2014 make sink upsert/idempotent\n# ON CONFLICT (id) DO UPDATE ...",
+    "related": [
+      "Exactly Once",
+      "Idempotency",
+      "Dead Letter Queue (DLQ)"
+    ],
+    "symptom": "Counts inflate after every pipeline retry."
   },
   {
     "name": "At Most Once",
@@ -1207,7 +1671,11 @@
     "remember": [
       "Don't use for money/inventory",
       "Explicit tradeoff: loss over duplicates"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Event Sourcing",
@@ -1220,7 +1688,15 @@
     "remember": [
       "Source of truth = event log",
       "Snapshots speed replay"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "# append OrderPlaced, ItemAdded... rebuild state by replay",
+    "related": [
+      "CQRS",
+      "Exactly Once",
+      "Idempotency"
+    ],
+    "symptom": "Overwriting current state and losing audit history."
   },
   {
     "name": "CQRS",
@@ -1233,7 +1709,11 @@
     "remember": [
       "Often paired with event sourcing",
       "Read models can be eventually consistent"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Idempotency",
@@ -1246,7 +1726,15 @@
     "remember": [
       "Design sinks for safe replay",
       "Natural keys + MERGE / partition overwrite"
-    ]
+    ],
+    "mustKnow": 24,
+    "snippet": "# overwrite a partition instead of blind append\ndf.write.mode(\"overwrite\").partitionBy(\"dt\").parquet(path)",
+    "related": [
+      "Checkpointing",
+      "Exactly Once",
+      "Data Contracts"
+    ],
+    "symptom": "Re-running a failed day duplicates rows in the target."
   },
   {
     "name": "Checkpointing",
@@ -1259,7 +1747,15 @@
     "remember": [
       "Checkpoint path is critical state \u2014 back it up/protect it",
       "Changing query identity may invalidate checkpoints"
-    ]
+    ],
+    "mustKnow": 25,
+    "snippet": "writeStream.option(\"checkpointLocation\", \"s3://ops/checkpoints/job_a\")",
+    "related": [
+      "Idempotency",
+      "Exactly Once",
+      "Fault Tolerance"
+    ],
+    "symptom": "Streaming job reprocesses from earliest offsets after path loss."
   },
   {
     "name": "Retry Strategy",
@@ -1272,7 +1768,11 @@
     "remember": [
       "Distinguish transient vs permanent errors",
       "Cap retries to avoid thundering herds"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Backoff Strategy",
@@ -1285,7 +1785,11 @@
     "remember": [
       "Always add jitter",
       "Set max backoff"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Circuit Breaker",
@@ -1298,7 +1802,15 @@
     "remember": [
       "Use for shared DBs/APIs",
       "Pair with timeouts"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "# after N failures \u2192 open circuit \u2192 fail fast \u2192 half-open probe",
+    "related": [
+      "Retry Strategy",
+      "Backoff Strategy",
+      "Dead Letter Queue (DLQ)"
+    ],
+    "symptom": "Retries hammer a down warehouse and cascade timeouts."
   },
   {
     "name": "Dead Letter Queue (DLQ)",
@@ -1311,7 +1823,15 @@
     "remember": [
       "Monitor DLQ depth",
       "Have a replay runbook"
-    ]
+    ],
+    "mustKnow": 26,
+    "snippet": "try:\n    process(record)\nexcept BadRecord as e:\n    dlq.send(record, error=str(e))",
+    "related": [
+      "Retry Strategy",
+      "Data Validation",
+      "Data Contracts"
+    ],
+    "symptom": "One poison message blocks the whole consumer group."
   },
   {
     "name": "Data Contracts",
@@ -1324,7 +1844,15 @@
     "remember": [
       "Version schemas",
       "Enforce in CI/CD and at write time"
-    ]
+    ],
+    "mustKnow": 27,
+    "snippet": "# CI: fail PR if producer schema breaks consumer contract\n# enforce required fields + types at write boundary",
+    "related": [
+      "Schema Enforcement",
+      "Schema Evolution",
+      "Data Validation"
+    ],
+    "symptom": "Silent column rename breaks 12 downstream jobs overnight."
   },
   {
     "name": "Pipeline Orchestration",
@@ -1337,7 +1865,11 @@
     "remember": [
       "Prefer data-aware sensors over blind cron when possible",
       "Idempotent tasks + clear SLAs"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Metadata-Driven Pipelines",
@@ -1350,7 +1882,11 @@
     "remember": [
       "Great for ingestion patterns",
       "Keep escape hatches for special cases"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Data Skew",
@@ -1363,7 +1899,15 @@
     "remember": [
       "Detect via task duration histograms",
       "Fix with salting, AQE skew join, or pre-agg"
-    ]
+    ],
+    "mustKnow": 13,
+    "snippet": "df.groupBy(\"key\").count().orderBy(desc(\"count\")).show(20)\n# then salt hot keys or enable AQE skew join",
+    "related": [
+      "Salting",
+      "Skew Join Optimization",
+      "Shuffle"
+    ],
+    "symptom": "One task runs 10\u00d7 longer than the rest of the stage."
   },
   {
     "name": "Broadcast Join",
@@ -1376,7 +1920,15 @@
     "remember": [
       "Small side must fit memory",
       "Best default for star-schema dims"
-    ]
+    ],
+    "mustKnow": 11,
+    "snippet": "from pyspark.sql.functions import broadcast\nfact.join(broadcast(dim), \"id\")",
+    "related": [
+      "Sort Merge Join",
+      "Data Skew",
+      "Adaptive Query Execution (AQE)"
+    ],
+    "symptom": "Shuffling a tiny dimension across the cluster."
   },
   {
     "name": "Shuffle Join",
@@ -1389,7 +1941,11 @@
     "remember": [
       "Ensure join keys have good distribution",
       "Filter early before shuffle"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Sort Merge Join",
@@ -1402,7 +1958,15 @@
     "remember": [
       "Watch sort spill",
       "AQE may switch strategy"
-    ]
+    ],
+    "mustKnow": 12,
+    "snippet": "# default large-large join after shuffle+sort\nbig.join(other_big, \"user_id\")",
+    "related": [
+      "Broadcast Join",
+      "Shuffle",
+      "Spill to Disk"
+    ],
+    "symptom": "Join spills to disk; one key's partition is huge."
   },
   {
     "name": "Hash Join",
@@ -1415,7 +1979,11 @@
     "remember": [
       "Build = smaller side ideally",
       "OOM if build side underestimated"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Bucket Join",
@@ -1428,7 +1996,11 @@
     "remember": [
       "Bucket count must match (or be compatible)",
       "Worth it for heavy reuse patterns"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Salting",
@@ -1441,7 +2013,15 @@
     "remember": [
       "Increases rows temporarily",
       "Choose salt range from skew severity"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "hot = df.withColumn(\"salt\", (rand()*N).cast(\"int\"))\n# join on key+salt, then drop salt",
+    "related": [
+      "Data Skew",
+      "Skew Join Optimization",
+      "Broadcast Join"
+    ],
+    "symptom": "AQE still leaves one monstrous partition on a hot key."
   },
   {
     "name": "Caching",
@@ -1454,7 +2034,15 @@
     "remember": [
       "Unpersist when done",
       "Cache only reused expensive stages"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "df.cache()\ndf.count()  # materialize\n# ... reuse df ...\ndf.unpersist()",
+    "related": [
+      "Persistence Levels",
+      "Memory Management",
+      "Lazy Evaluation"
+    ],
+    "symptom": "Same expensive subtree recomputed on every action."
   },
   {
     "name": "Persistence Levels",
@@ -1467,7 +2055,11 @@
     "remember": [
       "DataFrames: `cache` \u2248 MEMORY_AND_DISK",
       "Replication costs memory"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Parallelism",
@@ -1480,7 +2072,11 @@
     "remember": [
       "Target a few partitions per core",
       "Aim for reasonable partition file sizes"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Partition Sizing",
@@ -1493,7 +2089,11 @@
     "remember": [
       "Too small \u2192 small files",
       "Too large \u2192 spill/OOM risk"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Small File Problem",
@@ -1506,7 +2106,15 @@
     "remember": [
       "Compact regularly",
       "Coalesce/repartition before write; avoid over-partitioning"
-    ]
+    ],
+    "mustKnow": 14,
+    "snippet": "df.coalesce(64).write.mode(\"overwrite\").parquet(path)\n# or OPTIMIZE / compaction on lakehouse tables",
+    "related": [
+      "Compaction",
+      "Optimize",
+      "Partition Sizing"
+    ],
+    "symptom": "Driver spends ages listing; thousands of tiny tasks."
   },
   {
     "name": "Data Profiling",
@@ -1519,7 +2127,11 @@
     "remember": [
       "Profile new sources early",
       "Re-profile after major changes"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Data Validation",
@@ -1532,7 +2144,11 @@
     "remember": [
       "Fail or quarantine on critical rules",
       "Warn on softer anomalies"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Data Lineage",
@@ -1545,7 +2161,15 @@
     "remember": [
       "Column-level lineage is gold for audits",
       "Automate from orchestrator/SQL parsers/catalog"
-    ]
+    ],
+    "mustKnow": 28,
+    "snippet": "# raw.orders \u2192 stg_orders \u2192 fct_orders \u2192 BI KPI\n# track table + column lineage in the catalog",
+    "related": [
+      "Metadata",
+      "Data Catalog",
+      "Observability"
+    ],
+    "symptom": "Can't tell which dashboard breaks if a source column is dropped."
   },
   {
     "name": "Metadata",
@@ -1558,7 +2182,11 @@
     "remember": [
       "Treat metadata as a product",
       "Stale metadata is worse than none if trusted blindly"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Data Catalog",
@@ -1571,7 +2199,11 @@
     "remember": [
       "Integrate with ingestion + BI",
       "Ownership + certification badges help trust"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Master Data Management (MDM)",
@@ -1584,7 +2216,11 @@
     "remember": [
       "Matching + survivorship + stewardship",
       "Hard organizationally, not just technically"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Data Governance",
@@ -1597,7 +2233,11 @@
     "remember": [
       "People + process + platform",
       "Embed in pipelines, not only documents"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Data Stewardship",
@@ -1610,7 +2250,11 @@
     "remember": [
       "Assign stewards per domain",
       "Stewards \u2260 only platform engineers"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Observability",
@@ -1623,7 +2267,11 @@
     "remember": [
       "Observe data + compute",
       "Alert on symptoms that matter to consumers"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Freshness",
@@ -1636,7 +2284,15 @@
     "remember": [
       "Define per table SLA",
       "Alert on breach, not only job fail"
-    ]
+    ],
+    "mustKnow": 29,
+    "snippet": "SELECT MAX(updated_at) FROM fct_orders;\n-- alert if now() - max_updated_at > SLA",
+    "related": [
+      "Observability",
+      "Completeness",
+      "Pipeline Orchestration"
+    ],
+    "symptom": "Job is green but data is 18 hours stale."
   },
   {
     "name": "Completeness",
@@ -1649,7 +2305,11 @@
     "remember": [
       "Partition completeness checks",
       "Critical field null thresholds"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Accuracy",
@@ -1662,7 +2322,11 @@
     "remember": [
       "Often needs business reconciliation",
       "Sample audits + source compares"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Consistency",
@@ -1675,7 +2339,11 @@
     "remember": [
       "Cross-system reconciliations",
       "Define which system is source of truth"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Object Storage",
@@ -1688,7 +2356,15 @@
     "remember": [
       "Eventually consistent listing quirks are rarer now but design carefully",
       "Cheap capacity; watch request/API costs"
-    ]
+    ],
+    "mustKnow": 30,
+    "snippet": "s3://lake/bronze/events/dt=2024-01-01/part-000.parquet\n# lake tables live as objects + metadata",
+    "related": [
+      "Data Lake",
+      "Delta Lake",
+      "IAM"
+    ],
+    "symptom": "Treating S3 like a local FS; millions of tiny LIST requests."
   },
   {
     "name": "Block Storage",
@@ -1701,7 +2377,11 @@
     "remember": [
       "Higher IOPS for stateful services",
       "Not the primary lake storage"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Lifecycle Policies",
@@ -1714,7 +2394,11 @@
     "remember": [
       "Align with compliance retention",
       "Archive retrieval can be slow/expensive"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "IAM",
@@ -1727,7 +2411,15 @@
     "remember": [
       "Least privilege",
       "Prefer roles over long-lived keys"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "# job role: s3:GetObject on bronze/*, PutObject on silver/* only",
+    "related": [
+      "Secrets Management",
+      "KMS",
+      "Private Endpoints"
+    ],
+    "symptom": "Long-lived access keys leaked from a notebook."
   },
   {
     "name": "Secrets Management",
@@ -1740,7 +2432,11 @@
     "remember": [
       "Never commit secrets",
       "Rotate and audit access"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "KMS",
@@ -1753,7 +2449,11 @@
     "remember": [
       "Key policies are critical",
       "Audit key usage"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Encryption at Rest",
@@ -1766,7 +2466,11 @@
     "remember": [
       "Usually mandatory in enterprises",
       "Combine with IAM + KMS"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Encryption in Transit",
@@ -1779,7 +2483,11 @@
     "remember": [
       "Enforce TLS everywhere practical",
       "Mind internal service mesh policies"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "VPC",
@@ -1792,7 +2500,11 @@
     "remember": [
       "Segment public/private subnets",
       "Control egress for cost and security"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Private Endpoints",
@@ -1805,7 +2517,11 @@
     "remember": [
       "Prefer for production lake + warehouse access",
       "DNS and firewall rules matter"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Docker",
@@ -1818,7 +2534,11 @@
     "remember": [
       "Pin base image digests for reproducibility",
       "Keep images lean; separate build vs runtime if needed"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Kubernetes",
@@ -1831,7 +2551,11 @@
     "remember": [
       "Requests/limits matter for stability",
       "Persistent volumes for stateful components"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "CI/CD",
@@ -1844,7 +2568,11 @@
     "remember": [
       "Test data contracts in CI",
       "Separate deploy of code vs heavy data backfills"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "GitOps",
@@ -1857,7 +2585,11 @@
     "remember": [
       "Git is source of truth",
       "PRs become change control"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Terraform",
@@ -1870,7 +2602,11 @@
     "remember": [
       "Remote state + locks",
       "Plan before apply; module wisely"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Helm",
@@ -1883,7 +2619,11 @@
     "remember": [
       "values.yaml is your config surface",
       "Version charts carefully"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Infrastructure as Code (IaC)",
@@ -1896,6 +2636,14 @@
     "remember": [
       "No click-ops for critical paths",
       "Codify networking, IAM, and data stores together"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "terraform plan && terraform apply\n# buckets, IAM, warehouses versioned in Git",
+    "related": [
+      "Terraform",
+      "GitOps",
+      "CI/CD"
+    ],
+    "symptom": "Prod lake config drifts from staging; only one person knows clicks."
   }
 ]

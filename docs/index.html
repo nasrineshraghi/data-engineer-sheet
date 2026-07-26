@@ -3,28 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Data Engineer Sheet — Search</title>
-  <meta name="description" content="Searchable glossary of data engineering keywords, techniques, and concepts." />
+  <title>Data Engineer Sheet — Search & Flashcards</title>
+  <meta name="description" content="Searchable DE glossary with Must-know 30, flashcards, and code snippets." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Sora:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
       --ink: #12202e;
       --muted: #4a5d72;
-      --paper: #f3f6f9;
       --panel: rgba(255, 255, 255, 0.72);
       --line: rgba(18, 32, 46, 0.12);
       --teal: #0f766e;
       --teal-deep: #0a5c56;
       --amber: #d97706;
+      --good: #15803d;
       --glow: rgba(15, 118, 110, 0.18);
       --shadow: 0 18px 50px rgba(18, 32, 46, 0.08);
       --radius: 18px;
       --font-display: "Fraunces", Georgia, serif;
       --font-body: "Sora", sans-serif;
+      --font-mono: "IBM Plex Mono", ui-monospace, monospace;
     }
-
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
@@ -38,7 +38,6 @@
         linear-gradient(165deg, #eef3f7 0%, #f7f4ee 45%, #e8eef4 100%);
       background-attachment: fixed;
     }
-
     body::before {
       content: "";
       position: fixed;
@@ -51,45 +50,65 @@
       background-size: 48px 48px;
       mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
     }
-
     .wrap {
       position: relative;
       width: min(920px, calc(100% - 2rem));
       margin: 0 auto;
-      padding: 4.5rem 0 5rem;
+      padding: 3.5rem 0 5rem;
     }
-
     .brand {
       font-family: var(--font-display);
-      font-size: clamp(2.6rem, 7vw, 4.4rem);
+      font-size: clamp(2.4rem, 6.5vw, 4rem);
       font-weight: 700;
       line-height: 0.95;
       letter-spacing: -0.03em;
-      margin: 0 0 1rem;
+      margin: 0 0 0.85rem;
       animation: rise 0.7s ease both;
     }
-
-    .brand span {
-      display: block;
-      color: var(--teal-deep);
-    }
-
+    .brand span { display: block; color: var(--teal-deep); }
     .lede {
-      max-width: 34rem;
-      margin: 0 0 2rem;
+      max-width: 36rem;
+      margin: 0 0 1.5rem;
       color: var(--muted);
-      font-size: 1.05rem;
+      font-size: 1.02rem;
       line-height: 1.55;
       animation: rise 0.7s ease 0.08s both;
     }
-
-    .search-shell {
-      position: sticky;
-      top: 0.75rem;
-      z-index: 20;
-      animation: rise 0.7s ease 0.16s both;
+    .modes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+      animation: rise 0.7s ease 0.12s both;
     }
-
+    .mode-btn {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.55);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 0.55rem 1rem;
+      font: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+    .mode-btn:hover { transform: translateY(-1px); }
+    .mode-btn.active {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #fff;
+    }
+    .progress-pill {
+      margin-left: auto;
+      font-size: 0.82rem;
+      color: var(--muted);
+      align-self: center;
+    }
+    .progress-pill strong { color: var(--good); }
+    .panel { display: none; animation: rise 0.4s ease both; }
+    .panel.active { display: block; }
+    .search-shell { position: sticky; top: 0.75rem; z-index: 20; }
     .search-box {
       display: flex;
       align-items: center;
@@ -100,249 +119,201 @@
       background: var(--panel);
       backdrop-filter: blur(14px);
       box-shadow: var(--shadow), 0 0 0 6px var(--glow);
-      transition: box-shadow 0.25s ease, border-color 0.25s ease;
     }
-
     .search-box:focus-within {
       border-color: rgba(15, 118, 110, 0.45);
       box-shadow: var(--shadow), 0 0 0 8px rgba(15, 118, 110, 0.22);
     }
-
-    .search-box svg {
-      flex: 0 0 auto;
-      width: 1.25rem;
-      height: 1.25rem;
-      color: var(--teal);
-    }
-
+    .search-box svg { width: 1.25rem; height: 1.25rem; color: var(--teal); flex: 0 0 auto; }
     #q {
-      flex: 1;
-      border: 0;
-      outline: 0;
-      background: transparent;
-      font: inherit;
-      font-size: 1.05rem;
-      color: var(--ink);
-      min-width: 0;
+      flex: 1; border: 0; outline: 0; background: transparent;
+      font: inherit; font-size: 1.05rem; color: var(--ink); min-width: 0;
     }
-
     #q::placeholder { color: #7d8ea3; }
-
     .clear-btn {
-      border: 0;
-      background: transparent;
-      color: var(--muted);
-      font: inherit;
-      font-size: 0.85rem;
-      cursor: pointer;
-      padding: 0.25rem 0.4rem;
-      display: none;
+      border: 0; background: transparent; color: var(--muted);
+      font: inherit; font-size: 0.85rem; cursor: pointer; display: none;
     }
     .clear-btn.show { display: inline; }
-
     .meta-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem 1.25rem;
-      align-items: center;
-      margin: 1.1rem 0 1.75rem;
-      color: var(--muted);
-      font-size: 0.92rem;
-      animation: rise 0.7s ease 0.24s both;
+      display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem;
+      align-items: center; margin: 1.1rem 0 1.5rem; color: var(--muted); font-size: 0.92rem;
     }
-
-    .count strong { color: var(--ink); font-weight: 600; }
-
-    .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.45rem;
-    }
-
+    .chips { display: flex; flex-wrap: wrap; gap: 0.45rem; }
     .chip {
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.55);
-      color: var(--muted);
-      border-radius: 999px;
-      padding: 0.35rem 0.7rem;
-      font-size: 0.78rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+      border: 1px solid var(--line); background: rgba(255,255,255,0.55);
+      color: var(--muted); border-radius: 999px; padding: 0.35rem 0.7rem;
+      font-size: 0.75rem; font-weight: 500; cursor: pointer;
     }
-
-    .chip:hover { transform: translateY(-1px); }
-    .chip.active {
-      background: var(--teal);
-      border-color: var(--teal);
-      color: white;
-    }
-
-    .results {
-      display: flex;
-      flex-direction: column;
-      gap: 0.85rem;
-    }
-
+    .chip.active { background: var(--teal); border-color: var(--teal); color: #fff; }
+    .results { display: flex; flex-direction: column; gap: 0.85rem; }
     details.result {
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: rgba(255,255,255,0.66);
-      backdrop-filter: blur(8px);
-      overflow: hidden;
-      animation: fadeIn 0.35s ease both;
+      border: 1px solid var(--line); border-radius: var(--radius);
+      background: rgba(255,255,255,0.66); backdrop-filter: blur(8px); overflow: hidden;
     }
-
     details.result[open] {
       border-color: rgba(15, 118, 110, 0.35);
       box-shadow: 0 10px 30px rgba(18, 32, 46, 0.06);
     }
-
     summary {
-      list-style: none;
-      cursor: pointer;
-      padding: 1rem 1.15rem;
-      display: grid;
-      gap: 0.35rem;
+      list-style: none; cursor: pointer; padding: 1rem 1.15rem; display: grid; gap: 0.35rem;
     }
     summary::-webkit-details-marker { display: none; }
-
     .name {
-      font-family: var(--font-display);
-      font-size: 1.25rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
+      font-family: var(--font-display); font-size: 1.22rem; font-weight: 700; letter-spacing: -0.02em;
     }
-
     .cat {
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: var(--teal-deep);
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em;
+      text-transform: uppercase; color: var(--teal-deep);
     }
-
-    .snippet {
-      color: var(--muted);
-      font-size: 0.92rem;
-      line-height: 1.45;
+    .badge {
+      display: inline-block; margin-left: 0.4rem; padding: 0.1rem 0.45rem;
+      border-radius: 999px; background: rgba(217, 119, 6, 0.18);
+      color: #92400e; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.03em;
+      vertical-align: middle;
     }
-
-    .body {
-      padding: 0 1.15rem 1.2rem;
-      border-top: 1px solid var(--line);
-      display: grid;
-      gap: 0.85rem;
-    }
-
+    .snippet-text { color: var(--muted); font-size: 0.92rem; line-height: 1.45; }
+    .body { padding: 0 1.15rem 1.2rem; border-top: 1px solid var(--line); display: grid; gap: 0.85rem; }
     .label {
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--amber);
-      margin-bottom: 0.25rem;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--amber); margin-bottom: 0.25rem;
     }
-
-    .body p, .body li {
-      margin: 0;
-      color: var(--ink);
-      line-height: 1.55;
-      font-size: 0.95rem;
+    .body p, .body li { margin: 0; line-height: 1.55; font-size: 0.95rem; }
+    .body ul { margin: 0; padding-left: 1.1rem; }
+    pre, code { font-family: var(--font-mono); font-size: 0.84rem; }
+    pre {
+      margin: 0; white-space: pre-wrap; background: #12202e; color: #e8eef4;
+      padding: 0.85rem 1rem; border-radius: 12px; overflow-x: auto;
     }
-
-    .body ul {
-      margin: 0;
-      padding-left: 1.1rem;
+    .related { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .related button {
+      border: 1px solid var(--line); background: #fff; border-radius: 999px;
+      padding: 0.3rem 0.65rem; font: inherit; font-size: 0.78rem; cursor: pointer; color: var(--teal-deep);
     }
-
-    .body pre, .body code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 0.86rem;
+    .empty { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+    mark { background: rgba(217, 119, 6, 0.28); color: inherit; border-radius: 3px; padding: 0 0.1em; }
+    .must-intro {
+      border: 1px solid var(--line); border-radius: var(--radius);
+      background: rgba(255,255,255,0.6); padding: 1rem 1.15rem; margin-bottom: 1rem;
+      color: var(--muted); line-height: 1.5; font-size: 0.95rem;
     }
-
-    .body pre {
-      white-space: pre-wrap;
-      background: #12202e;
-      color: #e8eef4;
-      padding: 0.85rem 1rem;
-      border-radius: 12px;
-      overflow-x: auto;
+    .must-intro strong { color: var(--ink); }
+    .flash-wrap { display: grid; gap: 1rem; }
+    .flash-card {
+      min-height: 280px; border: 1px solid var(--line); border-radius: 24px;
+      background: rgba(255,255,255,0.78); backdrop-filter: blur(10px);
+      box-shadow: var(--shadow); padding: 1.5rem; display: grid; gap: 1rem;
+      align-content: start; cursor: pointer; transition: transform 0.25s ease;
+      user-select: none;
     }
-
-    .empty {
-      text-align: center;
-      padding: 3rem 1rem;
-      color: var(--muted);
+    .flash-card:hover { transform: translateY(-2px); }
+    .flash-card.flipped { border-color: rgba(15, 118, 110, 0.4); }
+    .flash-top {
+      display: flex; justify-content: space-between; gap: 1rem;
+      font-size: 0.8rem; color: var(--muted); font-weight: 600;
     }
-
-    mark {
-      background: rgba(217, 119, 6, 0.28);
-      color: inherit;
-      border-radius: 3px;
-      padding: 0 0.1em;
+    .flash-name {
+      font-family: var(--font-display); font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 700; letter-spacing: -0.02em; margin: 0.5rem 0 0;
     }
-
+    .flash-prompt { color: var(--muted); font-size: 0.95rem; }
+    .flash-answer { display: none; }
+    .flash-card.flipped .flash-answer { display: grid; gap: 0.85rem; }
+    .flash-card.flipped .flash-prompt { display: none; }
+    .flash-actions {
+      display: flex; flex-wrap: wrap; gap: 0.55rem; margin-top: 0.25rem;
+    }
+    .flash-actions button {
+      border: 1px solid var(--line); background: #fff; border-radius: 999px;
+      padding: 0.65rem 1rem; font: inherit; font-size: 0.88rem; font-weight: 600; cursor: pointer;
+    }
+    .flash-actions .know {
+      background: var(--teal); border-color: var(--teal); color: #fff;
+    }
+    .flash-actions .again {
+      background: rgba(217, 119, 6, 0.12); border-color: rgba(217, 119, 6, 0.35); color: #92400e;
+    }
+    .hint { font-size: 0.82rem; color: var(--muted); }
     footer {
-      margin-top: 3rem;
-      padding-top: 1.25rem;
-      border-top: 1px solid var(--line);
-      color: var(--muted);
-      font-size: 0.85rem;
+      margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid var(--line);
+      color: var(--muted); font-size: 0.85rem;
     }
-
     footer a { color: var(--teal-deep); }
     kbd {
-      font: 0.8em ui-monospace, SFMono-Regular, Menlo, monospace;
-      border: 1px solid var(--line);
-      border-bottom-width: 2px;
-      border-radius: 6px;
-      padding: 0.1em 0.4em;
+      font: 0.8em var(--font-mono); border: 1px solid var(--line);
+      border-bottom-width: 2px; border-radius: 6px; padding: 0.1em 0.4em;
       background: rgba(255,255,255,0.7);
     }
-
     @keyframes rise {
       from { opacity: 0; transform: translateY(14px); }
       to { opacity: 1; transform: translateY(0); }
     }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
     @media (max-width: 640px) {
-      .wrap { padding-top: 2.75rem; }
+      .wrap { padding-top: 2.5rem; }
       .search-box { border-radius: 16px; }
+      .progress-pill { margin-left: 0; width: 100%; }
     }
   </style>
 </head>
 <body>
   <main class="wrap">
     <h1 class="brand">Data Engineer<br /><span>Sheet</span></h1>
-    <p class="lede">Search every keyword, technique, and concept — definitions and examples in one place.</p>
+    <p class="lede">Search everything, drill the Must-know 30, then lock it in with flashcards — definitions, snippets, and prod symptoms.</p>
 
-    <div class="search-shell">
-      <label class="search-box" for="q">
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
-          <path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <input id="q" type="search" placeholder="Search: shuffle, watermark, Z-ordering…" autocomplete="off" autofocus />
-        <button type="button" class="clear-btn" id="clear" aria-label="Clear search">Clear</button>
-      </label>
+    <div class="modes" role="tablist" aria-label="Study mode">
+      <button type="button" class="mode-btn active" data-mode="search" role="tab" aria-selected="true">Search</button>
+      <button type="button" class="mode-btn" data-mode="must" role="tab" aria-selected="false">Must-know 30</button>
+      <button type="button" class="mode-btn" data-mode="flash" role="tab" aria-selected="false">Flashcards</button>
+      <div class="progress-pill">Learned <strong id="learned-count">0</strong> / <span id="must-total">30</span></div>
     </div>
 
-    <div class="meta-row">
-      <div class="count"><strong id="shown">0</strong> of <strong id="total">0</strong> concepts</div>
-      <div class="chips" id="chips" aria-label="Filter by category"></div>
-    </div>
+    <section id="panel-search" class="panel active" role="tabpanel">
+      <div class="search-shell">
+        <label class="search-box" for="q">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+            <path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <input id="q" type="search" placeholder="Search: shuffle, watermark, Z-ordering…" autocomplete="off" />
+          <button type="button" class="clear-btn" id="clear">Clear</button>
+        </label>
+      </div>
+      <div class="meta-row">
+        <div><strong id="shown">0</strong> of <strong id="total">0</strong></div>
+        <div class="chips" id="chips"></div>
+      </div>
+      <div class="results" id="results"></div>
+    </section>
 
-    <section class="results" id="results" aria-live="polite"></section>
+    <section id="panel-must" class="panel" role="tabpanel" hidden>
+      <div class="must-intro">
+        <strong>Must-know 30</strong> — the shortest path before the long tail. Open any card for snippet + “in prod” symptom. Mark learned from flashcards.
+      </div>
+      <div class="results" id="must-results"></div>
+    </section>
+
+    <section id="panel-flash" class="panel" role="tabpanel" hidden>
+      <div class="flash-wrap">
+        <div class="must-intro">
+          Tap the card to reveal. <kbd>Space</kbd> flip · <kbd>→</kbd> next · <kbd>1</kbd> know it · <kbd>2</kbd> again.
+          Deck defaults to Must-know concepts you haven’t marked learned.
+        </div>
+        <div id="flash-card" class="flash-card" tabindex="0" aria-live="polite"></div>
+        <div class="flash-actions">
+          <button type="button" id="flip-btn">Flip</button>
+          <button type="button" class="know" id="know-btn">Know it</button>
+          <button type="button" class="again" id="again-btn">Again</button>
+          <button type="button" id="reset-btn">Reset progress</button>
+        </div>
+        <div class="hint" id="flash-hint"></div>
+      </div>
+    </section>
 
     <footer>
-      Press <kbd>/</kbd> to focus search · Esc to clear<br />
+      Press <kbd>/</kbd> to search · data saved in this browser only<br />
       <a href="https://github.com/nasrineshraghi/data-engineer-sheet">Source on GitHub</a>
+      ·
+      <a href="https://github.com/nasrineshraghi/data-engineer-sheet/blob/main/MUST_KNOW_30.md">Must-know markdown</a>
     </footer>
   </main>
 
@@ -359,7 +330,15 @@
     "remember": [
       "Low cardinality \u2192 bitmap indexes / dictionaries often help",
       "Wrong cardinality estimates \u2192 bad plans"
-    ]
+    ],
+    "mustKnow": 1,
+    "snippet": "SELECT COUNT(DISTINCT user_id) AS cardinality FROM events;",
+    "related": [
+      "Selectivity",
+      "Histograms",
+      "Data Skew"
+    ],
+    "symptom": "Bad join strategy because NDV was underestimated."
   },
   {
     "name": "Granularity (Grain)",
@@ -372,7 +351,15 @@
     "remember": [
       "Always state grain before modeling",
       "Never mix grains in one fact without care"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "-- State grain before modeling:\n-- one row per order_id + product_id (line item)",
+    "related": [
+      "Grain",
+      "Additive Facts",
+      "Bridge Table"
+    ],
+    "symptom": "Revenue doubles after joining order headers to line items."
   },
   {
     "name": "Selectivity",
@@ -385,7 +372,11 @@
     "remember": [
       "Selectivity \u2248 matching_rows / total_rows",
       "Indexes help most on selective filters"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Data Distribution",
@@ -398,7 +389,11 @@
     "remember": [
       "Check histograms / approx_percentile for skew",
       "Salting and AQE help with skew"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Histograms",
@@ -411,7 +406,11 @@
     "remember": [
       "Stale histograms \u2192 bad plans",
       "Refresh stats after large loads"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Cost-Based Optimizer (CBO)",
@@ -424,7 +423,11 @@
     "remember": [
       "Collect/analyze stats regularly",
       "No stats \u2248 guessing"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Rule-Based Optimizer (RBO)",
@@ -437,7 +440,11 @@
     "remember": [
       "Spark Catalyst uses both rules and cost",
       "RBO alone can miss better join strategies"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Execution Plan",
@@ -450,7 +457,11 @@
     "remember": [
       "Read bottom-up or follow arrows depending on engine",
       "Look for scans, shuffles, spills"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Explain Plan",
@@ -463,7 +474,15 @@
     "remember": [
       "`ANALYZE` / actual metrics beat estimated-only plans",
       "Compare before vs after rewrite"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "EXPLAIN ANALYZE SELECT ...;\n-- Spark: df.explain(\"cost\")",
+    "related": [
+      "Execution Plan",
+      "Cost-Based Optimizer (CBO)",
+      "Statistics"
+    ],
+    "symptom": "Tuning blindly without reading the plan."
   },
   {
     "name": "Composite Index",
@@ -476,7 +495,11 @@
     "remember": [
       "Column order matters (leftmost prefix)",
       "Don't over-index; writes get slower"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Covering Index",
@@ -489,7 +512,11 @@
     "remember": [
       "Great for hot read paths",
       "Wider indexes cost more storage/write amp"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Clustered vs Non-Clustered Index",
@@ -502,7 +529,11 @@
     "remember": [
       "InnoDB PK is clustered; SQL Server similar",
       "Choose clustered key for common access pattern"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Bitmap Index",
@@ -515,7 +546,11 @@
     "remember": [
       "Low cardinality + analytics",
       "Avoid on frequently updated columns"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "B-Tree Index",
@@ -528,7 +563,11 @@
     "remember": [
       "Equality + ranges",
       "Not ideal alone for very low cardinality"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Predicate Pushdown",
@@ -541,7 +580,15 @@
     "remember": [
       "Prefer partition columns and columnar formats",
       "UDFs often block pushdown"
-    ]
+    ],
+    "mustKnow": 3,
+    "snippet": "df = spark.read.parquet(\"s3://lake/events\").filter(\"dt = '2024-01-01'\")\n# filter pushed into scan / partition prune",
+    "related": [
+      "Partition Pruning",
+      "Catalyst Optimizer",
+      "Statistics"
+    ],
+    "symptom": "Full scan of years of data for a one-day query."
   },
   {
     "name": "Partition Pruning",
@@ -554,7 +601,15 @@
     "remember": [
       "Filter on partition columns explicitly",
       "Dynamic partition pruning helps joins"
-    ]
+    ],
+    "mustKnow": 4,
+    "snippet": "SELECT * FROM sales WHERE dt BETWEEN '2024-01-01' AND '2024-01-07';\n-- only those partitions are read",
+    "related": [
+      "Predicate Pushdown",
+      "Dynamic Partition Pruning",
+      "Small File Problem"
+    ],
+    "symptom": "Query reads every partition folder despite a date filter."
   },
   {
     "name": "Statistics",
@@ -567,7 +622,11 @@
     "remember": [
       "Refresh after bulk loads/deletes",
       "Missing stats \u2192 conservative/bad plans"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Table Scan vs Index Scan",
@@ -580,7 +639,11 @@
     "remember": [
       "Optimizer picks based on selectivity + cost",
       "\"Index scan\" \u2260 cheap if it returns most of the table"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Seek vs Scan",
@@ -593,7 +656,11 @@
     "remember": [
       "Seek + few rows = ideal",
       "Large range scan can rival table scan"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "DAG Scheduler",
@@ -606,7 +673,11 @@
     "remember": [
       "Stages split at wide dependencies (shuffles)",
       "Failed tasks recompute from lineage"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Task Scheduler",
@@ -619,7 +690,11 @@
     "remember": [
       "One task \u2248 one partition",
       "Speculation helps slow stragglers"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Driver",
@@ -632,7 +707,11 @@
     "remember": [
       "Keep driver light",
       "Avoid large `collect` / broadcast of huge objects"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Executor",
@@ -645,7 +724,11 @@
     "remember": [
       "Tune `executor-memory` and cores together",
       "Watch spill and GC"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Worker",
@@ -658,7 +741,11 @@
     "remember": [
       "Worker \u2260 executor",
       "YARN/K8s abstract workers differently"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Cluster Manager",
@@ -671,7 +758,11 @@
     "remember": [
       "Dynamic allocation needs external shuffle service (classic YARN)",
       "K8s common in modern platforms"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Job \u2192 Stage \u2192 Task",
@@ -685,7 +776,15 @@
       "Actions create jobs",
       "Shuffles create stages",
       "Partitions create tasks"
-    ]
+    ],
+    "mustKnow": 6,
+    "snippet": "# action \u2192 job; shuffle boundary \u2192 stage; partition \u2192 task\ndf.write.parquet(path)  # triggers a job",
+    "related": [
+      "DAG Scheduler",
+      "Shuffle",
+      "Lazy Evaluation"
+    ],
+    "symptom": "Confused debugging \u2014 looking at tasks without finding the slow stage."
   },
   {
     "name": "Lineage",
@@ -698,7 +797,11 @@
     "remember": [
       "Checkpoint breaks long lineages",
       "Lineage is logical, not always stored data"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Lazy Evaluation",
@@ -711,7 +814,15 @@
     "remember": [
       "Chain transforms freely",
       "Actions trigger compute (and cost)"
-    ]
+    ],
+    "mustKnow": 7,
+    "snippet": "f = df.filter(...).select(...)  # builds plan only\nf.count()                     # action runs the job",
+    "related": [
+      "Catalyst Optimizer",
+      "Lineage",
+      "Job \u2192 Stage \u2192 Task"
+    ],
+    "symptom": "Thinking transforms already ran; surprise cost on first action."
   },
   {
     "name": "Shuffle",
@@ -724,7 +835,15 @@
     "remember": [
       "Minimize shuffles",
       "Watch shuffle read/write in Spark UI"
-    ]
+    ],
+    "mustKnow": 5,
+    "snippet": "df.groupBy(\"user_id\").count()  # wide transform \u2192 shuffle\n# Spark UI: Shuffle Read/Write bytes",
+    "related": [
+      "Wide vs Narrow Transformations",
+      "Job \u2192 Stage \u2192 Task",
+      "Data Skew"
+    ],
+    "symptom": "Stage stuck; network/disk dominated by shuffle."
   },
   {
     "name": "Spill to Disk",
@@ -737,7 +856,11 @@
     "remember": [
       "Spill \u2260 failure; it's a warning sign",
       "Increase memory, reduce partition size, or fix skew"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Memory Management",
@@ -750,7 +873,11 @@
     "remember": [
       "Don't cache everything",
       "Tune fraction only after measuring"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Serialization (Java/Kryo)",
@@ -763,7 +890,11 @@
     "remember": [
       "Prefer DataFrames (Catalyst/Tungsten) over RDDs of custom objects",
       "Kryo helps RDD/custom types"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Broadcast Variables",
@@ -776,7 +907,11 @@
     "remember": [
       "Size must fit executor memory",
       "Default auto-broadcast threshold exists in Spark SQL"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Accumulators",
@@ -789,7 +924,11 @@
     "remember": [
       "Updates inside transforms may be recomputed on retry \u2014 use carefully",
       "Prefer built-in Spark metrics when possible"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Closure",
@@ -802,7 +941,11 @@
     "remember": [
       "Don't capture huge objects",
       "Prefer broadcast for shared lookups"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Wide vs Narrow Transformations",
@@ -815,7 +958,15 @@
     "remember": [
       "Pipeline narrow transforms in one stage",
       "Wide transforms need justification"
-    ]
+    ],
+    "mustKnow": 8,
+    "snippet": "# narrow: map/filter (no shuffle)\n# wide: groupBy/join/repartition (shuffle)",
+    "related": [
+      "Shuffle",
+      "DAG Scheduler",
+      "Broadcast Join"
+    ],
+    "symptom": "Extra wide transforms inflate runtime for little gain."
   },
   {
     "name": "Adaptive Query Execution (AQE)",
@@ -828,7 +979,15 @@
     "remember": [
       "Enable AQE in modern Spark (`spark.sql.adaptive.enabled`)",
       "Helps skew join and partition coalescing"
-    ]
+    ],
+    "mustKnow": 9,
+    "snippet": "spark.conf.set(\"spark.sql.adaptive.enabled\", \"true\")\nspark.conf.set(\"spark.sql.adaptive.skewJoin.enabled\", \"true\")",
+    "related": [
+      "Skew Join Optimization",
+      "Broadcast Join",
+      "Data Skew"
+    ],
+    "symptom": "Static plan picks sort-merge when broadcast would win."
   },
   {
     "name": "Catalyst Optimizer",
@@ -841,7 +1000,15 @@
     "remember": [
       "Prefer DataFrame/Dataset API",
       "UDFs limit Catalyst optimizations"
-    ]
+    ],
+    "mustKnow": 10,
+    "snippet": "df.explain(True)  # parsed/analyzed/optimized/physical plans",
+    "related": [
+      "Tungsten Engine",
+      "Predicate Pushdown",
+      "Cost-Based Optimizer (CBO)"
+    ],
+    "symptom": "Python UDF blocks optimizations \u2192 slower than SQL expr."
   },
   {
     "name": "Tungsten Engine",
@@ -854,7 +1021,11 @@
     "remember": [
       "Works best with native expressions (not Python UDFs)",
       "Columnar formats amplify gains"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Dynamic Partition Pruning",
@@ -867,7 +1038,11 @@
     "remember": [
       "Needs partitioned fact + filter on dimension",
       "Related to AQE / DPP features"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Skew Join Optimization",
@@ -880,7 +1055,11 @@
     "remember": [
       "Check Spark UI for straggler tasks",
       "Salting is the manual fallback"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Grain",
@@ -893,7 +1072,15 @@
     "remember": [
       "Declare grain in one sentence before designing",
       "All measures must match that grain"
-    ]
+    ],
+    "mustKnow": 2,
+    "snippet": "-- Fact grain: 1 row = 1 completed checkout\n-- Always declare grain before designing the fact",
+    "related": [
+      "Granularity (Grain)",
+      "Snapshot Fact",
+      "Additive Facts"
+    ],
+    "symptom": "KPI doesn't match finance because grains differ."
   },
   {
     "name": "Granularity",
@@ -906,7 +1093,11 @@
     "remember": [
       "Finer grain \u2192 more rows, more flexibility",
       "Coarser \u2192 faster reports, less detail"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Additive Facts",
@@ -919,7 +1110,11 @@
     "remember": [
       "Prefer additive measures when possible",
       "Document additivity of each measure"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Semi-Additive Facts",
@@ -932,7 +1127,11 @@
     "remember": [
       "Inventory and balances are classic semi-additive",
       "Use snapshot patterns carefully"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Non-Additive Facts",
@@ -945,7 +1144,11 @@
     "remember": [
       "Store additive components",
       "Aggregate then compute ratio"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Degenerate Dimension",
@@ -958,7 +1161,11 @@
     "remember": [
       "Common for transaction numbers",
       "Still useful for drill-to-detail"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Junk Dimension",
@@ -971,7 +1178,11 @@
     "remember": [
       "Keep cardinality manageable",
       "Good for yes/no and small enums"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Role-Playing Dimension",
@@ -984,7 +1195,11 @@
     "remember": [
       "Views/aliases per role in BI tools",
       "Don't duplicate date tables"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Conformed Dimension",
@@ -997,7 +1212,15 @@
     "remember": [
       "Enterprise consistency",
       "Owned by a shared data team/process"
-    ]
+    ],
+    "mustKnow": 15,
+    "snippet": "-- same customer_key + attributes shared by sales & support facts",
+    "related": [
+      "Role-Playing Dimension",
+      "Grain",
+      "Data Lineage"
+    ],
+    "symptom": "Two marts define \"customer\" differently; dashboards disagree."
   },
   {
     "name": "Mini Dimension",
@@ -1010,7 +1233,11 @@
     "remember": [
       "Use when type-2 history would explode",
       "Fact points to both keys when needed"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Bridge Table",
@@ -1023,7 +1250,11 @@
     "remember": [
       "Watch double-counting; use weights",
       "Common for multi-valued dims (diagnoses, tags)"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Factless Fact Table",
@@ -1036,7 +1267,11 @@
     "remember": [
       "Event tracking and coverage/eligibility",
       "Measures are often counts of rows"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Snapshot Fact",
@@ -1049,7 +1284,11 @@
     "remember": [
       "Semi-additive measures common",
       "Choose periodic vs accumulating pattern"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Accumulating Snapshot",
@@ -1062,7 +1301,11 @@
     "remember": [
       "Fixed known milestones",
       "Lag metrics between dates"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Periodic Snapshot",
@@ -1075,7 +1318,11 @@
     "remember": [
       "Dense over time",
       "Storage heavy but query-friendly for trends"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Data Lake",
@@ -1088,7 +1335,11 @@
     "remember": [
       "Storage \u2260 warehouse",
       "Needs catalog, quality, and access control"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Data Lakehouse",
@@ -1101,7 +1352,11 @@
     "remember": [
       "Open table formats are the core",
       "Combines lake cost with warehouse reliability"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Delta Lake",
@@ -1114,7 +1369,15 @@
     "remember": [
       "Transaction log is source of truth",
       "`OPTIMIZE` + `VACUUM` for maintenance"
-    ]
+    ],
+    "mustKnow": 16,
+    "snippet": "MERGE INTO target t USING source s ON t.id = s.id\nWHEN MATCHED THEN UPDATE SET *\nWHEN NOT MATCHED THEN INSERT *;",
+    "related": [
+      "Time Travel",
+      "ACID Tables",
+      "Apache Iceberg"
+    ],
+    "symptom": "Concurrent jobs overwrite parquet folders; readers see partial data."
   },
   {
     "name": "Apache Iceberg",
@@ -1127,7 +1390,11 @@
     "remember": [
       "Snapshots + manifests",
       "Hidden partitioning is a key feature"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Apache Hudi",
@@ -1140,7 +1407,11 @@
     "remember": [
       "COW vs MOR tradeoffs (write vs read cost)",
       "Strong for CDC / incremental pipelines"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Time Travel",
@@ -1153,7 +1424,15 @@
     "remember": [
       "Retention limited by vacuum/expire settings",
       "Great for \"what did we have yesterday?\""
-    ]
+    ],
+    "mustKnow": 17,
+    "snippet": "SELECT * FROM orders VERSION AS OF 120;\n-- or TIMESTAMP AS OF '2024-06-01'",
+    "related": [
+      "Delta Lake",
+      "Vacuum",
+      "Checkpointing"
+    ],
+    "symptom": "Can't reproduce yesterday's report after a bad overwrite."
   },
   {
     "name": "Schema Evolution",
@@ -1166,7 +1445,15 @@
     "remember": [
       "Additive changes are safest",
       "Breaking changes need contracts + migration"
-    ]
+    ],
+    "mustKnow": 18,
+    "snippet": "df.write.format(\"delta\").option(\"mergeSchema\", \"true\").mode(\"append\").save(path)",
+    "related": [
+      "Schema Enforcement",
+      "Data Contracts",
+      "Delta Lake"
+    ],
+    "symptom": "Producer adds a column; downstream jobs break or ignore it silently."
   },
   {
     "name": "Schema Enforcement",
@@ -1179,7 +1466,11 @@
     "remember": [
       "Enforce at write boundary",
       "Pair with data contracts"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "ACID Tables",
@@ -1192,7 +1483,11 @@
     "remember": [
       "File formats alone aren't ACID \u2014 table formats add it",
       "Isolation level still matters for readers"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Compaction",
@@ -1205,7 +1500,15 @@
     "remember": [
       "Schedule regularly on hot tables",
       "Trade compute now for faster reads later"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "OPTIMIZE delta.`/path/table`;  -- Delta\n-- Iceberg: rewrite_data_files",
+    "related": [
+      "Small File Problem",
+      "Optimize",
+      "Z-Ordering"
+    ],
+    "symptom": "Reads degrade daily as streaming adds tiny files."
   },
   {
     "name": "Vacuum",
@@ -1218,7 +1521,11 @@
     "remember": [
       "Too aggressive vacuum breaks time travel / long readers",
       "Coordinate retention with consumers"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Optimize",
@@ -1231,7 +1538,11 @@
     "remember": [
       "Run on tables with heavy small-file ingest",
       "Not free \u2014 schedule off-peak"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Z-Ordering",
@@ -1244,7 +1555,15 @@
     "remember": [
       "Complement to partitioning, not a replacement",
       "Best for selective multi-column filters"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "OPTIMIZE sales ZORDER BY (customer_id, event_date);",
+    "related": [
+      "Optimize",
+      "Partition Pruning",
+      "Delta Lake"
+    ],
+    "symptom": "Selective filters on non-partition columns still scan everything."
   },
   {
     "name": "CAP Theorem",
@@ -1257,7 +1576,15 @@
     "remember": [
       "Real systems tune the C/A tradeoff",
       "\"CA without P\" isn't realistic for multi-node"
-    ]
+    ],
+    "mustKnow": 19,
+    "snippet": "# In a partition: choose Consistency or Availability\n# Document the tradeoff for your store/queue",
+    "related": [
+      "Eventual Consistency",
+      "Strong Consistency",
+      "High Availability (HA)"
+    ],
+    "symptom": "Expecting strong reads from an AP system during a region blip."
   },
   {
     "name": "BASE",
@@ -1270,7 +1597,15 @@
     "remember": [
       "Soft state may change without input (anti-entropy)",
       "Pair with application-level conflict handling"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "# Basically Available, Soft state, Eventually consistent",
+    "related": [
+      "CAP Theorem",
+      "Eventual Consistency",
+      "Strong Consistency"
+    ],
+    "symptom": "Applying strict ACID expectations to a geo-replicated cache."
   },
   {
     "name": "Eventual Consistency",
@@ -1283,7 +1618,11 @@
     "remember": [
       "Document staleness windows for consumers",
       "Use stronger reads when needed (quorum/linearizable APIs)"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Strong Consistency",
@@ -1296,7 +1635,11 @@
     "remember": [
       "Costs latency and availability under partitions",
       "Use where correctness > availability"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Replication",
@@ -1309,7 +1652,11 @@
     "remember": [
       "Sync vs async replication tradeoffs",
       "Replica lag affects read-your-writes"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Leader Election",
@@ -1322,7 +1669,11 @@
     "remember": [
       "Fencing tokens prevent old leaders writing",
       "Elections add brief unavailability"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Consensus",
@@ -1335,7 +1686,11 @@
     "remember": [
       "Quorum majority required",
       "Expensive; keep consensus sets small"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Raft",
@@ -1348,7 +1703,11 @@
     "remember": [
       "Strong leader model",
       "Majority of voters must ack"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Paxos",
@@ -1361,7 +1720,11 @@
     "remember": [
       "Harder to implement correctly than Raft",
       "Same goal: agree under failures"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Fault Tolerance",
@@ -1374,7 +1737,11 @@
     "remember": [
       "Detect, isolate, recover",
       "Design for failure, not perfection"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "High Availability (HA)",
@@ -1387,7 +1754,11 @@
     "remember": [
       "HA \u2260 zero data loss (depends on durability config)",
       "Measure MTTR and availability %"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Horizontal Scaling",
@@ -1400,7 +1771,11 @@
     "remember": [
       "Needs partitionable workloads",
       "Shuffle/network can become bottleneck"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Vertical Scaling",
@@ -1413,7 +1788,11 @@
     "remember": [
       "Ceiling exists; single point of failure risk",
       "Mix: scale out data plane, scale up hot coordinators carefully"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Event Time",
@@ -1426,7 +1805,15 @@
     "remember": [
       "Prefer event time for analytics windows",
       "Requires watermarks for progress"
-    ]
+    ],
+    "mustKnow": 20,
+    "snippet": "df.withWatermark(\"event_time\", \"10 minutes\") \\\n  .groupBy(window(\"event_time\", \"1 hour\")).count()",
+    "related": [
+      "Watermarks",
+      "Processing Time",
+      "Late Data"
+    ],
+    "symptom": "Hourly metrics shift when late mobile events arrive."
   },
   {
     "name": "Processing Time",
@@ -1439,7 +1826,11 @@
     "remember": [
       "OK for monitoring ops latency",
       "Bad for business \"hourly sales\""
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Ingestion Time",
@@ -1452,7 +1843,11 @@
     "remember": [
       "Better than processing time for some cases",
       "Still not true business event time"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Watermarks",
@@ -1465,7 +1860,15 @@
     "remember": [
       "Too tight \u2192 drop late events",
       "Too loose \u2192 high latency/state"
-    ]
+    ],
+    "mustKnow": 21,
+    "snippet": ".withWatermark(\"event_time\", \"15 minutes\")\n# closes windows; late data policy after this",
+    "related": [
+      "Event Time",
+      "Late Data",
+      "Windowing"
+    ],
+    "symptom": "State grows forever, or late events are dropped too aggressively."
   },
   {
     "name": "Windowing",
@@ -1478,7 +1881,11 @@
     "remember": [
       "Tumbling: fixed, non-overlap",
       "Sliding: overlap; session: activity-based"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Late Data",
@@ -1491,7 +1898,11 @@
     "remember": [
       "Side outputs / allowed lateness / update previous results",
       "Decide drop vs correct"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Stateful Processing",
@@ -1504,7 +1915,11 @@
     "remember": [
       "State grows \u2014 set TTL",
       "Checkpoint state for exactly-once"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Stateless Processing",
@@ -1517,7 +1932,11 @@
     "remember": [
       "Prefer when possible",
       "Filter/map/flatMap style ops"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Exactly Once",
@@ -1530,7 +1949,15 @@
     "remember": [
       "Needs idempotent or transactional sinks",
       "\"Exactly once\" is end-to-end, not just processing"
-    ]
+    ],
+    "mustKnow": 22,
+    "snippet": "# Need checkpointing + idempotent/transactional sink\nquery = df.writeStream.option(\"checkpointLocation\", ckpt).foreachBatch(...)",
+    "related": [
+      "At Least Once",
+      "Idempotency",
+      "Checkpointing"
+    ],
+    "symptom": "Duplicates after restart even though processing \"felt\" safe."
   },
   {
     "name": "At Least Once",
@@ -1543,7 +1970,15 @@
     "remember": [
       "Pair with idempotent writes",
       "Often \"good enough\" with dedupe keys"
-    ]
+    ],
+    "mustKnow": 23,
+    "snippet": "# retries may re-send \u2014 make sink upsert/idempotent\n# ON CONFLICT (id) DO UPDATE ...",
+    "related": [
+      "Exactly Once",
+      "Idempotency",
+      "Dead Letter Queue (DLQ)"
+    ],
+    "symptom": "Counts inflate after every pipeline retry."
   },
   {
     "name": "At Most Once",
@@ -1556,7 +1991,11 @@
     "remember": [
       "Don't use for money/inventory",
       "Explicit tradeoff: loss over duplicates"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Event Sourcing",
@@ -1569,7 +2008,15 @@
     "remember": [
       "Source of truth = event log",
       "Snapshots speed replay"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "# append OrderPlaced, ItemAdded... rebuild state by replay",
+    "related": [
+      "CQRS",
+      "Exactly Once",
+      "Idempotency"
+    ],
+    "symptom": "Overwriting current state and losing audit history."
   },
   {
     "name": "CQRS",
@@ -1582,7 +2029,11 @@
     "remember": [
       "Often paired with event sourcing",
       "Read models can be eventually consistent"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Idempotency",
@@ -1595,7 +2046,15 @@
     "remember": [
       "Design sinks for safe replay",
       "Natural keys + MERGE / partition overwrite"
-    ]
+    ],
+    "mustKnow": 24,
+    "snippet": "# overwrite a partition instead of blind append\ndf.write.mode(\"overwrite\").partitionBy(\"dt\").parquet(path)",
+    "related": [
+      "Checkpointing",
+      "Exactly Once",
+      "Data Contracts"
+    ],
+    "symptom": "Re-running a failed day duplicates rows in the target."
   },
   {
     "name": "Checkpointing",
@@ -1608,7 +2067,15 @@
     "remember": [
       "Checkpoint path is critical state \u2014 back it up/protect it",
       "Changing query identity may invalidate checkpoints"
-    ]
+    ],
+    "mustKnow": 25,
+    "snippet": "writeStream.option(\"checkpointLocation\", \"s3://ops/checkpoints/job_a\")",
+    "related": [
+      "Idempotency",
+      "Exactly Once",
+      "Fault Tolerance"
+    ],
+    "symptom": "Streaming job reprocesses from earliest offsets after path loss."
   },
   {
     "name": "Retry Strategy",
@@ -1621,7 +2088,11 @@
     "remember": [
       "Distinguish transient vs permanent errors",
       "Cap retries to avoid thundering herds"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Backoff Strategy",
@@ -1634,7 +2105,11 @@
     "remember": [
       "Always add jitter",
       "Set max backoff"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Circuit Breaker",
@@ -1647,7 +2122,15 @@
     "remember": [
       "Use for shared DBs/APIs",
       "Pair with timeouts"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "# after N failures \u2192 open circuit \u2192 fail fast \u2192 half-open probe",
+    "related": [
+      "Retry Strategy",
+      "Backoff Strategy",
+      "Dead Letter Queue (DLQ)"
+    ],
+    "symptom": "Retries hammer a down warehouse and cascade timeouts."
   },
   {
     "name": "Dead Letter Queue (DLQ)",
@@ -1660,7 +2143,15 @@
     "remember": [
       "Monitor DLQ depth",
       "Have a replay runbook"
-    ]
+    ],
+    "mustKnow": 26,
+    "snippet": "try:\n    process(record)\nexcept BadRecord as e:\n    dlq.send(record, error=str(e))",
+    "related": [
+      "Retry Strategy",
+      "Data Validation",
+      "Data Contracts"
+    ],
+    "symptom": "One poison message blocks the whole consumer group."
   },
   {
     "name": "Data Contracts",
@@ -1673,7 +2164,15 @@
     "remember": [
       "Version schemas",
       "Enforce in CI/CD and at write time"
-    ]
+    ],
+    "mustKnow": 27,
+    "snippet": "# CI: fail PR if producer schema breaks consumer contract\n# enforce required fields + types at write boundary",
+    "related": [
+      "Schema Enforcement",
+      "Schema Evolution",
+      "Data Validation"
+    ],
+    "symptom": "Silent column rename breaks 12 downstream jobs overnight."
   },
   {
     "name": "Pipeline Orchestration",
@@ -1686,7 +2185,11 @@
     "remember": [
       "Prefer data-aware sensors over blind cron when possible",
       "Idempotent tasks + clear SLAs"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Metadata-Driven Pipelines",
@@ -1699,7 +2202,11 @@
     "remember": [
       "Great for ingestion patterns",
       "Keep escape hatches for special cases"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Data Skew",
@@ -1712,7 +2219,15 @@
     "remember": [
       "Detect via task duration histograms",
       "Fix with salting, AQE skew join, or pre-agg"
-    ]
+    ],
+    "mustKnow": 13,
+    "snippet": "df.groupBy(\"key\").count().orderBy(desc(\"count\")).show(20)\n# then salt hot keys or enable AQE skew join",
+    "related": [
+      "Salting",
+      "Skew Join Optimization",
+      "Shuffle"
+    ],
+    "symptom": "One task runs 10\u00d7 longer than the rest of the stage."
   },
   {
     "name": "Broadcast Join",
@@ -1725,7 +2240,15 @@
     "remember": [
       "Small side must fit memory",
       "Best default for star-schema dims"
-    ]
+    ],
+    "mustKnow": 11,
+    "snippet": "from pyspark.sql.functions import broadcast\nfact.join(broadcast(dim), \"id\")",
+    "related": [
+      "Sort Merge Join",
+      "Data Skew",
+      "Adaptive Query Execution (AQE)"
+    ],
+    "symptom": "Shuffling a tiny dimension across the cluster."
   },
   {
     "name": "Shuffle Join",
@@ -1738,7 +2261,11 @@
     "remember": [
       "Ensure join keys have good distribution",
       "Filter early before shuffle"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Sort Merge Join",
@@ -1751,7 +2278,15 @@
     "remember": [
       "Watch sort spill",
       "AQE may switch strategy"
-    ]
+    ],
+    "mustKnow": 12,
+    "snippet": "# default large-large join after shuffle+sort\nbig.join(other_big, \"user_id\")",
+    "related": [
+      "Broadcast Join",
+      "Shuffle",
+      "Spill to Disk"
+    ],
+    "symptom": "Join spills to disk; one key's partition is huge."
   },
   {
     "name": "Hash Join",
@@ -1764,7 +2299,11 @@
     "remember": [
       "Build = smaller side ideally",
       "OOM if build side underestimated"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Bucket Join",
@@ -1777,7 +2316,11 @@
     "remember": [
       "Bucket count must match (or be compatible)",
       "Worth it for heavy reuse patterns"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Salting",
@@ -1790,7 +2333,15 @@
     "remember": [
       "Increases rows temporarily",
       "Choose salt range from skew severity"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "hot = df.withColumn(\"salt\", (rand()*N).cast(\"int\"))\n# join on key+salt, then drop salt",
+    "related": [
+      "Data Skew",
+      "Skew Join Optimization",
+      "Broadcast Join"
+    ],
+    "symptom": "AQE still leaves one monstrous partition on a hot key."
   },
   {
     "name": "Caching",
@@ -1803,7 +2354,15 @@
     "remember": [
       "Unpersist when done",
       "Cache only reused expensive stages"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "df.cache()\ndf.count()  # materialize\n# ... reuse df ...\ndf.unpersist()",
+    "related": [
+      "Persistence Levels",
+      "Memory Management",
+      "Lazy Evaluation"
+    ],
+    "symptom": "Same expensive subtree recomputed on every action."
   },
   {
     "name": "Persistence Levels",
@@ -1816,7 +2375,11 @@
     "remember": [
       "DataFrames: `cache` \u2248 MEMORY_AND_DISK",
       "Replication costs memory"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Parallelism",
@@ -1829,7 +2392,11 @@
     "remember": [
       "Target a few partitions per core",
       "Aim for reasonable partition file sizes"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Partition Sizing",
@@ -1842,7 +2409,11 @@
     "remember": [
       "Too small \u2192 small files",
       "Too large \u2192 spill/OOM risk"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Small File Problem",
@@ -1855,7 +2426,15 @@
     "remember": [
       "Compact regularly",
       "Coalesce/repartition before write; avoid over-partitioning"
-    ]
+    ],
+    "mustKnow": 14,
+    "snippet": "df.coalesce(64).write.mode(\"overwrite\").parquet(path)\n# or OPTIMIZE / compaction on lakehouse tables",
+    "related": [
+      "Compaction",
+      "Optimize",
+      "Partition Sizing"
+    ],
+    "symptom": "Driver spends ages listing; thousands of tiny tasks."
   },
   {
     "name": "Data Profiling",
@@ -1868,7 +2447,11 @@
     "remember": [
       "Profile new sources early",
       "Re-profile after major changes"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Data Validation",
@@ -1881,7 +2464,11 @@
     "remember": [
       "Fail or quarantine on critical rules",
       "Warn on softer anomalies"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Data Lineage",
@@ -1894,7 +2481,15 @@
     "remember": [
       "Column-level lineage is gold for audits",
       "Automate from orchestrator/SQL parsers/catalog"
-    ]
+    ],
+    "mustKnow": 28,
+    "snippet": "# raw.orders \u2192 stg_orders \u2192 fct_orders \u2192 BI KPI\n# track table + column lineage in the catalog",
+    "related": [
+      "Metadata",
+      "Data Catalog",
+      "Observability"
+    ],
+    "symptom": "Can't tell which dashboard breaks if a source column is dropped."
   },
   {
     "name": "Metadata",
@@ -1907,7 +2502,11 @@
     "remember": [
       "Treat metadata as a product",
       "Stale metadata is worse than none if trusted blindly"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Data Catalog",
@@ -1920,7 +2519,11 @@
     "remember": [
       "Integrate with ingestion + BI",
       "Ownership + certification badges help trust"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Master Data Management (MDM)",
@@ -1933,7 +2536,11 @@
     "remember": [
       "Matching + survivorship + stewardship",
       "Hard organizationally, not just technically"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Data Governance",
@@ -1946,7 +2553,11 @@
     "remember": [
       "People + process + platform",
       "Embed in pipelines, not only documents"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Data Stewardship",
@@ -1959,7 +2570,11 @@
     "remember": [
       "Assign stewards per domain",
       "Stewards \u2260 only platform engineers"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Observability",
@@ -1972,7 +2587,11 @@
     "remember": [
       "Observe data + compute",
       "Alert on symptoms that matter to consumers"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Freshness",
@@ -1985,7 +2604,15 @@
     "remember": [
       "Define per table SLA",
       "Alert on breach, not only job fail"
-    ]
+    ],
+    "mustKnow": 29,
+    "snippet": "SELECT MAX(updated_at) FROM fct_orders;\n-- alert if now() - max_updated_at > SLA",
+    "related": [
+      "Observability",
+      "Completeness",
+      "Pipeline Orchestration"
+    ],
+    "symptom": "Job is green but data is 18 hours stale."
   },
   {
     "name": "Completeness",
@@ -1998,7 +2625,11 @@
     "remember": [
       "Partition completeness checks",
       "Critical field null thresholds"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Accuracy",
@@ -2011,7 +2642,11 @@
     "remember": [
       "Often needs business reconciliation",
       "Sample audits + source compares"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Consistency",
@@ -2024,7 +2659,11 @@
     "remember": [
       "Cross-system reconciliations",
       "Define which system is source of truth"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Object Storage",
@@ -2037,7 +2676,15 @@
     "remember": [
       "Eventually consistent listing quirks are rarer now but design carefully",
       "Cheap capacity; watch request/API costs"
-    ]
+    ],
+    "mustKnow": 30,
+    "snippet": "s3://lake/bronze/events/dt=2024-01-01/part-000.parquet\n# lake tables live as objects + metadata",
+    "related": [
+      "Data Lake",
+      "Delta Lake",
+      "IAM"
+    ],
+    "symptom": "Treating S3 like a local FS; millions of tiny LIST requests."
   },
   {
     "name": "Block Storage",
@@ -2050,7 +2697,11 @@
     "remember": [
       "Higher IOPS for stateful services",
       "Not the primary lake storage"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Lifecycle Policies",
@@ -2063,7 +2714,11 @@
     "remember": [
       "Align with compliance retention",
       "Archive retrieval can be slow/expensive"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "IAM",
@@ -2076,7 +2731,15 @@
     "remember": [
       "Least privilege",
       "Prefer roles over long-lived keys"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "# job role: s3:GetObject on bronze/*, PutObject on silver/* only",
+    "related": [
+      "Secrets Management",
+      "KMS",
+      "Private Endpoints"
+    ],
+    "symptom": "Long-lived access keys leaked from a notebook."
   },
   {
     "name": "Secrets Management",
@@ -2089,7 +2752,11 @@
     "remember": [
       "Never commit secrets",
       "Rotate and audit access"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "KMS",
@@ -2102,7 +2769,11 @@
     "remember": [
       "Key policies are critical",
       "Audit key usage"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Encryption at Rest",
@@ -2115,7 +2786,11 @@
     "remember": [
       "Usually mandatory in enterprises",
       "Combine with IAM + KMS"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Encryption in Transit",
@@ -2128,7 +2803,11 @@
     "remember": [
       "Enforce TLS everywhere practical",
       "Mind internal service mesh policies"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "VPC",
@@ -2141,7 +2820,11 @@
     "remember": [
       "Segment public/private subnets",
       "Control egress for cost and security"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Private Endpoints",
@@ -2154,7 +2837,11 @@
     "remember": [
       "Prefer for production lake + warehouse access",
       "DNS and firewall rules matter"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Docker",
@@ -2167,7 +2854,11 @@
     "remember": [
       "Pin base image digests for reproducibility",
       "Keep images lean; separate build vs runtime if needed"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Kubernetes",
@@ -2180,7 +2871,11 @@
     "remember": [
       "Requests/limits matter for stability",
       "Persistent volumes for stateful components"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "CI/CD",
@@ -2193,7 +2888,11 @@
     "remember": [
       "Test data contracts in CI",
       "Separate deploy of code vs heavy data backfills"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "GitOps",
@@ -2206,7 +2905,11 @@
     "remember": [
       "Git is source of truth",
       "PRs become change control"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Terraform",
@@ -2219,7 +2922,11 @@
     "remember": [
       "Remote state + locks",
       "Plan before apply; module wisely"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Helm",
@@ -2232,7 +2939,11 @@
     "remember": [
       "values.yaml is your config surface",
       "Version charts carefully"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "",
+    "related": [],
+    "symptom": ""
   },
   {
     "name": "Infrastructure as Code (IaC)",
@@ -2245,21 +2956,30 @@
     "remember": [
       "No click-ops for critical paths",
       "Codify networking, IAM, and data stores together"
-    ]
+    ],
+    "mustKnow": null,
+    "snippet": "terraform plan && terraform apply\n# buckets, IAM, warehouses versioned in Git",
+    "related": [
+      "Terraform",
+      "GitOps",
+      "CI/CD"
+    ],
+    "symptom": "Prod lake config drifts from staging; only one person knows clicks."
   }
 ]
   </script>
   <script>
     const $ = (id) => document.getElementById(id);
-    const q = $("q");
-    const clearBtn = $("clear");
-    const results = $("results");
-    const chips = $("chips");
-    const shown = $("shown");
-    const total = $("total");
+    const LEARN_KEY = "de-sheet-learned-v1";
 
     let concepts = [];
+    let byName = new Map();
     let activeCategory = "All";
+    let mode = "search";
+    let learned = new Set(JSON.parse(localStorage.getItem(LEARN_KEY) || "[]"));
+    let deck = [];
+    let deckIndex = 0;
+    let flipped = false;
 
     const escapeHtml = (s) =>
       String(s)
@@ -2269,8 +2989,7 @@
         .replace(/"/g, "&quot;");
 
     const highlight = (text, terms) => {
-      let out = escapeHtml(text);
-      if (!terms.length) return out;
+      let out = escapeHtml(text || "");
       for (const t of terms) {
         if (t.length < 2) continue;
         const re = new RegExp(`(${t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "ig");
@@ -2279,27 +2998,13 @@
       return out;
     };
 
-    const formatExample = (example) => {
-      const escaped = escapeHtml(example);
-      if (example.includes("```")) {
-        return escaped
-          .replace(/```[\w]*\n?/g, "")
-          .replace(/\n/g, "<br />");
-      }
-      return escaped.replace(/\n/g, "<br />");
-    };
-
     const tokens = (query) =>
-      query
-        .toLowerCase()
-        .split(/[^a-z0-9+#.-]+/i)
-        .filter(Boolean);
+      query.toLowerCase().split(/[^a-z0-9+#.-]+/i).filter(Boolean);
 
     const score = (c, terms) => {
       if (!terms.length) return 1;
-      const hay = [c.name, c.category, c.definition, c.why, c.example, ...(c.remember || [])]
-        .join("\n")
-        .toLowerCase();
+      const hay = [c.name, c.category, c.definition, c.why, c.example, c.snippet, c.symptom, ...(c.remember || []), ...(c.related || [])]
+        .join("\n").toLowerCase();
       let s = 0;
       for (const t of terms) {
         if (c.name.toLowerCase().includes(t)) s += 8;
@@ -2308,121 +3013,251 @@
         else return 0;
       }
       if (c.name.toLowerCase().startsWith(terms[0])) s += 4;
+      if (c.mustKnow) s += 1;
       return s;
     };
 
-    const renderChips = () => {
-      const cats = ["All", ...[...new Set(concepts.map((c) => c.category))]];
-      chips.innerHTML = cats
-        .map(
-          (cat) =>
-            `<button type="button" class="chip${cat === activeCategory ? " active" : ""}" data-cat="${escapeHtml(cat)}">${escapeHtml(cat === "All" ? "All" : cat.replace(/ Concepts| for Data/g, ""))}</button>`
-        )
-        .join("");
+    const saveLearned = () => {
+      localStorage.setItem(LEARN_KEY, JSON.stringify([...learned]));
+      updateProgress();
     };
 
-    const render = () => {
-      const terms = tokens(q.value.trim());
-      clearBtn.classList.toggle("show", q.value.length > 0);
+    const updateProgress = () => {
+      const mustNames = concepts.filter((c) => c.mustKnow).map((c) => c.name);
+      const n = mustNames.filter((n) => learned.has(n)).length;
+      $("learned-count").textContent = String(n);
+      $("must-total").textContent = String(mustNames.length || 30);
+    };
 
-      let list = concepts
-        .map((c) => ({ c, s: score(c, terms) }))
-        .filter((x) => x.s > 0);
+    const renderSnippet = (snippet) => {
+      if (!snippet) return "";
+      return `<div><div class="label">Snippet</div><pre>${escapeHtml(snippet)}</pre></div>`;
+    };
 
-      if (activeCategory !== "All") {
-        list = list.filter((x) => x.c.category === activeCategory);
-      }
+    const renderRelated = (related) => {
+      if (!related || !related.length) return "";
+      const buttons = related
+        .map((r) => `<button type="button" data-jump="${escapeHtml(r)}">${escapeHtml(r)}</button>`)
+        .join("");
+      return `<div><div class="label">See also</div><div class="related">${buttons}</div></div>`;
+    };
 
+    const cardHtml = (c, terms = [], open = false) => {
+      const badge = c.mustKnow ? `<span class="badge">MUST ${c.mustKnow}</span>` : "";
+      const learnedBadge = learned.has(c.name) ? `<span class="badge" style="background:rgba(21,128,61,.15);color:#166534">LEARNED</span>` : "";
+      const remember = (c.remember || []).map((r) => `<li>${highlight(r, terms)}</li>`).join("");
+      const symptom = c.symptom
+        ? `<div><div class="label">In prod</div><p>${highlight(c.symptom, terms)}</p></div>`
+        : "";
+      return `
+        <details class="result"${open ? " open" : ""} data-name="${escapeHtml(c.name)}">
+          <summary>
+            <div class="cat">${highlight(c.category, terms)}${badge}${learnedBadge}</div>
+            <div class="name">${highlight(c.name, terms)}</div>
+            <div class="snippet-text">${highlight(c.definition, terms)}</div>
+          </summary>
+          <div class="body">
+            <div><div class="label">Why it matters</div><p>${highlight(c.why, terms)}</p></div>
+            <div><div class="label">Example</div><p>${highlight(c.example, terms)}</p></div>
+            ${renderSnippet(c.snippet)}
+            ${symptom}
+            ${remember ? `<div><div class="label">Remember</div><ul>${remember}</ul></div>` : ""}
+            ${renderRelated(c.related)}
+          </div>
+        </details>`;
+    };
+
+    const renderChips = () => {
+      const cats = ["All", ...new Set(concepts.map((c) => c.category))];
+      $("chips").innerHTML = cats.map((cat) => {
+        const label = cat === "All" ? "All" : cat.replace(/ Concepts| for Data/g, "");
+        return `<button type="button" class="chip${cat === activeCategory ? " active" : ""}" data-cat="${escapeHtml(cat)}">${escapeHtml(label)}</button>`;
+      }).join("");
+    };
+
+    const renderSearch = () => {
+      const terms = tokens($("q").value.trim());
+      $("clear").classList.toggle("show", $("q").value.length > 0);
+      let list = concepts.map((c) => ({ c, s: score(c, terms) })).filter((x) => x.s > 0);
+      if (activeCategory !== "All") list = list.filter((x) => x.c.category === activeCategory);
       list.sort((a, b) => b.s - a.s || a.c.name.localeCompare(b.c.name));
-
-      shown.textContent = String(list.length);
-      total.textContent = String(concepts.length);
-
+      $("shown").textContent = String(list.length);
+      $("total").textContent = String(concepts.length);
       if (!list.length) {
-        results.innerHTML = `<div class="empty">No matches. Try <em>AQE</em>, <em>watermark</em>, or <em>idempotency</em>.</div>`;
+        $("results").innerHTML = `<div class="empty">No matches. Try <em>AQE</em>, <em>watermark</em>, or <em>idempotency</em>.</div>`;
         return;
       }
-
-      results.innerHTML = list
-        .map(({ c }, i) => {
-          const open = terms.length && i === 0 ? " open" : "";
-          const remember = (c.remember || [])
-            .map((r) => `<li>${highlight(r, terms)}</li>`)
-            .join("");
-          return `
-            <details class="result"${open} style="animation-delay:${Math.min(i, 12) * 0.02}s">
-              <summary>
-                <div class="cat">${highlight(c.category, terms)}</div>
-                <div class="name">${highlight(c.name, terms)}</div>
-                <div class="snippet">${highlight(c.definition, terms)}</div>
-              </summary>
-              <div class="body">
-                <div>
-                  <div class="label">Why it matters</div>
-                  <p>${highlight(c.why, terms)}</p>
-                </div>
-                <div>
-                  <div class="label">Example</div>
-                  <p>${formatExample(c.example).replace(/`([^`]+)`/g, "<code>$1</code>")}</p>
-                </div>
-                ${
-                  remember
-                    ? `<div><div class="label">Remember</div><ul>${remember}</ul></div>`
-                    : ""
-                }
-              </div>
-            </details>`;
-        })
-        .join("");
+      $("results").innerHTML = list.map(({ c }, i) => cardHtml(c, terms, terms.length > 0 && i === 0)).join("");
     };
 
-    chips.addEventListener("click", (e) => {
+    const renderMust = () => {
+      const list = concepts.filter((c) => c.mustKnow).sort((a, b) => a.mustKnow - b.mustKnow);
+      $("must-results").innerHTML = list.map((c) => cardHtml(c)).join("");
+    };
+
+    const buildDeck = () => {
+      const must = concepts.filter((c) => c.mustKnow).sort((a, b) => a.mustKnow - b.mustKnow);
+      const pending = must.filter((c) => !learned.has(c.name));
+      deck = pending.length ? pending : [...must].sort(() => Math.random() - 0.5);
+      deckIndex = 0;
+      flipped = false;
+    };
+
+    const currentCard = () => deck[deckIndex];
+
+    const renderFlash = () => {
+      const c = currentCard();
+      const el = $("flash-card");
+      if (!c) {
+        el.innerHTML = `<p class="flash-prompt">No cards in deck.</p>`;
+        return;
+      }
+      el.classList.toggle("flipped", flipped);
+      const remember = (c.remember || []).map((r) => `<li>${escapeHtml(r)}</li>`).join("");
+      el.innerHTML = `
+        <div class="flash-top">
+          <span>${escapeHtml(c.category)} · #${c.mustKnow || "—"}</span>
+          <span>${deckIndex + 1} / ${deck.length}</span>
+        </div>
+        <h2 class="flash-name">${escapeHtml(c.name)}</h2>
+        <p class="flash-prompt">What is it? Tap to reveal definition, snippet, and prod symptom.</p>
+        <div class="flash-answer">
+          <div><div class="label">Definition</div><p>${escapeHtml(c.definition)}</p></div>
+          <div><div class="label">Why it matters</div><p>${escapeHtml(c.why)}</p></div>
+          ${c.snippet ? `<div><div class="label">Snippet</div><pre>${escapeHtml(c.snippet)}</pre></div>` : ""}
+          ${c.symptom ? `<div><div class="label">In prod</div><p>${escapeHtml(c.symptom)}</p></div>` : ""}
+          ${remember ? `<div><div class="label">Remember</div><ul>${remember}</ul></div>` : ""}
+        </div>`;
+      $("flash-hint").textContent = learned.has(c.name)
+        ? "Already marked learned — keep drilling or reset progress."
+        : `${[...learned].filter((n) => concepts.some((x) => x.mustKnow && x.name === n)).length} must-know marked learned in this browser.`;
+    };
+
+    const setMode = (next) => {
+      mode = next;
+      document.querySelectorAll(".mode-btn").forEach((btn) => {
+        const on = btn.dataset.mode === mode;
+        btn.classList.toggle("active", on);
+        btn.setAttribute("aria-selected", on ? "true" : "false");
+      });
+      ["search", "must", "flash"].forEach((m) => {
+        const panel = $(`panel-${m}`);
+        const on = m === mode;
+        panel.classList.toggle("active", on);
+        panel.hidden = !on;
+      });
+      if (mode === "must") renderMust();
+      if (mode === "flash") {
+        buildDeck();
+        renderFlash();
+        $("flash-card").focus();
+      }
+      if (mode === "search") $("q").focus();
+    };
+
+    const jumpTo = (name) => {
+      setMode("search");
+      $("q").value = name;
+      activeCategory = "All";
+      renderChips();
+      renderSearch();
+      const el = document.querySelector(`details[data-name="${CSS.escape(name)}"]`);
+      if (el) {
+        el.open = true;
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    };
+
+    document.querySelector(".modes").addEventListener("click", (e) => {
+      const btn = e.target.closest(".mode-btn");
+      if (btn) setMode(btn.dataset.mode);
+    });
+
+    $("chips").addEventListener("click", (e) => {
       const btn = e.target.closest(".chip");
       if (!btn) return;
       activeCategory = btn.dataset.cat;
       renderChips();
-      render();
+      renderSearch();
     });
 
-    q.addEventListener("input", render);
-    clearBtn.addEventListener("click", () => {
-      q.value = "";
-      q.focus();
-      render();
+    document.body.addEventListener("click", (e) => {
+      const jump = e.target.closest("[data-jump]");
+      if (jump) jumpTo(jump.dataset.jump);
+    });
+
+    $("q").addEventListener("input", renderSearch);
+    $("clear").addEventListener("click", () => {
+      $("q").value = "";
+      $("q").focus();
+      renderSearch();
+    });
+
+    const flip = () => {
+      flipped = !flipped;
+      renderFlash();
+    };
+
+    const nextCard = (markKnown) => {
+      const c = currentCard();
+      if (!c) return;
+      if (markKnown) {
+        learned.add(c.name);
+        saveLearned();
+        deck.splice(deckIndex, 1);
+        if (!deck.length) buildDeck();
+        deckIndex = Math.min(deckIndex, Math.max(deck.length - 1, 0));
+      } else {
+        // send to back
+        deck.push(deck.splice(deckIndex, 1)[0]);
+        if (deckIndex >= deck.length) deckIndex = 0;
+      }
+      flipped = false;
+      renderFlash();
+    };
+
+    $("flash-card").addEventListener("click", flip);
+    $("flip-btn").addEventListener("click", flip);
+    $("know-btn").addEventListener("click", () => nextCard(true));
+    $("again-btn").addEventListener("click", () => nextCard(false));
+    $("reset-btn").addEventListener("click", () => {
+      if (confirm("Reset learned progress in this browser?")) {
+        learned = new Set();
+        saveLearned();
+        buildDeck();
+        renderFlash();
+        renderMust();
+        renderSearch();
+      }
     });
 
     document.addEventListener("keydown", (e) => {
-      if (e.key === "/" && document.activeElement !== q) {
+      if (e.key === "/" && document.activeElement !== $("q") && mode === "search") {
         e.preventDefault();
-        q.focus();
-        q.select();
+        $("q").focus();
+        $("q").select();
       }
-      if (e.key === "Escape" && document.activeElement === q) {
-        q.value = "";
-        render();
+      if (e.key === "Escape" && document.activeElement === $("q")) {
+        $("q").value = "";
+        renderSearch();
       }
+      if (mode !== "flash") return;
+      if (["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) return;
+      if (e.key === " " || e.key === "Enter") { e.preventDefault(); flip(); }
+      if (e.key === "ArrowRight") { e.preventDefault(); nextCard(false); }
+      if (e.key === "1") { e.preventDefault(); nextCard(true); }
+      if (e.key === "2") { e.preventDefault(); nextCard(false); }
     });
 
-    const boot = () => {
-      const embedded = document.getElementById("concepts-data");
-      if (embedded) {
-        concepts = JSON.parse(embedded.textContent);
-        renderChips();
-        render();
-        return;
-      }
-      fetch("./concepts.json")
-        .then((r) => r.json())
-        .then((data) => {
-          concepts = data;
-          renderChips();
-          render();
-        })
-        .catch(() => {
-          results.innerHTML = `<div class="empty">Could not load concepts.</div>`;
-        });
-    };
-    boot();
+    try {
+      concepts = JSON.parse($("concepts-data").textContent);
+    } catch {
+      concepts = [];
+    }
+    byName = new Map(concepts.map((c) => [c.name, c]));
+    renderChips();
+    updateProgress();
+    renderSearch();
   </script>
 </body>
 </html>

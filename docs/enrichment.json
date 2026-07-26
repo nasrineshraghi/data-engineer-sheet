@@ -1,0 +1,237 @@
+{
+  "Cardinality": {
+    "mustKnow": 1,
+    "snippet": "SELECT COUNT(DISTINCT user_id) AS cardinality FROM events;",
+    "related": ["Selectivity", "Histograms", "Data Skew"],
+    "symptom": "Bad join strategy because NDV was underestimated."
+  },
+  "Granularity (Grain)": {
+    "snippet": "-- State grain before modeling:\n-- one row per order_id + product_id (line item)",
+    "related": ["Grain", "Additive Facts", "Bridge Table"],
+    "symptom": "Revenue doubles after joining order headers to line items."
+  },
+  "Grain": {
+    "mustKnow": 2,
+    "snippet": "-- Fact grain: 1 row = 1 completed checkout\n-- Always declare grain before designing the fact",
+    "related": ["Granularity (Grain)", "Snapshot Fact", "Additive Facts"],
+    "symptom": "KPI doesn't match finance because grains differ."
+  },
+  "Predicate Pushdown": {
+    "mustKnow": 3,
+    "snippet": "df = spark.read.parquet(\"s3://lake/events\").filter(\"dt = '2024-01-01'\")\n# filter pushed into scan / partition prune",
+    "related": ["Partition Pruning", "Catalyst Optimizer", "Statistics"],
+    "symptom": "Full scan of years of data for a one-day query."
+  },
+  "Partition Pruning": {
+    "mustKnow": 4,
+    "snippet": "SELECT * FROM sales WHERE dt BETWEEN '2024-01-01' AND '2024-01-07';\n-- only those partitions are read",
+    "related": ["Predicate Pushdown", "Dynamic Partition Pruning", "Small File Problem"],
+    "symptom": "Query reads every partition folder despite a date filter."
+  },
+  "Shuffle": {
+    "mustKnow": 5,
+    "snippet": "df.groupBy(\"user_id\").count()  # wide transform → shuffle\n# Spark UI: Shuffle Read/Write bytes",
+    "related": ["Wide vs Narrow Transformations", "Job → Stage → Task", "Data Skew"],
+    "symptom": "Stage stuck; network/disk dominated by shuffle."
+  },
+  "Job → Stage → Task": {
+    "mustKnow": 6,
+    "snippet": "# action → job; shuffle boundary → stage; partition → task\ndf.write.parquet(path)  # triggers a job",
+    "related": ["DAG Scheduler", "Shuffle", "Lazy Evaluation"],
+    "symptom": "Confused debugging — looking at tasks without finding the slow stage."
+  },
+  "Lazy Evaluation": {
+    "mustKnow": 7,
+    "snippet": "f = df.filter(...).select(...)  # builds plan only\nf.count()                     # action runs the job",
+    "related": ["Catalyst Optimizer", "Lineage", "Job → Stage → Task"],
+    "symptom": "Thinking transforms already ran; surprise cost on first action."
+  },
+  "Wide vs Narrow Transformations": {
+    "mustKnow": 8,
+    "snippet": "# narrow: map/filter (no shuffle)\n# wide: groupBy/join/repartition (shuffle)",
+    "related": ["Shuffle", "DAG Scheduler", "Broadcast Join"],
+    "symptom": "Extra wide transforms inflate runtime for little gain."
+  },
+  "Adaptive Query Execution (AQE)": {
+    "mustKnow": 9,
+    "snippet": "spark.conf.set(\"spark.sql.adaptive.enabled\", \"true\")\nspark.conf.set(\"spark.sql.adaptive.skewJoin.enabled\", \"true\")",
+    "related": ["Skew Join Optimization", "Broadcast Join", "Data Skew"],
+    "symptom": "Static plan picks sort-merge when broadcast would win."
+  },
+  "Catalyst Optimizer": {
+    "mustKnow": 10,
+    "snippet": "df.explain(True)  # parsed/analyzed/optimized/physical plans",
+    "related": ["Tungsten Engine", "Predicate Pushdown", "Cost-Based Optimizer (CBO)"],
+    "symptom": "Python UDF blocks optimizations → slower than SQL expr."
+  },
+  "Broadcast Join": {
+    "mustKnow": 11,
+    "snippet": "from pyspark.sql.functions import broadcast\nfact.join(broadcast(dim), \"id\")",
+    "related": ["Sort Merge Join", "Data Skew", "Adaptive Query Execution (AQE)"],
+    "symptom": "Shuffling a tiny dimension across the cluster."
+  },
+  "Sort Merge Join": {
+    "mustKnow": 12,
+    "snippet": "# default large-large join after shuffle+sort\nbig.join(other_big, \"user_id\")",
+    "related": ["Broadcast Join", "Shuffle", "Spill to Disk"],
+    "symptom": "Join spills to disk; one key's partition is huge."
+  },
+  "Data Skew": {
+    "mustKnow": 13,
+    "snippet": "df.groupBy(\"key\").count().orderBy(desc(\"count\")).show(20)\n# then salt hot keys or enable AQE skew join",
+    "related": ["Salting", "Skew Join Optimization", "Shuffle"],
+    "symptom": "One task runs 10× longer than the rest of the stage."
+  },
+  "Small File Problem": {
+    "mustKnow": 14,
+    "snippet": "df.coalesce(64).write.mode(\"overwrite\").parquet(path)\n# or OPTIMIZE / compaction on lakehouse tables",
+    "related": ["Compaction", "Optimize", "Partition Sizing"],
+    "symptom": "Driver spends ages listing; thousands of tiny tasks."
+  },
+  "Conformed Dimension": {
+    "mustKnow": 15,
+    "snippet": "-- same customer_key + attributes shared by sales & support facts",
+    "related": ["Role-Playing Dimension", "Grain", "Data Lineage"],
+    "symptom": "Two marts define \"customer\" differently; dashboards disagree."
+  },
+  "Delta Lake": {
+    "mustKnow": 16,
+    "snippet": "MERGE INTO target t USING source s ON t.id = s.id\nWHEN MATCHED THEN UPDATE SET *\nWHEN NOT MATCHED THEN INSERT *;",
+    "related": ["Time Travel", "ACID Tables", "Apache Iceberg"],
+    "symptom": "Concurrent jobs overwrite parquet folders; readers see partial data."
+  },
+  "Time Travel": {
+    "mustKnow": 17,
+    "snippet": "SELECT * FROM orders VERSION AS OF 120;\n-- or TIMESTAMP AS OF '2024-06-01'",
+    "related": ["Delta Lake", "Vacuum", "Checkpointing"],
+    "symptom": "Can't reproduce yesterday's report after a bad overwrite."
+  },
+  "Schema Evolution": {
+    "mustKnow": 18,
+    "snippet": "df.write.format(\"delta\").option(\"mergeSchema\", \"true\").mode(\"append\").save(path)",
+    "related": ["Schema Enforcement", "Data Contracts", "Delta Lake"],
+    "symptom": "Producer adds a column; downstream jobs break or ignore it silently."
+  },
+  "CAP Theorem": {
+    "mustKnow": 19,
+    "snippet": "# In a partition: choose Consistency or Availability\n# Document the tradeoff for your store/queue",
+    "related": ["Eventual Consistency", "Strong Consistency", "High Availability (HA)"],
+    "symptom": "Expecting strong reads from an AP system during a region blip."
+  },
+  "Event Time": {
+    "mustKnow": 20,
+    "snippet": "df.withWatermark(\"event_time\", \"10 minutes\") \\\n  .groupBy(window(\"event_time\", \"1 hour\")).count()",
+    "related": ["Watermarks", "Processing Time", "Late Data"],
+    "symptom": "Hourly metrics shift when late mobile events arrive."
+  },
+  "Watermarks": {
+    "mustKnow": 21,
+    "snippet": ".withWatermark(\"event_time\", \"15 minutes\")\n# closes windows; late data policy after this",
+    "related": ["Event Time", "Late Data", "Windowing"],
+    "symptom": "State grows forever, or late events are dropped too aggressively."
+  },
+  "Exactly Once": {
+    "mustKnow": 22,
+    "snippet": "# Need checkpointing + idempotent/transactional sink\nquery = df.writeStream.option(\"checkpointLocation\", ckpt).foreachBatch(...)",
+    "related": ["At Least Once", "Idempotency", "Checkpointing"],
+    "symptom": "Duplicates after restart even though processing \"felt\" safe."
+  },
+  "At Least Once": {
+    "mustKnow": 23,
+    "snippet": "# retries may re-send — make sink upsert/idempotent\n# ON CONFLICT (id) DO UPDATE ...",
+    "related": ["Exactly Once", "Idempotency", "Dead Letter Queue (DLQ)"],
+    "symptom": "Counts inflate after every pipeline retry."
+  },
+  "Idempotency": {
+    "mustKnow": 24,
+    "snippet": "# overwrite a partition instead of blind append\ndf.write.mode(\"overwrite\").partitionBy(\"dt\").parquet(path)",
+    "related": ["Checkpointing", "Exactly Once", "Data Contracts"],
+    "symptom": "Re-running a failed day duplicates rows in the target."
+  },
+  "Checkpointing": {
+    "mustKnow": 25,
+    "snippet": "writeStream.option(\"checkpointLocation\", \"s3://ops/checkpoints/job_a\")",
+    "related": ["Idempotency", "Exactly Once", "Fault Tolerance"],
+    "symptom": "Streaming job reprocesses from earliest offsets after path loss."
+  },
+  "Dead Letter Queue (DLQ)": {
+    "mustKnow": 26,
+    "snippet": "try:\n    process(record)\nexcept BadRecord as e:\n    dlq.send(record, error=str(e))",
+    "related": ["Retry Strategy", "Data Validation", "Data Contracts"],
+    "symptom": "One poison message blocks the whole consumer group."
+  },
+  "Data Contracts": {
+    "mustKnow": 27,
+    "snippet": "# CI: fail PR if producer schema breaks consumer contract\n# enforce required fields + types at write boundary",
+    "related": ["Schema Enforcement", "Schema Evolution", "Data Validation"],
+    "symptom": "Silent column rename breaks 12 downstream jobs overnight."
+  },
+  "Data Lineage": {
+    "mustKnow": 28,
+    "snippet": "# raw.orders → stg_orders → fct_orders → BI KPI\n# track table + column lineage in the catalog",
+    "related": ["Metadata", "Data Catalog", "Observability"],
+    "symptom": "Can't tell which dashboard breaks if a source column is dropped."
+  },
+  "Freshness": {
+    "mustKnow": 29,
+    "snippet": "SELECT MAX(updated_at) FROM fct_orders;\n-- alert if now() - max_updated_at > SLA",
+    "related": ["Observability", "Completeness", "Pipeline Orchestration"],
+    "symptom": "Job is green but data is 18 hours stale."
+  },
+  "Object Storage": {
+    "mustKnow": 30,
+    "snippet": "s3://lake/bronze/events/dt=2024-01-01/part-000.parquet\n# lake tables live as objects + metadata",
+    "related": ["Data Lake", "Delta Lake", "IAM"],
+    "symptom": "Treating S3 like a local FS; millions of tiny LIST requests."
+  },
+  "Explain Plan": {
+    "snippet": "EXPLAIN ANALYZE SELECT ...;\n-- Spark: df.explain(\"cost\")",
+    "related": ["Execution Plan", "Cost-Based Optimizer (CBO)", "Statistics"],
+    "symptom": "Tuning blindly without reading the plan."
+  },
+  "Salting": {
+    "snippet": "hot = df.withColumn(\"salt\", (rand()*N).cast(\"int\"))\n# join on key+salt, then drop salt",
+    "related": ["Data Skew", "Skew Join Optimization", "Broadcast Join"],
+    "symptom": "AQE still leaves one monstrous partition on a hot key."
+  },
+  "Compaction": {
+    "snippet": "OPTIMIZE delta.`/path/table`;  -- Delta\n-- Iceberg: rewrite_data_files",
+    "related": ["Small File Problem", "Optimize", "Z-Ordering"],
+    "symptom": "Reads degrade daily as streaming adds tiny files."
+  },
+  "Z-Ordering": {
+    "snippet": "OPTIMIZE sales ZORDER BY (customer_id, event_date);",
+    "related": ["Optimize", "Partition Pruning", "Delta Lake"],
+    "symptom": "Selective filters on non-partition columns still scan everything."
+  },
+  "Circuit Breaker": {
+    "snippet": "# after N failures → open circuit → fail fast → half-open probe",
+    "related": ["Retry Strategy", "Backoff Strategy", "Dead Letter Queue (DLQ)"],
+    "symptom": "Retries hammer a down warehouse and cascade timeouts."
+  },
+  "Caching": {
+    "snippet": "df.cache()\ndf.count()  # materialize\n# ... reuse df ...\ndf.unpersist()",
+    "related": ["Persistence Levels", "Memory Management", "Lazy Evaluation"],
+    "symptom": "Same expensive subtree recomputed on every action."
+  },
+  "IAM": {
+    "snippet": "# job role: s3:GetObject on bronze/*, PutObject on silver/* only",
+    "related": ["Secrets Management", "KMS", "Private Endpoints"],
+    "symptom": "Long-lived access keys leaked from a notebook."
+  },
+  "Infrastructure as Code (IaC)": {
+    "snippet": "terraform plan && terraform apply\n# buckets, IAM, warehouses versioned in Git",
+    "related": ["Terraform", "GitOps", "CI/CD"],
+    "symptom": "Prod lake config drifts from staging; only one person knows clicks."
+  },
+  "Event Sourcing": {
+    "snippet": "# append OrderPlaced, ItemAdded... rebuild state by replay",
+    "related": ["CQRS", "Exactly Once", "Idempotency"],
+    "symptom": "Overwriting current state and losing audit history."
+  },
+  "BASE": {
+    "snippet": "# Basically Available, Soft state, Eventually consistent",
+    "related": ["CAP Theorem", "Eventual Consistency", "Strong Consistency"],
+    "symptom": "Applying strict ACID expectations to a geo-replicated cache."
+  }
+}
