@@ -2,20 +2,25 @@
 
 A practical glossary of techniques, keywords, and concepts every data engineer should know — with short definitions and examples. Not deep dives; enough to recall, interview, and apply.
 
+## New here? Start with this
+
+1. Open **[Essentials — most important 10](docs/index.html?mode=essentials)** ([ESSENTIALS.md](ESSENTIALS.md))
+2. Learn **when to use them** in **[Prod](docs/index.html?mode=prod)** ([PROD.md](PROD.md))
+3. Practice with **Stories**, then Must 30 / summary table for lookup
+
 ## Study app
 
-**[Open the study app →](docs/index.html)** · **[Quick reference table →](docs/table.html)** · **[Markdown table →](QUICK_REF.md)**
+**[Essentials (10) →](docs/index.html?mode=essentials)** · **[Prod playbook →](docs/index.html?mode=prod)** · **[Summary table →](docs/table.html)**
 
 | Mode | What you get |
 |------|----------------|
-| **Search** | Tags + categories; snippet, prod symptom, see-also on every card; mark learned |
-| **Must-know** | Curated 30 ([MUST_KNOW_30.md](MUST_KNOW_30.md)) |
-| **Flashcards** | Tag decks; progress saved in browser |
-| **Quiz** | Multiple choice from definitions |
-| **Scenarios** | “Which 3 concepts apply?” prod challenges |
-| **Word of the day** | Rotates daily on the homepage |
+| **Essentials** | The 10 most important ideas ([ESSENTIALS.md](ESSENTIALS.md)) |
+| **Prod** | Symptom → what to do → which concepts ([PROD.md](PROD.md)) |
+| **Browse all** | Full glossary when you need a lookup |
+| **Must 30** | Next layer after Essentials |
+| **Cards / Quiz / Stories** | Practice applying concepts |
 
-Also: **streak** counter, deep links `?tag=kafka` · `?mode=quiz` · `?mode=scenarios`
+Also: deep links `?mode=essentials` · `?mode=prod` · `?mode=must`
 
 ### GitHub Pages (one bookmark)
 

@@ -1,0 +1,86 @@
+[
+  {
+    "id": "wrong-kpi",
+    "see": "KPI / revenue suddenly wrong after a join or backfill",
+    "do": "Declare grain on both sides. Aggregate to the reporting grain before summing. Prefer overwrite/MERGE for backfills.",
+    "concepts": ["Grain", "Idempotency", "Additive Facts"],
+    "habit": "Never sum a measure until you know what one row means."
+  },
+  {
+    "id": "dup-retry",
+    "see": "Job failed, was rerun, now rows are duplicated",
+    "do": "Make the write rerunnable: partition overwrite, MERGE on business keys, or deterministic upserts.",
+    "concepts": ["Idempotency", "At Least Once", "Checkpointing"],
+    "habit": "Design every pipeline as if it will be retried tomorrow."
+  },
+  {
+    "id": "skew-task",
+    "see": "One Spark task runs forever; the rest finished",
+    "do": "Open Spark UI → slow stage → shuffle read. Check for a hot key; salt / AQE skew join / pre-aggregate.",
+    "concepts": ["Data Skew", "Shuffle", "Salting"],
+    "habit": "Debug stages and bytes, not just wall-clock time."
+  },
+  {
+    "id": "full-scan",
+    "see": "Query reads years of data for one day",
+    "do": "Filter on partition columns (often date). Push filters into the scan. Avoid transforming before filtering.",
+    "concepts": ["Partition Pruning", "Predicate Pushdown", "Scan Pruning / Partitioning"],
+    "habit": "Filter early. Always."
+  },
+  {
+    "id": "stale-green",
+    "see": "Pipeline is green but dashboards look stale",
+    "do": "Track freshness (max event time / partition arrival). Alert on SLA, not only task success.",
+    "concepts": ["Freshness", "Observability", "SLA / Callback"],
+    "habit": "Success ≠ useful data."
+  },
+  {
+    "id": "slow-lake",
+    "see": "Lake / table queries get slower every week",
+    "do": "Check file counts and sizes. Compact small files; target healthy file sizes.",
+    "concepts": ["Small File Problem", "Compaction", "File Size Tuning"],
+    "habit": "Ingest shape becomes query cost."
+  },
+  {
+    "id": "cost-spike",
+    "see": "Warehouse / cloud bill spiked with same dashboards",
+    "do": "Find heavy queries: SELECT *, missing partition filters, huge shuffles. Attribute cost to owners.",
+    "concepts": ["Column Pruning", "Scan Pruning / Partitioning", "Cost Observability"],
+    "habit": "Bytes scanned are the bill."
+  },
+  {
+    "id": "late-metrics",
+    "see": "Hourly metrics keep changing hours later",
+    "do": "Use event time + watermarks. Document how late data is handled (update vs ignore).",
+    "concepts": ["Event Time", "Watermarks", "Late Data"],
+    "habit": "Processing time lies; event time is the business clock."
+  },
+  {
+    "id": "schema-break",
+    "see": "Producer changed a field; overnight jobs failed",
+    "do": "Schema registry compatibility + enforce-on-write + data contracts before fan-out.",
+    "concepts": ["Data Contracts", "Schema Enforcement", "Schema Registry"],
+    "habit": "Prevent breaking changes at the boundary."
+  },
+  {
+    "id": "point-in-time",
+    "see": "Historical report shows today’s attributes, not past ones",
+    "do": "SCD Type 2 (or equivalent) with effective dates; join on the version valid at event time.",
+    "concepts": ["SCD Type 2", "Surrogate Key", "Effective Dating"],
+    "habit": "Dimensions change; facts must remember the past."
+  },
+  {
+    "id": "cardinality-plan",
+    "see": "Join or group-by much slower than expected",
+    "do": "Check distinct counts (cardinality). Wrong NDV → bad join strategy. Broadcast small side when safe.",
+    "concepts": ["Cardinality", "Shuffle", "Broadcast Join"],
+    "habit": "Know which side is small before you join."
+  },
+  {
+    "id": "lazy-surprise",
+    "see": "Spark job ‘does nothing’ then suddenly runs forever at write/count",
+    "do": "Remember lazy evaluation: actions trigger jobs. Inspect the plan before the expensive action.",
+    "concepts": ["Lazy Evaluation", "Job → Stage → Task", "Catalyst Optimizer"],
+    "habit": "Read the plan; don’t wait for the surprise."
+  }
+]

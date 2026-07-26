@@ -89,6 +89,11 @@ def main() -> None:
     if scenarios_path.exists():
         scenarios = json.loads(scenarios_path.read_text())
 
+    playbook = []
+    playbook_path = DOCS / "playbook.json"
+    if playbook_path.exists():
+        playbook = json.loads(playbook_path.read_text())
+
     all_concepts: list[dict] = []
     for slug, category in CATEGORIES:
         all_concepts.extend(parse_file(ROOT / slug / "concepts.md", category, slug))
@@ -107,6 +112,7 @@ def main() -> None:
     payload = json.dumps(all_concepts, indent=2)
     (DOCS / "concepts.json").write_text(payload + "\n")
     scenarios_payload = json.dumps(scenarios, indent=2)
+    playbook_payload = json.dumps(playbook, indent=2)
 
     must = sorted(
         [c for c in all_concepts if c.get("mustKnow")],
@@ -115,9 +121,9 @@ def main() -> None:
     must_md = [
         "# Must-know 30",
         "",
-        "Start here before the long tail. Each item: **what** · snippet · prod symptom.",
+        "Do **[The most important 10](ESSENTIALS.md)** first. These 30 are the next layer.",
         "",
-        "Readable UI: [docs/index.html](docs/index.html) → **Must-know** tab · or [docs/table.html](docs/table.html)",
+        "Readable UI: [Essentials](docs/index.html?mode=essentials) · [Must 30](docs/index.html?mode=must) · [Prod playbook](docs/index.html?mode=prod)",
         "",
     ]
     for c in must:
@@ -210,6 +216,7 @@ def main() -> None:
             template_path.read_text()
             .replace("__CONCEPTS_JSON__", payload)
             .replace("__SCENARIOS_JSON__", scenarios_payload)
+            .replace("__PLAYBOOK_JSON__", playbook_payload)
         )
         html_path.write_text(html)
 
@@ -219,7 +226,7 @@ def main() -> None:
     print(
         f"Wrote {len(all_concepts)} concepts ({len(must)} must-know, "
         f"{with_snip} snippets, {with_sym} symptoms, {with_rel} related, "
-        f"{len(scenarios)} scenarios)"
+        f"{len(scenarios)} scenarios, {len(playbook)} playbook)"
     )
 
 

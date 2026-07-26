@@ -1,8 +1,8 @@
 # Must-know 30
 
-Start here before the long tail. Each item: **what** · snippet · prod symptom.
+Do **[The most important 10](ESSENTIALS.md)** first. These 30 are the next layer.
 
-Readable UI: [docs/index.html](docs/index.html) → **Must-know** tab · or [docs/table.html](docs/table.html)
+Readable UI: [Essentials](docs/index.html?mode=essentials) · [Must 30](docs/index.html?mode=must) · [Prod playbook](docs/index.html?mode=prod)
 
 ## 1. Cardinality
 

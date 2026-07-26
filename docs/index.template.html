@@ -131,11 +131,13 @@
       cursor: pointer;
     }
     .mode-btn:hover { transform: translateY(-1px); }
+    .mode-btn[data-mode="essentials"].active { background: #ea580c; color: #fff; box-shadow: 0 8px 18px rgba(234,88,12,.3); }
     .mode-btn[data-mode="search"].active { background: #0284c7; color: #fff; box-shadow: 0 8px 18px rgba(2,132,199,.3); }
     .mode-btn[data-mode="must"].active { background: #ca8a04; color: #fff; box-shadow: 0 8px 18px rgba(202,138,4,.3); }
     .mode-btn[data-mode="flash"].active { background: #0d9488; color: #fff; box-shadow: 0 8px 18px rgba(13,148,136,.3); }
     .mode-btn[data-mode="quiz"].active { background: #7c3aed; color: #fff; box-shadow: 0 8px 18px rgba(124,58,237,.3); }
     .mode-btn[data-mode="scenarios"].active { background: #e11d48; color: #fff; box-shadow: 0 8px 18px rgba(225,29,72,.3); }
+    .mode-btn[data-mode="prod"].active { background: #0f766e; color: #fff; box-shadow: 0 8px 18px rgba(15,118,110,.3); }
     .progress-pill {
       margin-left: auto;
       font-size: .78rem;
@@ -466,32 +468,211 @@
       background: #ecfeff;
       color: #0e7490;
     }
-    @media (max-width: 640px) {
-      .progress-pill { margin-left: 0; width: 100%; text-align: center; }
-      .search-box { border-radius: 16px; }
+    .quick-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      margin: 0 0 1.25rem;
     }
-  </style>
+    .quick-links a {
+      display: inline-block;
+      padding: .45rem .85rem;
+      border-radius: 999px;
+      font-size: .82rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1.5px solid rgba(2,132,199,.25);
+      background: #fff;
+      color: var(--sky);
+    }
+    .quick-links a.primary {
+      background: linear-gradient(120deg, #0d9488, #0284c7);
+      border-color: transparent;
+      color: #fff;
+    }
+    .path-steps {
+      display: grid;
+      gap: .75rem;
+      margin: 1rem 0 1.5rem;
+    }
+    .path-step {
+      background: #fff;
+      border: 1px solid transparent;
+      border-radius: 16px;
+      padding: 1rem 1.1rem;
+      background:
+        linear-gradient(#fff, #fff) padding-box,
+        linear-gradient(120deg, rgba(13,148,136,.45), rgba(2,132,199,.35)) border-box;
+    }
+    .path-step .n {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--coral);
+      margin-bottom: .25rem;
+    }
+    .path-step h3 {
+      font-family: var(--font-display);
+      margin: 0 0 .35rem;
+      font-size: 1.15rem;
+    }
+    .path-step p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.5; }
+    .path-step button, .path-step a.btn {
+      margin-top: .7rem;
+      display: inline-block;
+      border: 0;
+      border-radius: 999px;
+      padding: .45rem .85rem;
+      font: inherit;
+      font-size: .8rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--sky);
+      color: #fff;
+      text-decoration: none;
+    }
+    .mini-table-wrap {
+      overflow: auto;
+      border-radius: 14px;
+      border: 1px solid rgba(2,132,199,.18);
+      background: #fff;
+      margin-top: .75rem;
+    }
+    .mini-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .84rem;
+    }
+    .mini-table th {
+      text-align: left;
+      padding: .65rem .7rem;
+      background: linear-gradient(90deg, #0d9488, #0284c7);
+      color: #fff;
+      font-size: .7rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      position: sticky;
+      top: 0;
+    }
+    .mini-table td {
+      padding: .65rem .7rem;
+      border-top: 1px solid #e2e8f0;
+      vertical-align: top;
+      line-height: 1.4;
+    }
+    .mini-table tr:nth-child(even) td { background: #f8fafc; }
+    .mini-table .kw { font-weight: 700; color: var(--teal-deep); white-space: nowrap; }
+    .mini-table .why { color: var(--muted); font-size: .8rem; }
+    .mini-table tr[data-jump] { cursor: pointer; }
+    .mini-table tr[data-jump]:hover td { background: #ecfeff; }
+    .playbook-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 1rem 1.1rem;
+      margin-bottom: .75rem;
+      background:
+        linear-gradient(#fff, #fff) padding-box,
+        linear-gradient(120deg, rgba(15,118,110,.5), rgba(2,132,199,.35)) border-box;
+      border: 1px solid transparent;
+    }
+    .playbook-card .see {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      margin: 0 0 .5rem;
+    }
+    .playbook-card .do { margin: 0 0 .55rem; color: var(--ink); line-height: 1.5; }
+    .playbook-card .habit {
+      margin: .65rem 0 0;
+      font-size: .85rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+    .playbook-card .concepts { display: flex; flex-wrap: wrap; gap: .35rem; }
+    .playbook-card .concepts button {
+      border: 1px solid rgba(13,148,136,.35);
+      background: #f0fdfa;
+      color: var(--teal-deep);
+      border-radius: 999px;
+      padding: .3rem .65rem;
+      font: inherit;
+      font-size: .78rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .five-q {
+      display: grid;
+      gap: .55rem;
+      margin: .85rem 0 1.25rem;
+    }
+    .five-q article {
+      background: #fff;
+      border-radius: 12px;
+      padding: .75rem .9rem;
+      border: 1px solid #e2e8f0;
+    }
+    .five-q strong { color: var(--teal-deep); }
 </head>
 <body>
   <main class="wrap">
     <h1 class="brand">Data Engineer<br /><span>Sheet</span></h1>
     <p class="lede">A calm place to learn DE concepts — one idea at a time.</p>
 
+    <div class="quick-links">
+      <a class="primary" href="?mode=essentials">Most important (10)</a>
+      <a href="?mode=prod">When to use (Prod)</a>
+      <a href="?mode=must">Must-know 30</a>
+      <a href="table.html">Full summary table</a>
+    </div>
+
     <aside class="wotd" id="wotd" title="Open this concept"></aside>
 
     <div class="modes" role="tablist">
-      <button type="button" class="mode-btn active" data-mode="search">Browse</button>
-      <button type="button" class="mode-btn" data-mode="must">Start here</button>
+      <button type="button" class="mode-btn active" data-mode="essentials">Essentials</button>
+      <button type="button" class="mode-btn" data-mode="prod">Prod</button>
+      <button type="button" class="mode-btn" data-mode="search">Browse all</button>
+      <button type="button" class="mode-btn" data-mode="must">Must 30</button>
       <button type="button" class="mode-btn" data-mode="flash">Cards</button>
       <button type="button" class="mode-btn" data-mode="quiz">Quiz</button>
       <button type="button" class="mode-btn" data-mode="scenarios">Stories</button>
       <div class="progress-pill">
-        <strong id="learned-count">0</strong>/<span id="must-total">30</span> learned
+        <strong id="learned-count">0</strong>/<span id="must-total">10</span> essentials
         · day <strong id="streak-count">0</strong>
       </div>
     </div>
 
-    <section id="panel-search" class="panel active">
+    <section id="panel-essentials" class="panel active">
+      <div class="must-intro">
+        <strong>Only these 10 matter first.</strong> Ignore Browse until you can explain each in one sentence.
+        Then learn <button type="button" data-goto="prod" style="all:unset;color:var(--sky);font-weight:700;cursor:pointer;text-decoration:underline">when to use them in Prod</button>
+        · or <button type="button" data-goto="must" style="all:unset;color:var(--sky);font-weight:700;cursor:pointer;text-decoration:underline">Must 30</button>.
+      </div>
+      <div class="mini-table-wrap" id="essentials-table"></div>
+      <div class="results" id="essentials-results" style="margin-top:1rem"></div>
+    </section>
+
+    <section id="panel-prod" class="panel" hidden>
+      <div class="must-intro">
+        <strong>Don’t start from the topic list.</strong> Start from what you see in production, then click the concepts.
+        Practice with <button type="button" data-goto="scenarios" style="all:unset;color:var(--sky);font-weight:700;cursor:pointer;text-decoration:underline">Stories</button>.
+      </div>
+      <div class="must-intro" style="margin-top:.5rem"><strong>Ask these 5 first</strong></div>
+      <div class="five-q">
+        <article><strong>Numbers don’t match?</strong> → What does one row mean? → Grain</article>
+        <article><strong>Reran a job / backfill?</strong> → Is it safe to retry? → Idempotency</article>
+        <article><strong>Slow / expensive?</strong> → Moving or scanning too much data? → Shuffle · Pruning · Pushdown</article>
+        <article><strong>Green job, wrong dash?</strong> → Is data fresh enough? → Freshness</article>
+        <article><strong>Duplicates after failure?</strong> → At-least-once without dedupe? → At Least Once</article>
+      </div>
+      <div class="search-shell" style="margin-bottom:.75rem">
+        <label class="search-box" for="prod-q">
+          <input id="prod-q" type="search" placeholder="Filter: slow, duplicate, cost, stale…" autocomplete="off" />
+        </label>
+      </div>
+      <div id="playbook-list"></div>
+    </section>
+
+    <section id="panel-search" class="panel" hidden>
       <div class="search-shell">
         <label class="search-box" for="q">
           <input id="q" type="search" placeholder="What do you want to understand?" autocomplete="off" />
@@ -518,7 +699,12 @@
     </section>
 
     <section id="panel-must" class="panel" hidden>
-      <div class="must-intro"><strong>Start with these 30.</strong> Open one, read the definition, glance at the snippet.</div>
+      <div class="must-intro">
+        <strong>Next layer: Must-know 30.</strong> Do this after Essentials.
+        · <button type="button" data-goto="essentials" style="all:unset;color:var(--sky);font-weight:700;cursor:pointer;text-decoration:underline">Back to Essentials</button>
+        · <a href="table.html" style="color:var(--sky);font-weight:600">Full summary table</a>
+      </div>
+      <div class="mini-table-wrap" id="must-summary-table" style="margin-bottom:1rem"></div>
       <div class="results" id="must-results"></div>
     </section>
 
@@ -552,7 +738,7 @@
     </section>
 
     <section id="panel-scenarios" class="panel" hidden>
-      <div class="must-intro"><strong>Short stories from prod.</strong> Pick the 3 concepts that fit.</div>
+      <div class="must-intro"><strong>Practice being a good DE.</strong> Read the incident → pick the 3 concepts. Then check <button type="button" data-goto="prod" style="all:unset;color:var(--sky);font-weight:700;cursor:pointer;text-decoration:underline">Prod</button>.</div>
       <div class="scenario-list" id="scenario-list"></div>
     </section>
 
@@ -561,21 +747,23 @@
       <a href="https://nasrineshraghi.github.io/data-engineer-sheet/">Live site</a> ·
       <a href="table.html">Quick table</a> ·
       <a href="https://github.com/nasrineshraghi/data-engineer-sheet">Source</a> ·
-      <a href="https://github.com/nasrineshraghi/data-engineer-sheet/blob/main/MUST_KNOW_30.md">Must-know</a>
+      <a href="https://github.com/nasrineshraghi/data-engineer-sheet/blob/main/ESSENTIALS.md">Essentials</a> ·
+      <a href="https://github.com/nasrineshraghi/data-engineer-sheet/blob/main/PROD.md">Prod playbook</a>
     </footer>
   </main>
 
   <script type="application/json" id="concepts-data">__CONCEPTS_JSON__</script>
   <script type="application/json" id="scenarios-data">__SCENARIOS_JSON__</script>
+  <script type="application/json" id="playbook-data">__PLAYBOOK_JSON__</script>
   <script>
     const $ = (id) => document.getElementById(id);
     const LEARN_KEY = "de-sheet-learned-v1";
     const STREAK_KEY = "de-sheet-streak-v1";
     const TAG_ORDER = ["interview","spark","streaming","kafka","airflow","dbt","snowflake","cdc","sql","warehouse","lakehouse","distributed","pipeline","performance","cost","quality","cloud","devops"];
 
-    let concepts = [], scenarios = [], byName = new Map();
-    let activeCategory = "All", activeTag = "All", flashTag = "interview", quizTag = "interview";
-    let mode = "search", learned = new Set(JSON.parse(localStorage.getItem(LEARN_KEY) || "[]"));
+    let concepts = [], scenarios = [], playbook = [], byName = new Map();
+    let activeCategory = "All", activeTag = "All", flashTag = "essentials", quizTag = "essentials";
+    let mode = "essentials", learned = new Set(JSON.parse(localStorage.getItem(LEARN_KEY) || "[]"));
     let streak = JSON.parse(localStorage.getItem(STREAK_KEY) || '{"count":0,"last":null}');
     let deck = [], deckIndex = 0, flipped = false;
     let quizPool = [], quizItem = null, quizScore = 0, quizAsked = 0, quizLocked = false;
@@ -615,9 +803,9 @@
     };
 
     const updateProgress = () => {
-      const mustNames = concepts.filter((c) => c.mustKnow).map((c) => c.name);
-      $("learned-count").textContent = String(mustNames.filter((n) => learned.has(n)).length);
-      $("must-total").textContent = String(mustNames.length || 30);
+      const names = ESSENTIALS.map(([n]) => n);
+      $("learned-count").textContent = String(names.filter((n) => learned.has(n)).length);
+      $("must-total").textContent = String(names.length || 10);
       $("streak-count").textContent = String(streak.count || 0);
     };
 
@@ -687,7 +875,7 @@
       const tags = ["All", ...allTags()];
       $("tag-chips").innerHTML = tags.map((tag) =>
         `<button type="button" class="chip tag${tag === activeTag ? " active" : ""}" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`).join("");
-      const deckTags = ["interview","spark","streaming","kafka","airflow","dbt","cdc","must-know", ...allTags()];
+      const deckTags = ["essentials","interview","spark","streaming","kafka","airflow","dbt","cdc","must-know", ...allTags()];
       const uniq = [...new Set(deckTags)];
       $("flash-tag-chips").innerHTML = uniq.map((tag) =>
         `<button type="button" class="chip tag${tag === flashTag ? " active" : ""}" data-flash-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`).join("");
@@ -723,11 +911,72 @@
       $("results").innerHTML = list.map(({ c }, i) => cardHtml(c, terms, terms.length > 0 && i === 0)).join("");
     };
 
+    const ESSENTIALS = [
+      ["Grain", "Know what one row means before you join or aggregate"],
+      ["Idempotency", "Safe to retry = no duplicate mess"],
+      ["Shuffle", "Moving data across the network is usually the expensive part"],
+      ["Partition Pruning", "Date (or key) filters should skip whole folders of data"],
+      ["Predicate Pushdown", "Filter early so you read less"],
+      ["Cardinality", "Distinct counts drive join and group-by cost"],
+      ["Lazy Evaluation", "Spark builds a plan; an action runs it"],
+      ["Job → Stage → Task", "How to read the Spark UI when something is slow"],
+      ["At Least Once", "Failures often mean duplicates unless you dedupe"],
+      ["Freshness", "Green pipeline ≠ data is recent enough"],
+    ];
+
+    const miniTableHtml = (rows, cols) => {
+      const head = cols.map((c) => `<th>${escapeHtml(c)}</th>`).join("");
+      const body = rows.map((r) => {
+        const jump = r.jump ? ` data-jump="${escapeHtml(r.jump)}"` : "";
+        return `<tr${jump}>${r.cells.map((cell, i) =>
+          `<td class="${i === 1 ? "kw" : i === cols.length - 1 ? "why" : ""}">${cell}</td>`
+        ).join("")}</tr>`;
+      }).join("");
+      return `<table class="mini-table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+    };
+
+    const renderEssentials = () => {
+      const table = $("essentials-table");
+      if (table) {
+        const rows = ESSENTIALS.map(([name, point], i) => {
+          const c = byName.get(name);
+          const def = c ? escapeHtml(c.definition) : "";
+          return {
+            jump: name,
+            cells: [String(i + 1), escapeHtml(name), def, escapeHtml(point)],
+          };
+        });
+        table.innerHTML = miniTableHtml(rows, ["#", "Concept", "Definition", "The one thing to remember"]);
+      }
+      const list = $("essentials-results");
+      if (list) {
+        list.innerHTML = ESSENTIALS.map(([name]) => byName.get(name)).filter(Boolean).map((c) => cardHtml(c)).join("");
+      }
+    };
+
+    const renderMustSummaryTable = () => {
+      const el = $("must-summary-table");
+      if (!el) return;
+      const list = concepts.filter((c) => c.mustKnow).sort((a, b) => a.mustKnow - b.mustKnow);
+      const rows = list.map((c) => ({
+        jump: c.name,
+        cells: [
+          String(c.mustKnow),
+          escapeHtml(c.name),
+          escapeHtml(c.definition),
+          escapeHtml((c.symptom || c.why || "").slice(0, 120)),
+        ],
+      }));
+      el.innerHTML = miniTableHtml(rows, ["#", "Keyword", "Definition", "In prod / why"]);
+    };
+
     const renderMust = () => {
+      renderMustSummaryTable();
       $("must-results").innerHTML = concepts.filter((c) => c.mustKnow).sort((a,b)=>a.mustKnow-b.mustKnow).map((c) => cardHtml(c)).join("");
     };
 
     const deckPool = () => {
+      if (flashTag === "essentials") return ESSENTIALS.map(([n]) => byName.get(n)).filter(Boolean);
       if (flashTag === "must-know") return concepts.filter((c) => c.mustKnow).sort((a,b)=>a.mustKnow-b.mustKnow);
       return concepts.filter((c) => (c.tags || []).includes(flashTag));
     };
@@ -760,6 +1009,7 @@
     const shuffle = (arr) => [...arr].sort(() => Math.random() - 0.5);
 
     const quizCandidates = () => {
+      if (quizTag === "essentials") return ESSENTIALS.map(([n]) => byName.get(n)).filter((c) => c && c.definition);
       if (quizTag === "must-know") return concepts.filter((c) => c.mustKnow && c.definition);
       return concepts.filter((c) => (c.tags || []).includes(quizTag) && c.definition);
     };
@@ -782,6 +1032,28 @@
           ${choices.map((c) => `<button type="button" class="choice" data-choice="${escapeHtml(c.name)}">${escapeHtml(c.name)}</button>`).join("")}
         </div>
         <div class="hint" id="quiz-feedback"></div>`;
+    };
+
+    const renderPlaybook = () => {
+      const q = ($("prod-q")?.value || "").trim().toLowerCase();
+      const list = playbook.filter((p) => {
+        if (!q) return true;
+        const hay = [p.see, p.do, p.habit, ...(p.concepts || [])].join(" ").toLowerCase();
+        return hay.includes(q);
+      });
+      $("playbook-list").innerHTML = list.length
+        ? list.map((p) => `
+          <article class="playbook-card">
+            <h3 class="see">You see: ${escapeHtml(p.see)}</h3>
+            <p class="do"><strong>Do this:</strong> ${escapeHtml(p.do)}</p>
+            <div class="concepts">
+              ${(p.concepts || []).map((n) =>
+                `<button type="button" data-jump="${escapeHtml(n)}">${escapeHtml(n)}</button>`
+              ).join("")}
+            </div>
+            <p class="habit">${escapeHtml(p.habit || "")}</p>
+          </article>`).join("")
+        : `<div class="empty">No matches. Try “slow”, “duplicate”, or “cost”.</div>`;
     };
 
     const renderScenarios = () => {
@@ -815,22 +1087,31 @@
     };
 
     const setMode = (next) => {
+      if (next === "path" || next === "start") next = "essentials";
       mode = next;
       document.querySelectorAll(".mode-btn").forEach((btn) => {
         const on = btn.dataset.mode === mode;
         btn.classList.toggle("active", on);
       });
-      ["search","must","flash","quiz","scenarios"].forEach((m) => {
+      ["essentials","prod","search","must","flash","quiz","scenarios"].forEach((m) => {
         const panel = $(`panel-${m}`);
+        if (!panel) return;
         const on = m === mode;
         panel.classList.toggle("active", on);
         panel.hidden = !on;
       });
+      if (mode === "essentials") renderEssentials();
+      if (mode === "prod") { renderPlaybook(); $("prod-q")?.focus(); }
       if (mode === "must") renderMust();
       if (mode === "flash") { buildDeck(); renderFlash(); $("flash-card").focus(); }
       if (mode === "quiz") { $("quiz-score").textContent = quizScore; $("quiz-asked").textContent = quizAsked; nextQuiz(); }
       if (mode === "scenarios") renderScenarios();
       if (mode === "search") $("q").focus();
+      try {
+        const url = new URL(location.href);
+        url.searchParams.set("mode", mode);
+        history.replaceState(null, "", url);
+      } catch (_) {}
     };
 
     const jumpTo = (name) => {
@@ -845,7 +1126,7 @@
     const toggleLearned = (name) => {
       if (learned.has(name)) learned.delete(name); else learned.add(name);
       saveLearned();
-      renderSearch(); renderMust();
+      renderSearch(); renderMust(); renderEssentials();
     };
 
     document.querySelector(".modes").addEventListener("click", (e) => {
@@ -870,6 +1151,8 @@
     });
 
     document.body.addEventListener("click", (e) => {
+      const goto = e.target.closest("[data-goto]");
+      if (goto) { setMode(goto.dataset.goto); return; }
       if (e.target.id === "clear-filters" || e.target.closest("#clear-filters")) {
         activeCategory = "All";
         activeTag = "All";
@@ -919,6 +1202,7 @@
 
     $("q").addEventListener("input", renderSearch);
     $("clear").addEventListener("click", () => { $("q").value = ""; $("q").focus(); renderSearch(); });
+    $("prod-q")?.addEventListener("input", renderPlaybook);
 
     const flip = () => { flipped = !flipped; renderFlash(); };
     const nextCard = (markKnown) => {
@@ -942,7 +1226,7 @@
       if (confirm("Reset learned progress and streak?")) {
         learned = new Set(); streak = { count: 0, last: null };
         localStorage.setItem(STREAK_KEY, JSON.stringify(streak));
-        saveLearned(); buildDeck(); renderFlash(); renderMust(); renderSearch(); updateProgress();
+        saveLearned(); buildDeck(); renderFlash(); renderMust(); renderEssentials(); renderSearch(); updateProgress();
       }
     });
     $("quiz-next").addEventListener("click", nextQuiz);
@@ -962,12 +1246,17 @@
 
     try { concepts = JSON.parse($("concepts-data").textContent); } catch { concepts = []; }
     try { scenarios = JSON.parse($("scenarios-data").textContent); } catch { scenarios = []; }
+    try { playbook = JSON.parse($("playbook-data").textContent); } catch { playbook = []; }
     byName = new Map(concepts.map((c) => [c.name, c]));
     renderWotd(); renderChips(); renderTagChips(); updateProgress(); renderSearch();
+    renderEssentials(); renderMustSummaryTable(); renderPlaybook();
 
     const params = new URLSearchParams(location.search);
     if (params.get("tag")) { activeTag = params.get("tag"); renderTagChips(); renderSearch(); }
     if (params.get("mode")) setMode(params.get("mode"));
+    else setMode("essentials");
+    if (location.hash === "#path" || location.hash === "#essentials") setMode("essentials");
+    if (location.hash === "#prod") setMode("prod");
     if (location.hash === "#flash") setMode("flash");
     if (location.hash === "#quiz") setMode("quiz");
     if (location.hash === "#scenarios") setMode("scenarios");
